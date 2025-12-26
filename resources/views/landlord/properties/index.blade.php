@@ -1,67 +1,292 @@
 {{-- resources/views/landlord/properties/index.blade.php --}}
 <x-app-layout>
+    <style>
+        .uc-page {
+            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+            min-height: 100vh;
+            padding-top: 16px;
+            padding-bottom: 24px;
+        }
+        .uc-container {
+            max-width: 1120px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        .uc-card {
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            background-color: #020617;
+            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
+            overflow: hidden;
+        }
+        .uc-card-inner {
+            padding: 18px 18px 20px;
+        }
+        .uc-header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .uc-header-main-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin: 0;
+        }
+        .uc-header-main-text {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        .uc-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .uc-btn-primary {
+            background-color: #6366f1;
+            border-color: #4f46e5;
+            color: #ffffff;
+        }
+        .uc-btn-primary:hover {
+            background-color: #4f46e5;
+        }
+        .uc-btn-primary svg {
+            margin-right: 6px;
+        }
+
+        .uc-alert-success {
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            background-color: #022c22;
+            border: 1px solid #16a34a;
+            color: #bbf7d0;
+            font-size: 13px;
+        }
+
+        .uc-table-wrap {
+            overflow-x: auto;
+        }
+        .uc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .uc-table thead {
+            background-color: #020617;
+        }
+        .uc-table th,
+        .uc-table td {
+            padding: 8px 14px;
+            border-bottom: 1px solid #111827;
+            text-align: left;
+        }
+        .uc-table th {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+        }
+        .uc-table td {
+            color: #e5e7eb;
+        }
+
+        .uc-prop-cell {
+            display: flex;
+            align-items: center;
+        }
+        .uc-prop-thumb {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid #1f2937;
+        }
+        .uc-prop-text {
+            margin-left: 10px;
+        }
+        .uc-prop-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #f9fafb;
+        }
+        .uc-prop-type {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .uc-prop-location-main {
+            font-size: 13px;
+            color: #f9fafb;
+        }
+        .uc-prop-location-sub {
+            font-size: 12px;
+            color: #9ca3af;
+        }
+
+        .uc-price-main {
+            font-size: 13px;
+            font-weight: 500;
+            color: #6ee7b7;
+        }
+        .uc-price-sub {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .uc-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        .uc-pill-green {
+            background-color: rgba(16,185,129,0.15);
+            color: #6ee7b7;
+            border-color: rgba(16,185,129,0.5);
+        }
+        .uc-pill-red {
+            background-color: rgba(239,68,68,0.15);
+            color: #fecaca;
+            border-color: rgba(239,68,68,0.5);
+        }
+        .uc-pill-blue {
+            background-color: rgba(59,130,246,0.15);
+            color: #bfdbfe;
+            border-color: rgba(59,130,246,0.5);
+            margin-left: 4px;
+        }
+        .uc-pill-amber {
+            background-color: rgba(245,158,11,0.15);
+            color: #fef3c7;
+            border-color: rgba(245,158,11,0.5);
+            margin-left: 4px;
+        }
+
+        .uc-link {
+            font-size: 13px;
+            color: #6366f1;
+            text-decoration: none;
+            margin-right: 8px;
+        }
+        .uc-link:hover {
+            color: #a5b4fc;
+        }
+        .uc-link-danger {
+            color: #fb7185;
+        }
+        .uc-link-danger:hover {
+            color: #fecaca;
+        }
+
+        .uc-empty {
+            text-align: center;
+            padding: 40px 16px;
+        }
+        .uc-empty-icon {
+            color: #4b5563;
+            margin-bottom: 10px;
+        }
+        .uc-empty-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #f9fafb;
+            margin-bottom: 4px;
+        }
+        .uc-empty-text {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+        .uc-pagination {
+            margin-top: 16px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+    </style>
+
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('My Properties') }}
-        </h2>
+        <div>
+            <h2 class="uc-header-title">
+                {{ __('My Properties') }}
+            </h2>
+            <p class="uc-header-subtitle">
+                Manage all your rental properties and keep them up to date.
+            </p>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
+    <div class="uc-page">
+        <div class="uc-container">
+            <div class="uc-card">
+                <div class="uc-card-inner">
+                    <div class="uc-header-main">
                         <div>
-                            <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">My Properties</h1>
-                            <p class="text-gray-600 dark:text-gray-400 mt-1">Manage all your rental properties</p>
+                            <h1 class="uc-header-main-title">My Properties</h1>
+                            <p class="uc-header-main-text">Manage all your rental properties.</p>
                         </div>
-                        <a href="{{ route('landlord.properties.create') }}" 
-                           class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-150 inline-flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                             </svg>
                             Add New Property
                         </a>
                     </div>
 
                     @if(session('success'))
-                        <div class="mb-6 p-4 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg">
+                        <div class="uc-alert-success">
                             {{ session('success') }}
                         </div>
                     @endif
 
                     @if($properties->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                        <div class="uc-table-wrap">
+                            <table class="uc-table">
                                 <thead>
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Property</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Location</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                        <th>Property</th>
+                                        <th>Location</th>
+                                        <th>Price</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                                <tbody>
                                     @foreach($properties as $property)
                                     <tr>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
+                                        <td>
+                                            <div class="uc-prop-cell">
                                                 @if($property->images && count($property->images) > 0)
-                                                    <div class="flex-shrink-0 h-12 w-12">
-                                                        <img class="h-12 w-12 rounded-lg object-cover" 
-                                                             src="{{ asset('storage/' . $property->images[0]) }}" 
-                                                             alt="{{ $property->title }}">
-                                                    </div>
+                                                    <img
+                                                        class="uc-prop-thumb"
+                                                        src="{{ asset('storage/' . $property->images[0]) }}"
+                                                        alt="{{ $property->title }}"
+                                                    >
                                                 @endif
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $property->title }}</div>
-                                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ $property->property_type }}</div>
+                                                <div class="uc-prop-text">
+                                                    <div class="uc-prop-title">{{ $property->title }}</div>
+                                                    <div class="uc-prop-type">{{ $property->property_type }}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm text-gray-900 dark:text-gray-100">
+                                        <td>
+                                            <div class="uc-prop-location-main">
                                                 @php
                                                     $areaNames = [
                                                         'mjini' => 'Mjini',
@@ -72,42 +297,51 @@
                                                 @endphp
                                                 {{ $areaNames[$property->area] ?? $property->area }}
                                             </div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">{{ Str::limit($property->address, 30) }}</div>
+                                            <div class="uc-prop-location-sub">
+                                                {{ Str::limit($property->address, 30) }}
+                                            </div>
                                         </td>
-                                        <td class="px-6 py-4">
-                                            <div class="text-sm font-medium text-green-600">KES {{ number_format($property->price) }}</div>
-                                            <div class="text-sm text-gray-500 dark:text-gray-400">per month</div>
+                                        <td>
+                                            <div class="uc-price-main">
+                                                KES {{ number_format($property->price) }}
+                                            </div>
+                                            <div class="uc-price-sub">
+                                                per month
+                                            </div>
                                         </td>
-                                        <td class="px-6 py-4">
+                                        <td>
                                             @if($property->is_available)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                    Available
-                                                </span>
+                                                <span class="uc-pill uc-pill-green">Available</span>
                                             @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                    Rented
-                                                </span>
+                                                <span class="uc-pill uc-pill-red">Rented</span>
                                             @endif
+
                                             @if($property->is_verified)
-                                                <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                    Verified
-                                                </span>
+                                                <span class="uc-pill uc-pill-blue">Verified</span>
                                             @else
-                                                <span class="ml-2 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                                    Pending
-                                                </span>
+                                                <span class="uc-pill uc-pill-amber">Pending</span>
                                             @endif
                                         </td>
-                                        <td class="px-6 py-4 text-sm font-medium">
-                                            <a href="{{ route('landlord.properties.edit', $property) }}" 
-                                               class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">
+                                        <td style="font-size:13px;">
+                                            <a
+                                                href="{{ route('landlord.properties.edit', $property) }}"
+                                                class="uc-link"
+                                            >
                                                 Edit
                                             </a>
-                                            <form action="{{ route('landlord.properties.destroy', $property) }}" 
-                                                  method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this property?')">
+                                            <form
+                                                action="{{ route('landlord.properties.destroy', $property) }}"
+                                                method="POST"
+                                                style="display:inline;"
+                                                onsubmit="return confirm('Are you sure you want to delete this property?')"
+                                            >
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
+                                                <button
+                                                    type="submit"
+                                                    class="uc-link uc-link-danger"
+                                                    style="background:none;border:none;padding:0;"
+                                                >
                                                     Delete
                                                 </button>
                                             </form>
@@ -117,23 +351,24 @@
                                 </tbody>
                             </table>
                         </div>
-                        
-                        <div class="mt-4">
+
+                        <div class="uc-pagination">
                             {{ $properties->links() }}
                         </div>
                     @else
-                        <div class="text-center py-12">
-                            <div class="text-gray-400 mb-4">
-                                <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                        <div class="uc-empty">
+                            <div class="uc-empty-icon">
+                                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin:auto;">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                                 </svg>
                             </div>
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No properties yet</h3>
-                            <p class="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first property</p>
-                            <a href="{{ route('landlord.properties.create') }}" 
-                               class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 inline-flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            <h3 class="uc-empty-title">No properties yet</h3>
+                            <p class="uc-empty-text">Get started by adding your first property.</p>
+                            <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                                 </svg>
                                 Add Your First Property
                             </a>

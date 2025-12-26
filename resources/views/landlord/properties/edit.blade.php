@@ -7,64 +7,155 @@
           crossorigin="" />
 
     <style>
+        .uc-page {
+            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+            min-height: 100vh;
+            padding-top: 16px;
+            padding-bottom: 24px;
+        }
+        .uc-container {
+            max-width: 1120px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+        .uc-card {
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            background-color: #020617;
+            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
+            overflow: hidden;
+        }
+        .uc-card-inner {
+            padding: 18px 18px 20px;
+        }
+        .uc-title-main {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 16px;
+        }
+        .uc-section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e5e7eb;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #111827;
+            margin-bottom: 14px;
+        }
+        .uc-error-box {
+            margin-bottom: 16px;
+            background-color: #220b0f;
+            border: 1px solid #7f1d1d;
+            color: #fecaca;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+        .uc-error-box ul {
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .uc-grid-2 {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 16px;
+        }
+        .uc-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 16px;
+        }
+        @media (max-width: 768px) {
+            .uc-grid-2,
+            .uc-grid-4 {
+                grid-template-columns: minmax(0,1fr);
+            }
+        }
+
+        .uc-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #9ca3af;
+            margin-bottom: 6px;
+        }
+        .uc-input,
+        .uc-select,
+        .uc-textarea {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #1f2937;
+            background-color: #020617;
+            color: #f9fafb;
+            padding: 8px 10px;
+            font-size: 14px;
+        }
+        .uc-input:focus,
+        .uc-select:focus,
+        .uc-textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 1px rgba(99,102,241,0.45);
+        }
+        .uc-checkbox-row {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #e5e7eb;
+        }
+        .uc-checkbox-row input[type="checkbox"] {
+            margin-right: 6px;
+            accent-color: #6366f1;
+        }
+
+        /* Map */
         #locationMap {
             height: 400px;
             width: 100%;
-            border-radius: 8px;
-            border: 2px solid #3b82f6;
-            margin-top: 10px;
-            background-color: #f3f4f6;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+            margin-top: 8px;
+            background-color: #020617;
         }
-
         .map-container {
             min-height: 400px;
             position: relative;
         }
-
         .map-loading {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #6b7280;
+            color: #9ca3af;
+            font-size: 13px;
             font-weight: 500;
         }
-
         .map-instructions {
-            background-color: #f0f9ff;
-            border: 1px solid #bae6fd;
-            border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
+            background-color: #0b1120;
+            border: 1px solid #1d4ed8;
+            border-radius: 8px;
+            padding: 10px 11px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #e5e7eb;
         }
-
+        .map-instructions strong {
+            color: #93c5fd;
+        }
         .coordinate-display {
-            background-color: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 6px;
-            padding: 10px;
-            margin-top: 10px;
-            font-family: monospace;
+            background-color: #020617;
+            border: 1px solid #1f2937;
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-top: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
         }
 
-        .dark #locationMap {
-            border-color: #374151;
-            background-color: #1f2937;
-        }
-
-        .dark .map-instructions {
-            background-color: #1e3a8a;
-            border-color: #3b82f6;
-            color: #dbeafe;
-        }
-
-        .dark .coordinate-display {
-            background-color: #374151;
-            border-color: #4b5563;
-            color: #d1d5db;
-        }
-
-        /* Keep arrow cursor on map */
+        /* Arrow cursor on map */
         #locationMap,
         #locationMap .leaflet-container,
         #locationMap .leaflet-interactive,
@@ -73,38 +164,116 @@
         #locationMap .leaflet-control {
             cursor: default !important;
         }
+
+        /* Images */
+        .uc-images-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 10px;
+        }
+        @media (max-width: 768px) {
+            .uc-images-grid {
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+        }
+        .uc-image-wrap {
+            overflow: hidden;
+            border-radius: 10px;
+            border: 1px solid #1f2937;
+        }
+        .uc-image-wrap img {
+            width: 100%;
+            height: 96px;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Footer buttons */
+        .uc-footer-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 14px;
+            border-top: 1px solid #111827;
+            margin-top: 8px;
+        }
+        .uc-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1px solid transparent;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .uc-btn-ghost {
+            background-color: #020617;
+            border-color: #1f2937;
+            color: #e5e7eb;
+        }
+        .uc-btn-ghost:hover {
+            border-color: #6366f1;
+        }
+        .uc-btn-primary {
+            background-color: #6366f1;
+            border-color: #4f46e5;
+            color: #ffffff;
+        }
+        .uc-btn-primary:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            background: #020617;
+            color: #f9fafb;
+            padding: 0.7rem 1rem;
+            border-radius: 0.6rem;
+            border: 1px solid #1f2937;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            z-index: 9999;
+            font-size: 0.85rem;
+        }
     </style>
 
     {{-- Toast --}}
-    <div id="toast" style="
-        position:fixed;top:1rem;right:1rem;
-        background:#111827;color:#f9fafb;
-        padding:0.75rem 1rem;border-radius:0.5rem;
-        opacity:0;transition:opacity .2s;z-index:9999;
-    "></div>
+    <div id="toast"></div>
 
-    {{-- Expose Geoapify key from config (which reads .env) --}}
+    {{-- Expose Geoapify key --}}
     <script>
         const GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
     </script>
 
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Edit Property') }}
-        </h2>
+        <div>
+            <h2 class="uc-header-title">
+                {{ __('Edit Property') }}
+            </h2>
+            <p class="uc-header-subtitle">
+                Update details, location, and images for this listing.
+            </p>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">
+    <div class="uc-page">
+        <div class="uc-container">
+            <div class="uc-card">
+                <div class="uc-card-inner">
+                    <h1 class="uc-title-main">
                         Edit: {{ $property->title }}
                     </h1>
 
                     @if ($errors->any())
-                        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-                            <ul class="list-disc list-inside text-sm">
+                        <div class="uc-error-box">
+                            <ul>
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -121,32 +290,22 @@
 
                         {{-- Basic Information --}}
                         <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">
-                                Basic Information
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <h3 class="uc-section-title">Basic Information</h3>
+                            <div class="uc-grid-2">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Property Title *
-                                    </label>
-                                    <input type="text"
-                                           name="title"
-                                           value="{{ old('title', $property->title) }}"
-                                           required
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Property Title *</label>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        value="{{ old('title', $property->title) }}"
+                                        required
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Property Type *
-                                    </label>
-                                    <select name="property_type"
-                                            required
-                                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                   dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Property Type *</label>
+                                    <select name="property_type" required class="uc-select">
                                         @php $types = ['apartment','house','room','studio','bedsitter']; @endphp
                                         <option value="">Select Type</option>
                                         @foreach($types as $type)
@@ -159,28 +318,19 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Price (KES) *
-                                    </label>
-                                    <input type="number"
-                                           name="price"
-                                           value="{{ old('price', $property->price) }}"
-                                           required min="0" step="0.01"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Price (KES) *</label>
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value="{{ old('price', $property->price) }}"
+                                        required min="0" step="0.01"
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Area *
-                                    </label>
-                                    <select name="area"
-                                            id="areaSelect"
-                                            required
-                                            class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                   dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                   focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Area *</label>
+                                    <select name="area" id="areaSelect" required class="uc-select">
                                         @php $areas = ['mjini','ngomongo','diaspora','kutus']; @endphp
                                         <option value="">Select Area</option>
                                         @foreach($areas as $area)
@@ -196,53 +346,43 @@
 
                         {{-- Property Details --}}
                         <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">
-                                Property Details
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                            <h3 class="uc-section-title">Property Details</h3>
+                            <div class="uc-grid-4">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Bedrooms *
-                                    </label>
-                                    <input type="number"
-                                           name="bedrooms"
-                                           value="{{ old('bedrooms', $property->bedrooms) }}"
-                                           required min="0"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Bedrooms *</label>
+                                    <input
+                                        type="number"
+                                        name="bedrooms"
+                                        value="{{ old('bedrooms', $property->bedrooms) }}"
+                                        required min="0"
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Bathrooms *
-                                    </label>
-                                    <input type="number"
-                                           name="bathrooms"
-                                           value="{{ old('bathrooms', $property->bathrooms) }}"
-                                           required min="0"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Bathrooms *</label>
+                                    <input
+                                        type="number"
+                                        name="bathrooms"
+                                        value="{{ old('bathrooms', $property->bathrooms) }}"
+                                        required min="0"
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Size (sqm) *
-                                    </label>
-                                    <input type="number"
-                                           name="size"
-                                           value="{{ old('size', $property->size) }}"
-                                           required min="0" step="0.01"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                  focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <label class="uc-label">Size (sqm) *</label>
+                                    <input
+                                        type="number"
+                                        name="size"
+                                        value="{{ old('size', $property->size) }}"
+                                        required min="0" step="0.01"
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Amenities
-                                    </label>
+                                    <label class="uc-label">Amenities</label>
                                     @php
                                         $selectedAmenities = old('amenities', $property->amenities ?? []);
                                         $allAmenities = [
@@ -252,120 +392,105 @@
                                             'security' => 'Security',
                                         ];
                                     @endphp
-                                    <div class="space-y-2">
+                                    <div style="display:flex;flex-direction:column;gap:4px;">
                                         @foreach($allAmenities as $key => $label)
-                                            <label class="flex items-center">
-                                                <input type="checkbox"
-                                                       name="amenities[]"
-                                                       value="{{ $key }}"
-                                                       class="mr-2 rounded text-blue-600 focus:ring-blue-500"
-                                                       {{ in_array($key, $selectedAmenities, true) ? 'checked' : '' }}>
-                                                <span class="text-sm text-gray-700 dark:text-gray-300">
-                                                    {{ $label }}
-                                                </span>
+                                            <label class="uc-checkbox-row">
+                                                <input
+                                                    type="checkbox"
+                                                    name="amenities[]"
+                                                    value="{{ $key }}"
+                                                    {{ in_array($key, $selectedAmenities, true) ? 'checked' : '' }}
+                                                >
+                                                <span>{{ $label }}</span>
                                             </label>
                                         @endforeach
                                     </div>
                                 </div>
                             </div>
 
-                            <div class="mt-6">
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                    Description *
-                                </label>
-                                <textarea name="description"
-                                          rows="4"
-                                          required
-                                          class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                 dark:bg-gray-700 dark:text-gray-100 rounded-lg
-                                                 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">{{ old('description', $property->description) }}</textarea>
+                            <div style="margin-top:16px;">
+                                <label class="uc-label">Description *</label>
+                                <textarea
+                                    name="description"
+                                    rows="4"
+                                    required
+                                    class="uc-textarea"
+                                >{{ old('description', $property->description) }}</textarea>
                             </div>
                         </div>
 
                         {{-- Address --}}
                         <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">
-                                Address Information
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <h3 class="uc-section-title">Address Information</h3>
+                            <div class="uc-grid-2">
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Building Name (Optional)
-                                    </label>
-                                    <input type="text"
-                                           name="building_name"
-                                           value="{{ old('building_name', $property->building_name) }}"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                                    <label class="uc-label">Building Name (Optional)</label>
+                                    <input
+                                        type="text"
+                                        name="building_name"
+                                        value="{{ old('building_name', $property->building_name) }}"
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Street/Road *
-                                    </label>
-                                    <input type="text"
-                                           name="street"
-                                           value="{{ old('street', $property->street) }}"
-                                           required
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                                    <label class="uc-label">Street/Road *</label>
+                                    <input
+                                        type="text"
+                                        name="street"
+                                        value="{{ old('street', $property->street) }}"
+                                        required
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Landmark (Optional)
-                                    </label>
-                                    <input type="text"
-                                           name="landmark"
-                                           value="{{ old('landmark', $property->landmark) }}"
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                                    <label class="uc-label">Landmark (Optional)</label>
+                                    <input
+                                        type="text"
+                                        name="landmark"
+                                        value="{{ old('landmark', $property->landmark) }}"
+                                        class="uc-input"
+                                    >
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                                        Full Address *
-                                    </label>
-                                    <input type="text"
-                                           name="address"
-                                           value="{{ old('address', $property->address) }}"
-                                           required
-                                           class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600
-                                                  dark:bg-gray-700 dark:text-gray-100 rounded-lg">
+                                    <label class="uc-label">Full Address *</label>
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value="{{ old('address', $property->address) }}"
+                                        required
+                                        class="uc-input"
+                                    >
                                 </div>
                             </div>
                         </div>
 
                         {{-- Availability --}}
                         <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">
-                                Availability
-                            </h3>
-                            <label class="inline-flex items-center">
-                                <input type="checkbox"
-                                       name="is_available"
-                                       value="1"
-                                       class="mr-2 rounded text-blue-600 focus:ring-blue-500"
-                                       {{ old('is_available', $property->is_available) ? 'checked' : '' }}>
-                                <span class="text-sm text-gray-700 dark:text-gray-300">
-                                    Mark as available for students
-                                </span>
+                            <h3 class="uc-section-title">Availability</h3>
+                            <label class="uc-checkbox-row">
+                                <input
+                                    type="checkbox"
+                                    name="is_available"
+                                    value="1"
+                                    {{ old('is_available', $property->is_available) ? 'checked' : '' }}
+                                >
+                                <span>Mark as available for students</span>
                             </label>
                         </div>
 
                         {{-- Exact Location (Map) --}}
                         <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">
-                                Exact Property Location
-                            </h3>
+                            <h3 class="uc-section-title">Exact Property Location</h3>
 
                             <div class="map-instructions">
-                                <p class="text-sm">
-                                    <strong class="text-blue-700 dark:text-blue-300">Tip:</strong>
-                                    Click on the map to adjust the exact location of this property.
+                                <p>
+                                    <strong>Tip:</strong> Click on the map to adjust the exact location of this property.
                                 </p>
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                                    🎓 Fixed university marker shows the campus. 📍 shows your property. The blue route is the exact Geoapify path.
+                                <p style="margin-top:4px;">
+                                    🎓 Fixed university marker shows the campus. 📍 is your property. The route is from Geoapify.
                                 </p>
                             </div>
 
@@ -375,29 +500,33 @@
                             </div>
 
                             <div class="coordinate-display">
-                                <div class="grid grid-cols-2 gap-4">
+                                <div class="uc-grid-2" style="gap:10px;">
                                     <div>
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">Latitude:</span>
-                                        <span id="latDisplay" class="ml-2 font-medium text-gray-900 dark:text-gray-100">
+                                        <span style="font-size:12px;color:#9ca3af;">Latitude:</span>
+                                        <span id="latDisplay" style="margin-left:6px;font-size:13px;color:#f9fafb;">
                                             {{ $property->map_lat ?? $property->latitude ?? 'Click on map' }}
                                         </span>
-                                        <input type="hidden"
-                                               name="map_lat"
-                                               id="mapLat"
-                                               value="{{ old('map_lat', $property->map_lat ?? $property->latitude) }}">
+                                        <input
+                                            type="hidden"
+                                            name="map_lat"
+                                            id="mapLat"
+                                            value="{{ old('map_lat', $property->map_lat ?? $property->latitude) }}"
+                                        >
                                     </div>
                                     <div>
-                                        <span class="text-sm text-gray-600 dark:text-gray-400">Longitude:</span>
-                                        <span id="lngDisplay" class="ml-2 font-medium text-gray-900 dark:text-gray-100">
+                                        <span style="font-size:12px;color:#9ca3af;">Longitude:</span>
+                                        <span id="lngDisplay" style="margin-left:6px;font-size:13px;color:#f9fafb;">
                                             {{ $property->map_lng ?? $property->longitude ?? 'Click on map' }}
                                         </span>
-                                        <input type="hidden"
-                                               name="map_lng"
-                                               id="mapLng"
-                                               value="{{ old('map_lng', $property->map_lng ?? $property->longitude) }}">
+                                        <input
+                                            type="hidden"
+                                            name="map_lng"
+                                            id="mapLng"
+                                            value="{{ old('map_lng', $property->map_lng ?? $property->longitude) }}"
+                                        >
                                     </div>
                                 </div>
-                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                <div style="margin-top:6px;font-size:11px;color:#9ca3af;">
                                     <span id="locationStatus">
                                         {{ ($property->map_lat || $property->latitude) ? 'Location already set' : 'No location selected' }}
                                     </span>
@@ -407,51 +536,44 @@
 
                         {{-- Images --}}
                         <div class="mb-8">
-                            <h3 class="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-4 border-b pb-2">
-                                Property Images
-                            </h3>
+                            <h3 class="uc-section-title">Property Images</h3>
 
                             @if(is_array($property->images) && count($property->images))
-                                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                                <p style="font-size:13px;color:#9ca3af;margin-bottom:8px;">
                                     Existing images:
                                 </p>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <div class="uc-images-grid" style="margin-bottom:12px;">
                                     @foreach($property->images as $image)
                                         @php $path = preg_replace('/^public\//', '', $image); @endphp
-                                        <div class="overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700">
-                                            <img src="{{ asset('storage/'.$path) }}"
-                                                 alt="Existing image"
-                                                 class="w-full h-24 object-cover">
+                                        <div class="uc-image-wrap">
+                                            <img src="{{ asset('storage/'.$path) }}" alt="Existing image">
                                         </div>
                                     @endforeach
                                 </div>
                             @endif
 
-                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p style="font-size:13px;color:#9ca3af;margin-bottom:6px;">
                                 Upload additional images (existing ones will be kept):
                             </p>
-                            <input type="file"
-                                   name="images[]
-                                   " multiple
-                                   accept="image/*"
-                                   class="w-full cursor-pointer">
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                            <input
+                                type="file"
+                                name="images[]"
+                                multiple
+                                accept="image/*"
+                                class="uc-input"
+                                style="padding:6px 8px;"
+                            >
+                            <p style="font-size:11px;color:#6b7280;margin-top:4px;">
                                 Max 2MB per image. JPEG, PNG, JPG, GIF.
                             </p>
                         </div>
 
                         {{-- Submit --}}
-                        <div class="flex justify-between items-center pt-6 border-t border-gray-200 dark:border-gray-700">
-                            <a href="{{ route('landlord.properties.index') }}"
-                               class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200
-                                      font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600
-                                      transition duration-150">
+                        <div class="uc-footer-row">
+                            <a href="{{ route('landlord.properties.index') }}" class="uc-btn uc-btn-ghost">
                                 Cancel
                             </a>
-                            <button type="submit"
-                                    class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg
-                                           hover:bg-blue-700 focus:outline-none focus:ring-2
-                                           focus:ring-blue-500 focus:ring-offset-2 transition duration-150">
+                            <button type="submit" class="uc-btn uc-btn-primary">
                                 Save changes
                             </button>
                         </div>
@@ -460,6 +582,7 @@
             </div>
         </div>
     </div>
+</x-app-layout>
 
     {{-- Leaflet JS --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

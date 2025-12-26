@@ -1,230 +1,507 @@
+{{-- resources/views/landlord/dashboard.blade.php --}}
 <x-app-layout>
+    <style>
+        .uc-page {
+            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+            min-height: 100vh;
+            padding-top: 16px;
+            padding-bottom: 24px;
+        }
+        .uc-container {
+            max-width: 1120px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+
+        .uc-header-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 4px;
+        }
+        .uc-header-subtitle {
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        /* Stat cards */
+        .uc-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 1024px) {
+            .uc-stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+        @media (max-width: 640px) {
+            .uc-stats-grid {
+                grid-template-columns: minmax(0, 1fr);
+            }
+        }
+
+        .uc-card {
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            background-color: #020617;
+            padding: 14px 14px;
+            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
+        }
+        .uc-card-row {
+            display: flex;
+            align-items: center;
+        }
+        .uc-stat-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .uc-stat-text {
+            margin-left: 12px;
+        }
+        .uc-stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9ca3af;
+        }
+        .uc-stat-value {
+            margin-top: 4px;
+            font-size: 22px;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+
+        .uc-stat-icon-blue {
+            background-color: rgba(79,70,229,0.18);
+            color: #a5b4fc;
+        }
+        .uc-stat-icon-green {
+            background-color: rgba(16,185,129,0.18);
+            color: #6ee7b7;
+        }
+        .uc-stat-icon-purple {
+            background-color: rgba(147,51,234,0.18);
+            color: #c4b5fd;
+        }
+        .uc-stat-icon-amber {
+            background-color: rgba(245,158,11,0.18);
+            color: #fed7aa;
+        }
+
+        /* Quick actions */
+        .uc-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .uc-card-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #e5e7eb;
+        }
+
+        .uc-btn-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        .uc-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1px solid transparent;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .uc-btn-primary {
+            background-color: #6366f1;
+            border-color: #4f46e5;
+            color: #ffffff;
+        }
+        .uc-btn-primary:hover {
+            background-color: #4f46e5;
+        }
+        .uc-btn-ghost {
+            background-color: #020617;
+            border-color: #1f2937;
+            color: #e5e7eb;
+        }
+        .uc-btn-ghost:hover {
+            border-color: #6366f1;
+        }
+        .uc-btn svg {
+            margin-right: 6px;
+        }
+
+        /* Table */
+        .uc-table-wrap {
+            overflow-x: auto;
+        }
+        .uc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .uc-table thead {
+            background-color: #020617;
+        }
+        .uc-table th,
+        .uc-table td {
+            padding: 8px 14px;
+            border-bottom: 1px solid #111827;
+            text-align: left;
+        }
+        .uc-table th {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #9ca3af;
+        }
+        .uc-table td {
+            color: #e5e7eb;
+        }
+
+        .uc-table-property {
+            display: flex;
+            align-items: center;
+        }
+        .uc-table-thumb {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #1f2937;
+        }
+        .uc-table-thumb-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #020617;
+            border: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .uc-table-text-block {
+            margin-left: 10px;
+        }
+        .uc-table-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: #f9fafb;
+        }
+        .uc-table-meta {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .uc-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: 10px;
+            font-weight: 500;
+            border: 1px solid transparent;
+        }
+        .uc-pill-green {
+            background-color: rgba(16,185,129,0.15);
+            color: #6ee7b7;
+            border-color: rgba(16,185,129,0.5);
+        }
+        .uc-pill-red {
+            background-color: rgba(239,68,68,0.15);
+            color: #fecaca;
+            border-color: rgba(239,68,68,0.5);
+        }
+        .uc-pill-blue {
+            background-color: rgba(59,130,246,0.15);
+            color: #bfdbfe;
+            border-color: rgba(59,130,246,0.5);
+        }
+        .uc-pill-amber {
+            background-color: rgba(245,158,11,0.15);
+            color: #fef3c7;
+            border-color: rgba(245,158,11,0.5);
+        }
+
+        .uc-link {
+            font-size: 13px;
+            color: #6366f1;
+            text-decoration: none;
+        }
+        .uc-link:hover {
+            color: #a5b4fc;
+        }
+        .uc-link-danger {
+            color: #fb7185;
+        }
+        .uc-link-danger:hover {
+            color: #fecaca;
+        }
+
+        .uc-empty {
+            text-align: center;
+            padding: 40px 16px;
+        }
+        .uc-empty-icon {
+            color: #4b5563;
+            margin-bottom: 10px;
+        }
+        .uc-empty-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #f9fafb;
+            margin-bottom: 4px;
+        }
+        .uc-empty-text {
+            font-size: 13px;
+            color: #9ca3af;
+            margin-bottom: 16px;
+        }
+    </style>
+
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Landlord Dashboard') }}
-        </h2>
+        <div>
+            <h2 class="uc-header-title">
+                {{ __('Landlord Dashboard') }}
+            </h2>
+            <p class="uc-header-subtitle">
+                Overview of your properties and recent activity.
+            </p>
+        </div>
     </x-slot>
 
-    <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-600 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                </svg>
-                            </div>
+    <div class="uc-page">
+        <div class="uc-container">
+            {{-- Stats Cards --}}
+            <div class="uc-stats-grid">
+                <div class="uc-card">
+                    <div class="uc-card-row">
+                        <div class="uc-stat-icon-wrap uc-stat-icon-blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Properties</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ auth()->user()->properties->count() }}</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-green-600 dark:text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Available</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ auth()->user()->properties()->where('is_available', true)->count() }}</p>
+                        <div class="uc-stat-text">
+                            <p class="uc-stat-label">Total properties</p>
+                            <p class="uc-stat-value">{{ auth()->user()->properties->count() }}</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-purple-600 dark:text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                            </div>
+
+                <div class="uc-card">
+                    <div class="uc-card-row">
+                        <div class="uc-stat-icon-wrap uc-stat-icon-green">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M5 13l4 4L19 7"/>
+                            </svg>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Verified</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ auth()->user()->properties()->where('is_verified', true)->count() }}</p>
+                        <div class="uc-stat-text">
+                            <p class="uc-stat-label">Available</p>
+                            <p class="uc-stat-value">
+                                {{ auth()->user()->properties()->where('is_available', true)->count() }}
+                            </p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-                    <div class="flex items-center">
-                        <div class="flex-shrink-0">
-                            <div class="w-12 h-12 bg-yellow-100 dark:bg-yellow-900 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
-                                </svg>
-                            </div>
+
+                <div class="uc-card">
+                    <div class="uc-card-row">
+                        <div class="uc-stat-icon-wrap uc-stat-icon-purple">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
                         </div>
-                        <div class="ml-4">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Rented</p>
-                            <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ auth()->user()->properties()->where('is_available', false)->count() }}</p>
+                        <div class="uc-stat-text">
+                            <p class="uc-stat-label">Verified</p>
+                            <p class="uc-stat-value">
+                                {{ auth()->user()->properties()->where('is_verified', true)->count() }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uc-card">
+                    <div class="uc-card-row">
+                        <div class="uc-stat-icon-wrap uc-stat-icon-amber">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div class="uc-stat-text">
+                            <p class="uc-stat-label">Rented</p>
+                            <p class="uc-stat-value">
+                                {{ auth()->user()->properties()->where('is_available', false)->count() }}
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg mb-6">
-                <div class="p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Quick Actions</h3>
-                    <div class="flex flex-wrap gap-4">
-                        <a href="{{ route('landlord.properties.create') }}" 
-                           class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-150 inline-flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                            </svg>
-                            Add New Property
-                        </a>
-                        <a href="{{ route('landlord.properties.index') }}" 
-                           class="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition duration-150 inline-flex items-center">
-                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
-                            </svg>
-                            Manage Properties
-                        </a>
-                    </div>
+            {{-- Quick Actions --}}
+            <div class="uc-card" style="margin-bottom: 20px;">
+                <div class="uc-card-header">
+                    <h3 class="uc-card-title">Quick actions</h3>
+                </div>
+                <div class="uc-btn-row">
+                    <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                        </svg>
+                        Add new property
+                    </a>
+                    <a href="{{ route('landlord.properties.index') }}" class="uc-btn uc-btn-ghost">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+                        </svg>
+                        Manage properties
+                    </a>
                 </div>
             </div>
 
-            <!-- Recent Properties -->
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Recent Properties</h3>
-                        <a href="{{ route('landlord.properties.index') }}" class="text-sm text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 inline-flex items-center">
-                            View All
-                            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-                            </svg>
-                        </a>
-                    </div>
-                    
-                    @php
-                        $recentProperties = auth()->user()->properties()->latest()->take(5)->get();
-                    @endphp
-                    
-                    @if($recentProperties->count() > 0)
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                                <thead>
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Property</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Area</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Price</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-                                    @foreach($recentProperties as $property)
-                                    <tr>
-                                        <td class="px-6 py-4">
-                                            <div class="flex items-center">
-                                                @if($property->images && count($property->images) > 0)
-                                                    <div class="flex-shrink-0 h-10 w-10">
-                                                        <img class="h-10 w-10 rounded-lg object-cover" 
-                                                             src="{{ asset('storage/' . $property->images[0]) }}" 
-                                                             alt="{{ $property->title }}">
-                                                    </div>
-                                                @else
-                                                    <div class="flex-shrink-0 h-10 w-10 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center">
-                                                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                                                        </svg>
-                                                    </div>
-                                                @endif
-                                                <div class="ml-4">
-                                                    <div class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $property->title }}</div>
-                                                    <div class="text-sm text-gray-500 dark:text-gray-400">{{ ucfirst($property->property_type) }}</div>
+            {{-- Recent Properties --}}
+            <div class="uc-card">
+                <div class="uc-card-header" style="margin-bottom: 10px;">
+                    <h3 class="uc-card-title">Recent properties</h3>
+                    <a href="{{ route('landlord.properties.index') }}" class="uc-link">
+                        View all
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-left: 4px;">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </a>
+                </div>
+
+                @php
+                    $recentProperties = auth()->user()->properties()->latest()->take(5)->get();
+                @endphp
+
+                @if($recentProperties->count() > 0)
+                    <div class="uc-table-wrap">
+                        <table class="uc-table">
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Area</th>
+                                    <th>Price</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentProperties as $property)
+                                <tr>
+                                    <td>
+                                        <div class="uc-table-property">
+                                            @if($property->images && count($property->images) > 0)
+                                                <img class="uc-table-thumb"
+                                                     src="{{ asset('storage/' . $property->images[0]) }}"
+                                                     alt="{{ $property->title }}">
+                                            @else
+                                                <div class="uc-table-thumb-placeholder">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                                    </svg>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm text-gray-900 dark:text-gray-100">
-                                                @php
-                                                    $areaNames = [
-                                                        'mjini' => 'Mjini',
-                                                        'ngomongo' => 'Ngomongo', 
-                                                        'diaspora' => 'Diaspora',
-                                                        'kutus' => 'Kutus'
-                                                    ];
-                                                @endphp
-                                                {{ $areaNames[$property->area] ?? $property->area }}
-                                            </div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            <div class="text-sm font-medium text-green-600">KES {{ number_format($property->price) }}</div>
-                                            <div class="text-xs text-gray-500 dark:text-gray-400">per month</div>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap">
-                                            @if($property->is_available)
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
-                                                    Available
-                                                </span>
-                                            @else
-                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
-                                                    Rented
-                                                </span>
                                             @endif
-                                            @if($property->is_verified)
-                                                <span class="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
-                                                    Verified
-                                                </span>
-                                            @else
-                                                <span class="ml-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
-                                                    Pending
-                                                </span>
-                                            @endif
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('landlord.properties.edit', $property) }}" 
-                                               class="text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 mr-3">
-                                                Edit
-                                            </a>
-                                            <form action="{{ route('landlord.properties.destroy', $property) }}" 
-                                                  method="POST" class="inline" onsubmit="return confirm('Delete this property?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900 dark:text-red-400 dark:hover:text-red-300">
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                            <div class="uc-table-text-block">
+                                                <div class="uc-table-title">{{ $property->title }}</div>
+                                                <div class="uc-table-meta">{{ ucfirst($property->property_type) }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>
+                                            @php
+                                                $areaNames = [
+                                                    'mjini' => 'Mjini',
+                                                    'ngomongo' => 'Ngomongo', 
+                                                    'diaspora' => 'Diaspora',
+                                                    'kutus' => 'Kutus'
+                                                ];
+                                            @endphp
+                                            {{ $areaNames[$property->area] ?? $property->area }}
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div style="color:#6ee7b7;font-weight:500;">
+                                            KES {{ number_format($property->price) }}
+                                        </div>
+                                        <div style="font-size:11px;color:#9ca3af;">per month</div>
+                                    </td>
+                                    <td>
+                                        @if($property->is_available)
+                                            <span class="uc-pill uc-pill-green">Available</span>
+                                        @else
+                                            <span class="uc-pill uc-pill-red">Rented</span>
+                                        @endif
+
+                                        @if($property->is_verified)
+                                            <span class="uc-pill uc-pill-blue" style="margin-left:4px;">Verified</span>
+                                        @else
+                                            <span class="uc-pill uc-pill-amber" style="margin-left:4px;">Pending</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('landlord.properties.edit', $property) }}" class="uc-link" style="margin-right:8px;">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('landlord.properties.destroy', $property) }}"
+                                              method="POST" style="display:inline;"
+                                              onsubmit="return confirm('Delete this property?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="uc-link uc-link-danger" style="background:none;border:none;padding:0;">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="uc-empty">
+                        <div class="uc-empty-icon">
+                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin:auto;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
                         </div>
-                    @else
-                        <div class="text-center py-12">
-                            <div class="text-gray-400 mb-4">
-                                <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                </svg>
-                            </div>
-                            <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No properties yet</h3>
-                            <p class="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first property</p>
-                            <a href="{{ route('landlord.properties.create') }}" 
-                               class="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 inline-flex items-center">
-                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Add Your First Property
-                            </a>
-                        </div>
-                    @endif
-                </div>
+                        <h3 class="uc-empty-title">No properties yet</h3>
+                        <p class="uc-empty-text">Get started by adding your first property.</p>
+                        <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Add your first property
+                        </a>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

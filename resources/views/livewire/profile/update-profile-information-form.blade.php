@@ -49,53 +49,116 @@ $sendVerification = function () {
 ?>
 
 <section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">
-            {{ __('Profile Information') }}
-        </h2>
+    <style>
+        .uc-profile-card {
+            border-radius: 12px;
+            border: 1px solid #1f2937;
+            background-color: #020617;
+            padding: 16px 18px 18px;
+            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
+            max-width: 640px;
+        }
+        .uc-profile-header-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin: 0;
+        }
+        .uc-profile-header-text {
+            margin-top: 4px;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+        .uc-profile-form {
+            margin-top: 16px;
+        }
+        .uc-profile-field {
+            margin-bottom: 16px;
+        }
+        .uc-profile-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .uc-profile-unverified {
+            margin-top: 6px;
+            font-size: 13px;
+            color: #e5e7eb;
+        }
+        .uc-profile-verify-btn {
+            border: none;
+            background: none;
+            padding: 0;
+            margin-left: 4px;
+            font-size: 13px;
+            text-decoration: underline;
+            color: #9ca3af;
+            cursor: pointer;
+        }
+        .uc-profile-verify-btn:hover {
+            color: #e5e7eb;
+        }
+        .uc-profile-success {
+            margin-top: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #6ee7b7;
+        }
+    </style>
 
-        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
+    <div class="uc-profile-card">
+        <header>
+            <h2 class="uc-profile-header-title">
+                {{ __('Profile Information') }}
+            </h2>
 
-    <form wire:submit="updateProfileInformation" class="mt-6 space-y-6">
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
-        </div>
+            <p class="uc-profile-header-text">
+                {{ __("Update your account's profile information and email address.") }}
+            </p>
+        </header>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+        <form wire:submit="updateProfileInformation" class="uc-profile-form">
+            <div class="uc-profile-field">
+                <x-input-label for="name" :value="__('Name')" />
+                <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
+                <x-input-error class="mt-2" :messages="$errors->get('name')" />
+            </div>
 
-            @if (auth()->user() instanceof MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800 dark:text-gray-200">
-                        {{ __('Your email address is unverified.') }}
+            <div class="uc-profile-field">
+                <x-input-label for="email" :value="__('Email')" />
+                <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
+                <x-input-error class="mt-2" :messages="$errors->get('email')" />
 
-                        <button wire:click.prevent="sendVerification" class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
+                @if (auth()->user() instanceof MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                    <div>
+                        <p class="uc-profile-unverified">
+                            {{ __('Your email address is unverified.') }}
 
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600 dark:text-green-400">
-                            {{ __('A new verification link has been sent to your email address.') }}
+                            <button
+                                wire:click.prevent="sendVerification"
+                                class="uc-profile-verify-btn"
+                            >
+                                {{ __('Click here to re-send the verification email.') }}
+                            </button>
                         </p>
-                    @endif
-                </div>
-            @endif
-        </div>
 
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+                        @if (session('status') === 'verification-link-sent')
+                            <p class="uc-profile-success">
+                                {{ __('A new verification link has been sent to your email address.') }}
+                            </p>
+                        @endif
+                    </div>
+                @endif
+            </div>
 
-            <x-action-message class="me-3" on="profile-updated">
-                {{ __('Saved.') }}
-            </x-action-message>
-        </div>
-    </form>
+            <div class="uc-profile-actions">
+                <x-primary-button>{{ __('Save') }}</x-primary-button>
+
+                <x-action-message class="me-3" on="profile-updated">
+                    {{ __('Saved.') }}
+                </x-action-message>
+            </div>
+        </form>
+    </div>
 </section>

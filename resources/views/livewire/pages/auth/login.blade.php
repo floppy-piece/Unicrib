@@ -62,9 +62,7 @@ $login = function () {
                 </a>
             @endif
 <br>
-                <a style="all:unset;display:block;text-decoration:underline;cursor:pointer;color:white;text-align:center;" href="{{ route('register') }}" wire:navigate>
-                    {{ __('Not registered?') }}
-                </a><br>
+    
             <x-primary-button >
                 {{ __('Log in') }}
             </x-primary-button>
