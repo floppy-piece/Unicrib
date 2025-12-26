@@ -34,12 +34,21 @@ $logout = function (Logout $logout) {
 
 
                 <!-- Navigation Links -->
+                @if (Auth::user()->category==='landlord')
                 <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
+                    <x-nav-link :href="route('landlord.dashboard')" :active="request()->routeIs('landlord.dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
                 </div>
+                @endif
 
+                @if (Auth::user()->category==='student')
+                <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
+                    <x-nav-link :href="route('student.dashboard')" :active="request()->routeIs('student.dashboard')" wire:navigate>
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+                </div>
+                @endif
 
                 <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
                     <x-nav-link :href="route('messages')" :active="request()->routeIs('messages')" wire:navigate>
