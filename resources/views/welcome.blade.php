@@ -185,7 +185,7 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body style="background:linear-gradient(rgba(35,0,70,0.8),rgba(3,56,89,0.8))">            
-        <div style="padding-right:2px;padding-left:2px;">  
+        <div>  
             
                 
             <header style="background-color:#111827;color:#9ca3af;box-shadow: inset 0 0px 0 0 #FFFFFF;width:100%;display:sticky;padding-bottom:30px;overflow:hidden;" >                
