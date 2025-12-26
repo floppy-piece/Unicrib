@@ -57,7 +57,7 @@ $logout = function (Logout $logout) {
                 </div>
                 @if (Auth::user()->category==='landlord')
                     <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
-                        <x-nav-link :href="route('landlord.properties.index')" :active="request()->routeIs('landlord.properties.index')" wire:navigate>
+                        <x-nav-link :href="route('landlord.properties.myProperties')" :active="request()->routeIs('landlord.properties.myProperties')" wire:navigate>
                             {{ __('My Properties') }}
                         </x-nav-link>
                     </div>
@@ -66,7 +66,7 @@ $logout = function (Logout $logout) {
 
                 @if (Auth::user()->category==='landlord')
                     <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
-                        <x-nav-link :href="route('landlord.properties.create')" :active="request()->routeIs('landlord.properties.create')" wire:navigate>
+                        <x-nav-link :href="route('landlord.properties.add')" :active="request()->routeIs('landlord.properties.add')" wire:navigate>
                             {{ __('Add Property') }}
                         </x-nav-link>
                     </div>

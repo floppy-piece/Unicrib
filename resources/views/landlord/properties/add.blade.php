@@ -312,7 +312,7 @@
                         <div id="mapDimensions"></div>
                     </div>
                     
-                    <form method="POST" action="{{ route('store') }}" enctype="multipart/form-data" id="propertyForm">
+                    <form method="POST" action="{{ route('landlord.properties.store') }}" enctype="multipart/form-data" id="propertyForm">
                         @csrf
                         
                         <!-- Basic Information -->
@@ -530,7 +530,7 @@
                         
                         <!-- Submit Buttons -->
                         <div class="uc-footer-row">
-                            <a href="{{ route('landlord.properties.index') }}" 
+                            <a href="{{ route('landlord.properties.myProperties') }}" 
                                class="uc-btn uc-btn--ghost">
                                 Cancel
                             </a>

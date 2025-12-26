@@ -5,17 +5,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Landlord\PropertyController;
 Route::view('/', 'welcome');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
 
 Route::view('messages', 'messages')
     ->middleware(['auth', 'verified'])
     ->name('messages');
-
-Route::view('landlord.properties.create', 'properties')
-    ->middleware(['auth', 'verified'])
-    ->name('create');
 
 Route::view('profile', 'profile')
     ->middleware(['auth'])
@@ -33,16 +26,18 @@ Route::middleware(['auth','verified'])->group(function () {
     // Student-facing property details
     Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 });
-Route::middleware(['auth', 'category:landlord'])->prefix('landlord')->name('landlord.')->group(function () {
-    
-    // Properties routes
-    Route::prefix('properties')->name('properties.')->group(function () {
-        Route::get('/', [PropertyController::class, 'index'])->name('index');
-        Route::get('/create', [PropertyController::class, 'create'])->name('create');
-        Route::post('/', [PropertyController::class, 'store'])->name('store');
-        Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
-        Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
-        Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
+Route::middleware(['auth', 'category:landlord'])
+    ->prefix('landlord')
+    ->name('landlord.')
+    ->group(function () {
+
+        Route::prefix('properties')->name('properties.')->group(function () {
+            Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
+            Route::get('/create', [PropertyController::class, 'create'])->name('add');
+            Route::post('/', [PropertyController::class, 'store'])->name('store');
+            Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
+            Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
+            Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
+        });
     });
-});
 

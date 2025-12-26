@@ -240,7 +240,7 @@
                             <h1 class="uc-header-main-title">My Properties</h1>
                             <p class="uc-header-main-text">Manage all your rental properties.</p>
                         </div>
-                        <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                        <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
@@ -365,7 +365,7 @@
                             </div>
                             <h3 class="uc-empty-title">No properties yet</h3>
                             <p class="uc-empty-text">Get started by adding your first property.</p>
-                            <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                            <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

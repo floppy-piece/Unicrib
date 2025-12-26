@@ -363,14 +363,14 @@
                     <h3 class="uc-card-title">Quick actions</h3>
                 </div>
                 <div class="uc-btn-row">
-                    <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                    <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
                         </svg>
                         Add new property
                     </a>
-                    <a href="{{ route('landlord.properties.index') }}" class="uc-btn uc-btn-ghost">
+                    <a href="{{ route('landlord.properties.myProperties') }}" class="uc-btn uc-btn-ghost">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
@@ -384,7 +384,7 @@
             <div class="uc-card">
                 <div class="uc-card-header" style="margin-bottom: 10px;">
                     <h3 class="uc-card-title">Recent properties</h3>
-                    <a href="{{ route('landlord.properties.index') }}" class="uc-link">
+                    <a href="{{ route('landlord.properties.myProperties') }}" class="uc-link">
                         View all
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin-left: 4px;">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -493,7 +493,7 @@
                         </div>
                         <h3 class="uc-empty-title">No properties yet</h3>
                         <p class="uc-empty-text">Get started by adding your first property.</p>
-                        <a href="{{ route('landlord.properties.create') }}" class="uc-btn uc-btn-primary">
+                        <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>

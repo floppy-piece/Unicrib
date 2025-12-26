@@ -15,7 +15,7 @@ class PropertyController extends Controller
     public function index()
     {
         $properties = Auth::user()->properties()->latest()->paginate(10);
-        return view('landlord.properties.index', compact('properties'));
+        return view('landlord.properties.myProperties', compact('properties'));
     }
     public function show(Property $property)
     {
@@ -42,7 +42,7 @@ class PropertyController extends Controller
 
     public function create()
     {
-        return view('landlord.properties.create');
+        return view('landlord.properties.add');
     }
 
     /**
@@ -65,14 +65,7 @@ class PropertyController extends Controller
             'map_lng' => 'nullable|numeric|between:-180,180',
             'property_type' => 'required|in:apartment,house,room,studio,bedsitter',
             'amenities' => 'nullable|array',
-            'images' => [
-                'required',
-                'file',
-                'mimes:jpg,jpeg,png,webp,gif', // whitelist
-                'max:2048',                    // 2MB
-                'dimensions:min_width=1,min_height=1',
-            ],
-            
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'street' => 'nullable|string',
             'building_name' => 'nullable|string',
             'landmark' => 'nullable|string',
@@ -117,7 +110,7 @@ class PropertyController extends Controller
         }
         
 
-        return redirect()->route('landlord.properties.index')
+        return redirect()->route('landlord.properties.myProperties')
             ->with('success', 'Property added successfully!');
     }
 
@@ -185,7 +178,7 @@ class PropertyController extends Controller
 
         $property->update($validated);
 
-        return redirect()->route('landlord.properties.index')
+        return redirect()->route('landlord.properties.myProperties')
             ->with('success', 'Property updated successfully!');
     }
 

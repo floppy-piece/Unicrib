@@ -570,7 +570,7 @@
 
                         {{-- Submit --}}
                         <div class="uc-footer-row">
-                            <a href="{{ route('landlord.properties.index') }}" class="uc-btn uc-btn-ghost">
+                            <a href="{{ route('landlord.properties.myProperties') }}" class="uc-btn uc-btn-ghost">
                                 Cancel
                             </a>
                             <button type="submit" class="uc-btn uc-btn-primary">
@@ -582,7 +582,7 @@
             </div>
         </div>
     </div>
-</x-app-layout>
+
 
     {{-- Leaflet JS --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
