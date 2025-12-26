@@ -1,42 +1,100 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<div  style="margin-left:10px;width:max-content">
-                        <a href="{{url('/')}}" style="display:flex;color:rgb(244,244,244);margin-right:20px;" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'">
-                            <img src="{{asset('images/home.jpeg')}}"style="height:20px;width:20px;border-radius:25px;object-fit:cover;"/>
-                            Home
-                           
-                        </a>
-                        <br>
-                        <a href="#" style="display:flex;color:rgb(244,244,244);margin-right:20px;" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'">
-                            <img src="{{asset('images/property.jpeg')}}" alt=""style="height:20px;width:20px;border-radius:25px;object-fit:cover;" >
-                            Properties
-                            
-                        </a>
-                        <br>
-                        <a href="#" style="display:flex;color:rgb(244,244,244);margin-right:20px;" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'">
-                        <img src="{{asset('images/university.jpeg')}}"style="height:20px;width:20px;border-radius:25px;object-fit:cover;"/>
-                            Universities
-                            
-                        </a>
-                        <br>
-                        <a href="#" style="display:flex;color:rgb(244,244,244);margin-right:20px;" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'">
-                        <img src="{{asset('images/services.jpeg')}}"style="height:20px;width:20px;border-radius:25px;object-fit:cover;"/>
-                            Services
-                            
-                        </a>
-                        <br>
-                        <a href="#" style="display:flex;color:rgb(244,244,244);margin-right:20px;" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'">
-                        <img src="{{asset('images/contact.jpeg')}}"style="height:20px;width:20px;border-radius:25px;object-fit:cover;"/>
-                            Contact
-                            
-                        </a>
-                        <br>
-                    </div>
-</body>
-</html>
+<style>
+    .uc-header-links {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-left: 10px;
+        width: max-content;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .uc-header-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        color: #e5e7eb;
+        text-decoration: none;
+        font-size: 13px;
+        line-height: 1.3;
+        opacity: 0.8;
+        transition:
+            background-color .18s ease,
+            color .18s ease,
+            opacity .18s ease,
+            transform .12s ease,
+            box-shadow .18s ease;
+    }
+
+    .uc-header-link img {
+        height: 20px;
+        width: 20px;
+        border-radius: 999px;
+        object-fit: cover;
+        flex-shrink: 0;
+        box-shadow: 0 0 0 1px #111827;
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+
+    .uc-header-link span {
+        white-space: nowrap;
+    }
+
+    .uc-header-link:hover {
+        background-color: rgba(129, 140, 248, 0.14);
+        color: #a855f7;
+        opacity: 1;
+        transform: translateY(-1px);
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.6);
+    }
+
+    .uc-header-link:hover img {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.7);
+    }
+
+    .uc-header-link:focus-visible {
+        outline: 2px solid #4f46e5;
+        outline-offset: 2px;
+    }
+
+    .uc-header-link.uc-active {
+        background: linear-gradient(90deg, #4f46e5, #8b5cf6);
+        color: #f9fafb;
+        opacity: 1;
+        box-shadow: 0 10px 24px rgba(79, 70, 229, 0.55);
+    }
+
+    .uc-header-link.uc-active img {
+        box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9);
+        transform: scale(1.03);
+    }
+</style>
+
+<div class="uc-header-links">
+    <a href="{{ url('/') }}" class="uc-header-link uc-active">
+        <img src="{{ asset('images/home.jpeg') }}" alt="Home">
+        <span>Home</span>
+    </a>
+
+    <a href="#" class="uc-header-link">
+        <img src="{{ asset('images/property.jpeg') }}" alt="Properties">
+        <span>Properties</span>
+    </a>
+
+    <a href="#" class="uc-header-link">
+        <img src="{{ asset('images/university.jpeg') }}" alt="Universities">
+        <span>Universities</span>
+    </a>
+
+    <a href="#" class="uc-header-link">
+        <img src="{{ asset('images/services.jpeg') }}" alt="Services">
+        <span>Services</span>
+    </a>
+
+    <a href="#" class="uc-header-link">
+        <img src="{{ asset('images/contact.jpeg') }}" alt="Contact">
+        <span>Contact</span>
+    </a>
+</div>

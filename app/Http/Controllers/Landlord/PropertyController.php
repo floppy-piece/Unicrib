@@ -65,8 +65,14 @@ class PropertyController extends Controller
             'map_lng' => 'nullable|numeric|between:-180,180',
             'property_type' => 'required|in:apartment,house,room,studio,bedsitter',
             'amenities' => 'nullable|array',
-            'images' => 'nullable|array',
-            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images' => [
+                'required',
+                'file',
+                'mimes:jpg,jpeg,png,webp,gif', // whitelist
+                'max:2048',                    // 2MB
+                'dimensions:min_width=1,min_height=1',
+            ],
+            
             'street' => 'nullable|string',
             'building_name' => 'nullable|string',
             'landmark' => 'nullable|string',

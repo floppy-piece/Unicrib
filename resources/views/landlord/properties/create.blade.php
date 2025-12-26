@@ -604,11 +604,11 @@
                         <div style="
                             background:#1d4ed8;
                             color:white;
-                            min-width:40px;
-                            min-height:40px;
+                            max-width:30px;
+                            max-height:30px;
                             padding:4px 8px;
                             border-radius:9999px;
-                            border:3px solid white;
+                            border:2px solid white;
                             display:flex;
                             flex-direction:column;
                             align-items:center;
