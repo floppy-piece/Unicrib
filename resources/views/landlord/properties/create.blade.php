@@ -312,7 +312,7 @@
                         <div id="mapDimensions"></div>
                     </div>
                     
-                    <form method="POST" action="{{ route('landlord.properties.store') }}" enctype="multipart/form-data" id="propertyForm">
+                    <form method="POST" action="{{ route('store') }}" enctype="multipart/form-data" id="propertyForm">
                         @csrf
                         
                         <!-- Basic Information -->

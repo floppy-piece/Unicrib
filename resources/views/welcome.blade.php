@@ -101,6 +101,7 @@
             position: sticky;
             top: 0;
             z-index: 20;
+            overflow:scroll;
         }
 
         .site-header__inner {
