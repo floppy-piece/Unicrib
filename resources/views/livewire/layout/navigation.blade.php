@@ -16,7 +16,7 @@ $logout = function (Logout $logout) {
 
 
 
-<nav x-data="{ open: false }" style="background-color: #1f2937;border-bottom-width: 1px;border-color: #374151;overflow:scroll;">
+<nav x-data="{ open: false }" style="background-color: #1f2937;border-bottom-width: 1px;border-color: #374151;">
     <div style="display:flex;justify-content:center;text-align:center;align-items:center;">
         <x-application-logo style="border-radius:50px;height:50px;width:50px;object-fit:cover;"/>                            
         <h1 style="font-size:50px;font-weight:bold;color:#374151;">UniCrib</h1>
