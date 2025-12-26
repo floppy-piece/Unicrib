@@ -34,7 +34,7 @@ return new class extends Migration
             
             // Spatial index for location-based queries
             if (config('database.default') === 'mysql') {
-                $table->spatialIndex(['latitude', 'longitude']);
+                $table->Index(['latitude', 'longitude']);
             } else {
                 $table->index(['latitude', 'longitude']);
             }
