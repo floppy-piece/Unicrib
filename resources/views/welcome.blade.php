@@ -1,773 +1,993 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>UniCrib</title>
-        <x-icon/>
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,600&display=swap" rel="stylesheet" />
-        
-        <!-- Styles -->
-        <style>
+    <title>UniCrib – Premium Student Housing</title>
+    <x-icon/>
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-dark: #0b1020;
+            --bg-deep: #050814;
+            --primary: #6366f1;
+            --primary-soft: #4f46e5;
+            --accent: #ec4899;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --card-bg: #0f172a;
+            --border-subtle: #1f2937;
+        }
+
         * {
-            font-family: 'Inter', sans-serif;
-            overflow-right:hidden;
-        
-        }
-        body{
-            width:auto;
-        }
-        /* General styling for the items */
-        .item {
-            flex: 33.3%; 
-            padding: 20px;
-            box-sizing: border-box; /* Ensures padding/border are included in the width */
-            /* Use padding to simulate an aspect ratio or ensure height responsiveness */
-            padding-bottom: 5%; /* Example: maintains a certain height/width ratio */
-            height: fit-content; /* Important for the padding trick to work */
-            border-radius:10px;
-            justify-content:space-around;
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Figtree', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Default styles for large screens (row layout) */
-        .containery{
-            display: flex;
-            flex-wrap: wrap; /* Allows items to wrap to the next line on smaller screens */
-            height: fit-content; /* Height adjusts to content */
+        body {
+            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* Layout helpers */
+        .container {
             width: 100%;
-            justify-content:space-around;
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
         }
 
-        
-
-        /* Media query for small screens (e.g., screen width less than 600px) */
-        @media screen and (max-width: 600px) {
-        .containery {
-            /* Changes the layout direction to a column for small screens */
-            flex-direction: column; 
-        }
-        .item {
-            flex: 100%; /* Items take full width */
-            padding-bottom: 100px; /* Adjust height for single column */
-            height: auto; 
-            margin-bottom:20px;
-        }
+        .section {
+            padding: 4rem 0;
         }
 
-        
-        .font-serif {
-            font-family: 'Source Serif Pro', serif;
+        .section--dark {
+            background: var(--bg-dark);
         }
-        
-        .gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .section--deep {
+            background: var(--bg-deep);
         }
-        
-        .gradient-secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+
+        .section__heading {
+            text-align: center;
+            max-width: 640px;
+            margin: 0 auto 2.5rem;
         }
-        
-        .gradient-accent {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+        .section__eyebrow {
+            font-size: 0.85rem;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: .75rem;
         }
-        
-        .text-gradient-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        .section__title {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: .75rem;
         }
-        
-        .text-gradient-secondary {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        .section__subtitle {
+            font-size: 0.95rem;
+            color: var(--text-muted);
         }
-        
-        .card-gradient {
-            background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
+
+        /* Header */
+        .site-header {
+            background: #020617;
+            border-bottom: 1px solid #111827;
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 20;
         }
-        
-        .dark .card-gradient {
-            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+
+        .site-header__inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
         }
-        
-        .hover-card {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
-        
-        .hover-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 35px 60px -12px rgba(102, 126, 234, 0.2);
+
+        .brand__logo {
+            border-radius: 999px;
+            height: 44px;
+            width: 44px;
+            object-fit: cover;
         }
-        
-        /*.section-padding {
-            padding-top: 7rem;
-            padding-bottom: 7rem;
-        }*/
-        
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        .brand__name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
         }
-        
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            font-size: 0.9rem;
         }
-        
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-25px); }
-            100% { transform: translateY(0px); }
+
+        .header-nav a {
+            color: var(--text-muted);
+            transition: color 0.2s ease;
         }
-        
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .header-nav a:hover {
+            color: var(--text-main);
         }
-        
-        .reveal.visible {
-            opacity: 1;
-            transform: translateY(0);
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.4rem;
+            border-radius: 999px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }
-        
-        .border-gradient {
-            border-width: 2px;
-            border-style: solid;
-            border-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%) 1;
+
+        .btn--primary {
+            background: var(--primary);
+            border-color: var(--primary-soft);
+            color: #fff;
         }
-        
-        .badge-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+
+        .btn--primary:hover {
+            background: #4f46e5;
         }
-        
-        .stat-number {
-            font-size: 4rem;
-            line-height: 1;
-            font-weight: 800;
-            background: linear-gradient(135deg, #666eea 0%, #769ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align:center;
+
+        .btn--ghost {
+            background: transparent;
+            border-color: #374151;
+            color: var(--text-main);
         }
-        
-        .dark .stat-number {
-            background: linear-gradient(135deg, #a78bfa 0%, #c084fc 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+
+        .btn--ghost:hover {
+            border-color: var(--primary);
         }
-        
-        .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+
+        /* Hero */
+        .hero {
+            padding: 4.5rem 0 4rem;
+            background-image:
+                linear-gradient(rgba(15,23,42,0.9), rgba(15,23,42,0.9)),
+                url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
+            background-size: cover;
+            background-position: center;
         }
-        
-        .scrollbar-hide::-webkit-scrollbar {
-            display: none;
+
+        .hero__inner {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+            gap: 2.5rem;
+            align-items: center;
         }
-        a{
-            all: unset;
-  cursor: pointer;
+
+        .hero__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(15,23,42,0.85);
+            border: 1px solid rgba(148,163,184,0.35);
+            font-size: 0.75rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero__title {
+            font-size: 2.4rem;
+            line-height: 1.2;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .hero__title span {
+            color: var(--accent);
+        }
+
+        .hero__text {
+            font-size: 0.98rem;
+            color: #e5e7eb;
+            max-width: 34rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .hero__actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .hero__metrics {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .metric {
+            min-width: 8rem;
+        }
+
+        .metric__value {
+            font-weight: 600;
+            color: #facc15;
+        }
+
+        .metric__label {
+            color: var(--text-muted);
+        }
+
+        .hero__side {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .hero-card {
+            background: rgba(15,23,42,0.95);
+            border-radius: 0.9rem;
+            border: 1px solid var(--border-subtle);
+            padding: 1.15rem 1.2rem;
+        }
+
+        .hero-card__title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .hero-card__label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.45rem;
+        }
+
+        .hero-card__body {
+            font-size: 0.85rem;
+            color: #cbd5f5;
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border-subtle);
+            padding: 1.1rem 1.15rem;
+            font-size: 0.9rem;
+        }
+
+        .feature-card__title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 0.35rem;
+        }
+
+        .feature-card__title--pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.45rem 1.1rem;
+            border-radius: 999px;
+            background: #111827;
+            border: 1px solid #1f2937;
+            margin-bottom: 0.6rem;
+        }
+
+        .feature-card p {
+            color: var(--text-muted);
+        }
+
+        /* Properties */
+        .properties-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.5rem;
+        }
+
+        .property-card {
+            background: var(--card-bg);
+            border-radius: 1rem;
+            border: 1px solid var(--border-subtle);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .property-card__image-wrap {
+            padding: 1.25rem 1.25rem 0.25rem;
+            text-align: center;
+        }
+
+        .property-card__image {
+            width: 100%;
+            max-width: 260px;
+            height: 260px;
+            border-radius: 200px;
+            object-fit: cover;
+            margin: 0 auto;
+        }
+
+        .property-card__price {
+            margin: 0 1.25rem;
+            margin-bottom: 0.7rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            background: #1e293b;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .property-card__body {
+            padding: 0 1.25rem 1.25rem;
+            font-size: 0.9rem;
+        }
+
+        .property-card__title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .property-card__location {
+            font-size: 0.83rem;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .property-card__meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.82rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .property-card__meta span {
+            color: var(--text-muted);
+        }
+
+        .property-card__tag {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            background: #1e293b;
+        }
+
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 1.75rem;
+            text-align: center;
+        }
+
+        .stat__value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat__label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Testimonials */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.25rem;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            border-radius: 0.9rem;
+            border: 1px solid var(--border-subtle);
+            padding: 1.2rem 1.3rem;
+            font-size: 0.9rem;
+        }
+
+        .testimonial-card__header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.6rem;
+        }
+
+        .testimonial-card__avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .testimonial-card__name {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .testimonial-card__school {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .testimonial-card__body {
+            font-size: 0.88rem;
+            color: #e5e7eb;
+        }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        .cta__actions {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .cta__secondary-link {
+            font-size: 0.9rem;
+            color: #d1d5db;
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .site-footer {
+            background: #020617;
+            border-top: 1px solid #111827;
+            padding: 2.5rem 0 2rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .footer__top {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .footer__brand {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #f9fafb;
+        }
+
+        .footer__description {
+            max-width: 460px;
+            margin: 0.75rem auto 0;
+        }
+
+        .footer__columns {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2.5rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .footer__column-title {
+            color: #e5e7eb;
+            font-weight: 600;
+            margin-bottom: 0.9rem;
+        }
+
+        .footer__column ul {
+            list-style: none;
+        }
+
+        .footer__column li + li {
+            margin-top: 0.4rem;
+        }
+
+        .footer__bottom {
+            border-top: 1px solid #111827;
+            padding-top: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .footer__links {
+            display: flex;
+            gap: 1.25rem;
+        }
+
+        .footer__links a {
+            color: var(--text-muted);
+        }
+
+        .footer__links a:hover {
+            color: var(--text-main);
+        }
+
+        /* Responsive */
+        @media (max-width: 960px) {
+            .hero__inner {
+                grid-template-columns: minmax(0,1fr);
+            }
+            .hero__side {
+                max-width: 420px;
+            }
+            .features-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .properties-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .testimonials-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .site-header__inner {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .hero {
+                padding-top: 3.5rem;
+            }
+            .hero__title {
+                font-size: 2rem;
+            }
+            .hero__metrics {
+                gap: 1rem;
+            }
+            .features-grid,
+            .properties-grid,
+            .stats-grid,
+            .testimonials-grid {
+                grid-template-columns: minmax(0,1fr);
+            }
+            .footer__bottom {
+                flex-direction: column;
+                align-items: flex-start;
+            }
         }
     </style>
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body style="background:linear-gradient(rgba(35,0,70,0.8),rgba(3,56,89,0.8))">            
-        <div>  
-            
-                
-            <header style="background-color:#111827;color:#9ca3af;box-shadow: inset 0 0px 0 0 #FFFFFF;width:100%;display:sticky;padding-bottom:30px;overflow:hidden;" >                
-                
-                    <div style="display:flex;justify-content:center;text-align:center;align-items:center;">
-                        <x-application-logo style="border-radius:50px;height:50px;width:50px;object-fit:cover;"/>                            
-                        <h1 style="font-size:50px;font-weight:bold;">UniCrib</h1>
-                    </div>
+</head>
+
+<body>
+    {{-- HEADER --}}
+    <header class="site-header">
+        <div class="container">
+            <div class="site-header__inner">
+                <div class="brand">
+                    <x-application-logo class="brand__logo" />
+                    <span class="brand__name">UniCrib</span>
+                </div>
+
+                <div class="header-nav">
                     <x-non-nav/>
-                    <div style="align-items:center;justify-content:center;text-align:right;display:block;margin-right:30px;">
-                        @if (Route::has('login'))
-                            <livewire:welcome.navigation/>
-                        @endif
-                    </div>
-                
-            </header>
-            
-            <section class="pt-32 pb-24 overflow-hidden relative" style="border: top radius -60deg;">
-               
-                <div class="container"style="background-image:url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80'),linear-gradient(rgba(180, 60, 250, 0.5), rgba(0, 0, 2, 0.5));background-repeat:no-repeat;background-size:cover;background-blend-mode: darken;position:relative;z-index:10;box-shadow: inset 0 0px 0 0 #FFFFFF;">
-                    <div class="flex flex-col "style="align-items:center;justify-content:center;"style="padding:10px;display:flex;flex-direction:comlumn;">
-                        <!-- Hero Content -->
-                        <div class="lg:w-1/2 mb-16 lg:mb-0 reveal"style="text-align:center;justify-content:center;"style="padding:10px;">
-                            <div class="inline-flex items-center space-x-3 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full px-4 py-2 mb-8"style="text-align:center;justify-content:center;">
-                                <span class="text-purple-700 dark:text-purple-500 font-medium text-sm">ELITE ACCOMMODATIONS</span>
-                                <span class="text-purple-500">✦</span>
-                            </div>
-                            
-                            <h1 class="text-5xl lg:text-6xl font-serif font-bold text-gray-900 dark:text-white mb-6 leading-tight">
-                                Find Your <span class="text-gradient-secondary">Perfect</span> Student Home
-                            </h1>
-                            
-                            <p class="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-2xl leading-relaxed" style="color:rgb(255,255,255);">
-                                Discover handpicked, premium student accommodations near your university. No more endless searching — just exceptional living spaces tailored to your needs.
-                            </p>
-                            <br>
-                            <div style="display:flex;flex-direction:column;heght:200px;width:100%;border-radius:10px;">
-                                <a href="#" style="border-radius:30px;font-size:25px;display:block;" >
-                                    <x-primary-button>
-                                        {{__('Explore Properties')}} 
-                                    </x-primary-button>
-                                </a>                                    
-                            <br>
-                                <a href="#" style="border-radius:30px;font-size:25px;text-decoration:underline;color:white;">
-                                        Watch Tour
-                                </a>                                        
-                            </div>
-                            <br>
-                            <!-- Trust Indicators -->
-                            <div style="align-text:center; justify-content:space-between;display:flex;padding:5px;">
-                                <div class="text-center">
-                                    <div style="color:white;">+4.9</div>
-                                    <div style="color:rgb(228,128,228);">Student Rating</div>
-                                </div>
-                                
-                                <div class="text-center"style="display:flex;flex-direction:column;text-align:center;justify-content:center;">
-                                    <div style="color:white;">2,500+</div>
-                                    <div style="color:rgb(228,128,228);">Verified Properties</div>
-                                </div>
-                                
-                                <div class="text-center"style="display:flex;flex-direction:column;text-align:center;justify-content:center;">
-                                    <div style="color:white;">24/7</div>
-                                    <div style="color:rgb(228,128,228);">Support</div>
-                                </div>
-                            </div>
-                        </div>
-                        <br><br>
-                        <!-- Hero Image -->
-                        <div style="overflow:hidden;padding:5px;width:100%;">
-                            
-                            
-                            <!-- Floating Card 1 -->
-                            <div class="card-gradient hover-card" style="justify-content:center; background-color:none;border-radius:10px;width:100%;" >
-
-                                    <div style="justify-content:center;padding:5px;">
-                                        <div class="gradient-primary hover-card" style="font-size:36px;border-radius:30px;text-align:center;" >Campus Proximity</div>
-                                        <div >Walking Distance</div>
-                                    </div>
-                                
-                                <p class="text-sm text-gray-600 dark:text-gray-300" style="color:rgb(100,123,20);">Properties within 15-minute walk to campus gates.</p>
-                            </div>
-                            <br>
-                            <!-- Floating Card 2 -->
-                            <div class="card-gradient hover-card"style="justify-content:center; background-color:inherit;border-radius:10px;width:100%">
-                                
-                                
-                                    <div style="justify-content:center;padding:5px;">
-                                        <div class="gradient-secondary hover-card"style="font-size:36px;border-radius:30px;text-align:center;">Verified & Secure</div>
-                                        <div>Trust & Safety</div>
-                                    </div>
-                                
-                                <p class="text-sm text-gray-600 dark:text-gray-300"style="color:rgb(100,123,20);">All properties undergo thorough verification.</p>
-                            </div>
-                            <br>
-                        </div>
-                    </div>
+                    @if (Route::has('login'))
+                        <livewire:welcome.navigation/>
+                    @endif
                 </div>
-            </section>
+            </div>
+        </div>
+    </header>
 
-            <!-- Features Section -->
-            <section class="section-padding bg-white dark:bg-gray-800"style="width:100%;">
-                <div class="container mx-auto px-6"style="width:100%;background: linear-gradient(rgba(0,0,0,0.9), rgba(68,0,100,0.5));">
-                    <div class="text-center mb-16 reveal" style="padding-top:10px;">
-                        <div style="text-align:center;">                           
-                            <span class="text-gradient-secondary" style="font-size:20px;">WHY UniCrib</span>                            
-                        </div>
-                        <h2 style="color:white; font-weight:semi-bold;text-align:center;">
-                            Redefining <span class="text-gradient-primary">Student Living</span>
-                        </h2>
-                        <p style="color:white;text-align:center;">
-                            We've transformed the student housing experience from stressful to seamless, with premium accommodations and exceptional service.
-                        </p>
+    {{-- HERO --}}
+    <section class="hero">
+        <div class="container">
+            <div class="hero__inner">
+                <div>
+                    <div class="hero__badge">
+                        <span>ELITE ACCOMMODATIONS</span>
+                        <span>•</span>
+                        <span>Built for University Life</span>
                     </div>
-                    
-                    <div style="display:flex;justify-content:space-between;flex-direction:column;">
-                        <!-- Feature 1 -->
-                        <div class="card-gradient  hover-card reveal" style="border-radius:5px;margin-bottom:7px;padding:auto;text-align:center;height:140px;">                                    
-                            <h3 class="gradient-primary"style="border-radius:70px;height:50px;">Curated Selection</h3>
-                            <p class="text-gray-600 dark:text-gray-900">
-                                Each property is personally inspected and selected for quality, location, and student needs.
-                            </p>
-                        </div>
-                        
-                        <!-- Feature 2 -->
-                        <div class="card-gradient hover-card reveal" style="border-radius:5px;margin-bottom:7px;padding:auto;text-align:center;height:140px;">                            
-                            <h3 class="gradient-secondary" style="border-radius:70px;height:50px;">Time-Saving</h3>
-                            <p class="text-gray-600 dark:text-gray-900">
-                                No more endless searching. Find your perfect home in minutes, not weeks.
-                            </p>
-                        </div>
-                        
-                        <!-- Feature 3 -->
-                        <div class="card-gradient hover-card reveal" style="border-radius:5px;margin-bottom:7px;padding:auto;text-align:center;height:140px;">                                    
-                            <h3 class="gradient-accent" style="border-radius:70px;height:50px;">Community</h3>
-                            <p class="text-gray-600 dark:text-gray-900">
-                                Connect with potential roommates and join student communities in your area.
-                            </p>
-                        </div>
-                        
-                        <!-- Feature 4 -->
-                        <div class="card-gradient hover-card reveal" style="border-radius:5px;margin-bottom:7px;padding:auto;text-align:center;height:140px;">
-                            <h3 class="gradient-primary"style="border-radius:70px;height:50px;">24/7 Support</h3>
-                            <p class="text-gray-600 dark:text-gray-900"style="margin:auto">
-                                Dedicated support team available anytime for questions, maintenance, or emergencies.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Property Showcase -->
-            <section class="py-20 bg-gradient-to-br from-gray-50 to-purple-50 dark:from-gray-900 dark:to-purple-900/20">
-                <div class="container mx-auto px-6">
-                    <div class="flex flex-col lg:flex-row justify-between items-end mb-16 reveal">
-                        <div >
-                            <div style="text-align:center;">
-                                
-                                <span class="text-gradient-secondary"style="text-align:center;">FEATURED PROPERTIES</span>
-                                
-                            </div>
-                            <h2 style="color:white; font-weight:semi-bold;text-align:center;">
-                                Exceptional <span class="text-gradient-secondary">Accommodations</span>
-                            </h2>
-                            <p style="color:white;text-align:center;">
-                                A selection of our premium student properties near top universities.
-                            </p>
-                        </div>
-                        <a href="#" style="color:white;text-align:center;font-weight;bold;text-decoration:underline;">
-                            View All <i class="fas fa-arrow-right ml-3 group-hover:translate-x-2 transition-transform duration-300"></i>
+                    <h1 class="hero__title">
+                        Find your <span>perfect</span> student home.
+                    </h1>
+
+                    <p class="hero__text">
+                        Discover carefully curated student accommodations near your university.
+                        UniCrib gives you transparent options, real details, and a smoother way
+                        to secure your next home.
+                    </p>
+
+                    <div class="hero__actions">
+                        <a href="{{ url('/register') }}" class="btn btn--primary">
+                            Get started – it’s free
+                        </a>
+                        <a href="#" class="btn btn--ghost">
+                            Watch platform overview
                         </a>
                     </div>
-                    
-                    <div class="containery">
-                        <!-- Property 1 -->
-                        <div class="group card-gradient item ">
-                            <div style="text-align:center;">
-                                <img src="{{asset('images/home.jpeg')}}" 
-                                    alt="Modern apartment" 
-                                    
-                                    style="width:300px;object-fit:cover;border-radius:500px;height:450px;">
-                                
-                                
-                            </div>
-                            <div class=" badge-gradient "style="border-radius:20px;text-align:center;height:40px;align-items:center;justify-content:center;">
-                                    $1,850/mo
-                                </div>
-                            <div class="p-8">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-900">The University Lofts</h3>
-                                    
-                                </div>
-                                <div class="flex items-center text-gray-600 dark:text-gray-400 mb-6">
-                                    <i class="fas fa-map-marker-alt mr-3 text-purple-500"></i>
-                                    <span>0.4mi from Stanford University</span>
-                                </div>
-                                <div class="flex items-center justify-between mb-6">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-bed mr-2 text-purple-500"></i>
-                                            <span class="font-medium">2 beds</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <i class="fas fa-bath mr-2 text-purple-500"></i>
-                                            <span class="font-medium">2 baths</span>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm font-medium px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">Premium</span>
-                                </div>
-                                <a href="#">
-                                    <x-primary-button>
-                                    {{__('View Details')}}
-                                    </x-primary-button>
-                                </a>
-                            </div>
+
+                    <div class="hero__metrics">
+                        <div class="metric">
+                            <div class="metric__value">4.9 / 5</div>
+                            <div class="metric__label">Average student rating</div>
                         </div>
-                        <br>
-                        <!-- Property 2 -->
-                        <div class=" card-gradient item ">
-                            <div style="text-align:center;align-items:center;justify-content:center;">
-                                <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                                    alt="Luxury studio"                                     
-                                
-                                    style="width:300px;object-fit:cover;border-radius:500px;height:450px;">
-                                
-                            </div>
-                            <div class=" badge-gradient "style="border-radius:20px;text-align:center;height:40px;align-items:center;justify-content:center;">
-                                    $2,100/mo
-                                </div>
-                            <div class="p-8">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-900">Campus View Apartments</h3>
-                                    
-                                </div>
-                                <div class="flex items-center text-gray-600 dark:text-gray-400 mb-6">
-                                    <i class="fas fa-map-marker-alt mr-3 text-purple-500"></i>
-                                    <span>0.2mi from Harvard University</span>
-                                </div>
-                                <div class="flex items-center justify-between mb-6">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-bed mr-2 text-purple-500"></i>
-                                            <span class="font-medium">Studio</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <i class="fas fa-bath mr-2 text-purple-500"></i>
-                                            <span class="font-medium">1 bath</span>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm font-medium px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">Elite</span>
-                                </div>
-                                <a href="#">
-                                    <x-primary-button>
-                                    {{__('View Details')}}
-                                    </x-primary-button>
-                                </a>
-                            </div>
+                        <div class="metric">
+                            <div class="metric__value">2,500+</div>
+                            <div class="metric__label">Verified properties</div>
                         </div>
-                        <br>
-                        <!-- Property 3 -->
-                        <div class="group card-gradient item ">
-                            <div class="relative overflow-hidden h-64">
-                                <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
-                                    alt="Modern house" 
-                                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 rounded-full"
-                                
-                                    style="width:300px;object-fit:cover;border-radius:500px;height:450px;">
-                                
-                            </div>
-                            <div class=" badge-gradient "style="border-radius:20px;text-align:center;height:40px;align-items:center;justify-content:center;">
-                                    $3,100/mo
-                                </div>
-                            <div class="p-8">
-                                <div class="flex justify-between items-start mb-4">
-                                    <h3 class="text-2xl font-bold text-gray-900 dark:text-gray-900">The Scholar's Residence</h3>
-                                   
-                                </div>
-                                <div class="flex items-center text-gray-600 dark:text-gray-400 mb-6">
-                                    <i class="fas fa-map-marker-alt mr-3 text-purple-500"></i>
-                                    <span>0.3mi from MIT</span>
-                                </div>
-                                <div class="flex items-center justify-between mb-6">
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex items-center">
-                                            <i class="fas fa-bed mr-2 text-purple-500"></i>
-                                            <span class="font-medium">4 beds</span>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <i class="fas fa-bath mr-2 text-purple-500"></i>
-                                            <span class="font-medium">3 baths</span>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm font-medium px-3 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">Signature</span>
-                                </div>
-                                <a href="#">
-                                    <x-primary-button>
-                                    {{__('View Details')}}
-                                    </x-primary-button>
-                                </a>
-                            </div>
+                        <div class="metric">
+                            <div class="metric__value">24/7</div>
+                            <div class="metric__label">Student support</div>
                         </div>
                     </div>
                 </div>
-            </section>
 
-            <!-- Stats Section -->
-            <section class="py-20 gradient-primary text-white"style="width:100%;">
-                <div class="container mx-auto px-6"style="width:100%;align-item:center;">
-                    <div class="text-center mb-16 reveal">
-                        <h2 style="color:white; font-weight:semi-bold;text-align:center;">
-                            Trusted by <span class="text-white">Thousands</span>
-                        </h2>
-                        <p style="text-align:center;color:white;">
-                            Join the growing community of students who have found their perfect home with UniCrib.
+                <aside class="hero__side">
+                    <div class="hero-card">
+                        <div class="hero-card__title">Campus proximity</div>
+                        <div class="hero-card__label">Walking distance</div>
+                        <p class="hero-card__body">
+                            Short walks, safe routes. Many listings are within a 10–15 minute walk to campus gates.
                         </p>
                     </div>
-                    
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-12">
-                        <div class="text-center reveal">
-                            <div class="stat-number mb-9">50,000+</div>
-                            <div style="text-align:center;color:white;">Students Served</div>
-                        </div>
-                        <div class="text-center reveal">
-                            <div class="stat-number mb-4">2,500+</div>
-                            <div style="text-align:center;color:white;">Properties</div>
-                        </div>
-                        <div class="text-center reveal">
-                            <div class="stat-number mb-4">120+</div>
-                            <div style="text-align:center;color:white;">Universities</div>
-                        </div>
-                        <div class="text-center reveal">
-                            <div class="stat-number mb-4">98%</div>
-                            <div style="text-align:center;color:white;">Satisfaction</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
-            <!-- Testimonials -->
-            <section class="section-padding bg-white dark:bg-gray-800"style="width:100%;">
-                <div class="container mx-auto px-6">
-                    <div class="text-center mb-16 reveal">
-                        <div class="inline-flex items-center space-x-3 mb-6"style="text-align:center;">
-                            
-                            <span class="text-gradient-secondary"style="text-align:center;">STUDENT TESTIMONIALS</span>
-                            
-                        </div>
-                        <h2 style="color:white; font-weight:semi-bold;text-align:center;">
-                            Students <span class="text-gradient-secondary">Love UniCrib</span>
-                        </h2>
-                        <p style="text-align:center;color:white;">
-                            Hear from students who transformed their housing search with our platform.
+                    <div class="hero-card">
+                        <div class="hero-card__title">Verified &amp; secure</div>
+                        <div class="hero-card__label">Trust &amp; safety</div>
+                        <p class="hero-card__body">
+                            Every property is reviewed and verified, so you can focus on your studies, not scams.
                         </p>
                     </div>
-                    
-                    <div class="containery">
-                        <!-- Testimonial 1 -->
-                        <div class="card-gradient hover-card item"style="border-radius:10px;">
-                            <div style="text-align:center;align-items:center;justify-content:center;display:flex;">
-                                <div class="gradient-primary "  style="border-radius:30px;align-items:center;justify-content:center;display:flex;height:40px;">
-                                    <span class="font-bold text-white text-lg">JS</span>
-                                </div>
-                                <div>
-                                    <h4 >Jessica Smith</h4>
-                                    <p >Stanford University</p>
-                                </div>
-                            </div>
-                            <p >
-                                "UniCrib saved me weeks of searching. I found a beautiful apartment within walking distance of campus in just two days!"
-                            </p>
-                            
-                        </div>
-                        
-                        <!-- Testimonial 2 -->
-                        <div class="card-gradient hover-card item"style="border-radius:10px;">
-                            <div style="text-align:center;align-items:center;justify-content:center;display:flex;">
-                                 <div class="gradient-primary "  style="border-radius:30px;align-items:center;justify-content:center;display:flex;height:40px;">
-                                    <span >AR</span>
-                                </div>
-                                <div>
-                                    <h4 >Ahmed Rahman</h4>
-                                    <p >MIT</p>
-                                </div>
-                            </div>
-                            <p>
-                                "As an international student, I was worried about finding safe housing. UniCrib's verified properties gave me peace of mind."
-                            </p>
-                           
-                        </div>
-                        
-                        <!-- Testimonial 3 -->
-                        <div class="card-gradient hover-card item"style="border-radius:10px;">
-                            <div style="text-align:center;align-items:center;justify-content:center;display:flex;">
-                                <div class="gradient-primary "  style="border-radius:30px;align-items:center;justify-content:center;display:flex;height:40px;">
-                                    <span class="font-bold text-white text-lg">MC</span>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-gray-900 dark:text-gray">Marcus Chen</h4>
-                                    <p class="text-gray-500 dark:text-gray-500 text-sm">Harvard University</p>
-                                </div>
-                            </div>
-                            <p class="text-gray-600 dark:text-gray-500 italic mb-6">
-                                "The roommate matching feature helped me find perfect housemates. Our house is amazing and the process was seamless."
-                            </p>
-                           
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Final CTA -->
-            <section class="py-20 relative overflow-hidden"style="background:linear-gradient(rgba(35,0,70,0.8),rgba(3,56,89,0.8));">
-                
-                <div class="container mx-auto px-6 relative z-10"style="width:100%;">
-                    <div class="max-w-4xl mx-auto text-center">
-                        <h2 style="color:white; font-weight:semi-bold;text-align:center;">
-                            Ready to Find Your <span class="text-gradient-secondary">Perfect Home?</span>
-                        </h2>
-                        <p style="text-align:center;color:white;">
-                            Join thousands of students who have transformed their university experience with premium, hassle-free housing.
-                        </p>
-                        <br>
-                        <div style="justify-content:center;display:flex;flex-direction:column;">
-                            <div>
-                                <a href="{{ url('/register') }}" >
-                                    <x-primary-button>
-                                        {{__('Get Started Now')}}
-                                    </x-primary-button>
-                                </a>
-                            </div>
-                            
-                            <a href="{{ url('/dashboard') }}"style="color:grey; text-decoration:underline;font-size:18px;margin-top:5px;text-align:center;">
-                                Schedule a Tour
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            <footer style="display:flex; background-color:#111827;color:#9ca3af;text-align:center;justify-content:center;align-items:center;" >
-                <div class="container" style="text-align:center;justify-content:center;align-items:center;padding-bottom:5%;width:100%;">
-                                <div style="text-align:center;justify-content:center;align-items:center;">
-                                <div class="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
-                                    <i class="fas fa-building text-white text-lg"></i>
-                                </div>
-                                <span style="font-size:25px;color:white; font-weight:semi-bold;text-align:center;">UniCrib</span>
-                            </div>
-                            <p>
-                                Premium student accommodations with exceptional service. We're redefining the student housing experience.
-                            </p>
-                    <div style="display:flex;justify-content:space-between;padding-left:5%;padding-right:5%;align-items:top;text-align:center;overflow:scroll;">
-                        <!-- Logo & Description -->
-                       <!--<div class="lg:col-span-2">
-                            
-                            <div class="flex space-x-4">
-                                <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:gradient-primary flex items-center justify-center text-white transition-all duration-300">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                                <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:gradient-primary flex items-center justify-center text-white transition-all duration-300">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                                <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:gradient-primary flex items-center justify-center text-white transition-all duration-300">
-                                    <i class="fab fa-linkedin-in"></i>
-                                </a>
-                                <a href="#" class="w-10 h-10 rounded-full bg-gray-800 hover:gradient-primary flex items-center justify-center text-white transition-all duration-300">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                            </div>
-                        </div>-->
-                        
-                        <!-- Quick Links -->
-                        <div>
-                            <h3 class="text-white text-lg font-bold mb-8">Platform</h3>
-                            <ul class="space-y-4">
-                                <li><a href="{{url('/dashboard')}}" class="hover:text-white transition-colors duration-300">Properties</a></li>
-                                <li><a href="{{url('/dashboard')}}" class="hover:text-white transition-colors duration-300">Universities</a></li>
-                                <li><a href="{{url('/dashboard')}}" class="hover:text-white transition-colors duration-300">Services</a></li>
-                                <li><a href="{{url('/dashboard')}}" class="hover:text-white transition-colors duration-300">Dashboard</a></li>
-                            </ul>
-                        </div>
-                        
-                        <!-- Company -->
-                        <div>
-                            <h3 class="text-white text-lg font-bold mb-8">Company</h3>
-                            <ul class="space-y-4">
-                                <li><a href="#" class="hover:text-white transition-colors duration-300">About Us</a></li>
-                                <li><a href="#" class="hover:text-white transition-colors duration-300">Careers</a></li>
-                                <li><a href="#" class="hover:text-white transition-colors duration-300">Blog</a></li>
-                                <li><a href="#" class="hover:text-white transition-colors duration-300">Press</a></li>
-                            </ul>
-                        </div>
-                        
-                        <!-- Contact -->
-                        <div>
-                            <h3 class="text-white text-lg font-bold mb-8">Contact</h3>
-                            <ul class="space-y-4">
-                                <li class="flex items-start">
-                                    
-                                    <span>Kutus-Kirinyaga</span>
-                                </li>
-                                <li class="flex items-start">
-                                
-                                    <span>+254704969006</span>
-                                </li>
-                                <li class="flex items-start">
-                                    
-                                    <span>unicrib@gmail.com</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="border-t border-gray-800 pt-8 flex flex-col lg:flex-row justify-between items-center">
-                        <p>&copy; 2026 UniCrib. All rights reserved.</p>
-                        <div class="flex space-x-8 mt-4 lg:mt-0">
-                            <a href="#" class="hover:text-white transition-colors duration-300">Privacy Policy</a>
-                            <a href="#" class="hover:text-white transition-colors duration-300">Terms of Service</a>
-                            <a href="#" class="hover:text-white transition-colors duration-300">Cookie Policy</a>
-                        </div>
-                    </div>
-                </div>
-            </footer>
-
-            
-           
+                </aside>
+            </div>
         </div>
+    </section>
 
-    </body>
-    <script>
-        // Scroll reveal animation
-        const revealElements = document.querySelectorAll('.reveal');
-        
-        const revealObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                }
-            });
-        }, {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        });
-        
-        revealElements.forEach(element => {
-            revealObserver.observe(element);
-        });
-        
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 100,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-        
-        // Enhanced hover effects
-        document.querySelectorAll('.hover-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-12px)';
-                this.style.boxShadow = '0 35px 60px -12px rgba(102, 126, 234, 0.2)';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.08)';
-            });
-        });
-        
-        // Initialize animations on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add staggered animation delays
-            revealElements.forEach((element, index) => {
-                element.style.transitionDelay = `${index * 0.1}s`;
-            });
-        });
-    </script>
-                
+    {{-- FEATURES --}}
+    <section class="section section--dark">
+        <div class="container">
+            <div class="section__heading">
+                <div class="section__eyebrow">Why UniCrib</div>
+                <h2 class="section__title">
+                    A simpler way to secure student housing
+                </h2>
+                <p class="section__subtitle">
+                    UniCrib removes the noise from the search process. You get relevant options,
+                    clear information, and support from enquiry to move‑in.
+                </p>
+            </div>
+
+            <div class="features-grid">
+                <article class="feature-card">
+                    <div class="feature-card__title--pill">Curated selection</div>
+                    <p>
+                        Every listing is reviewed for quality, location, and suitability for student life.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-card__title--pill">Time‑saving</div>
+                    <p>
+                        Filter by budget, distance, and preferences. Shortlist in minutes instead of weeks.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-card__title--pill">Student community</div>
+                    <p>
+                        Discover shared housing, connect with roommates, and build your campus network.
+                    </p>
+                </article>
+
+                <article class="feature-card">
+                    <div class="feature-card__title--pill">24/7 support</div>
+                    <p>
+                        Our team is available around the clock to help with viewings, questions, and issues.
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {{-- FEATURED PROPERTIES --}}
+    <section class="section section--deep">
+        <div class="container">
+            <div class="section__heading">
+                <div class="section__eyebrow">Featured properties</div>
+                <h2 class="section__title">
+                    A closer look at our accommodations
+                </h2>
+                <p class="section__subtitle">
+                    A taste of the verified student homes available near major universities.
+                </p>
+            </div>
+
+            <div class="properties-grid">
+                {{-- Property 1 --}}
+                <article class="property-card">
+                    <div class="property-card__image-wrap">
+                        <img src="{{ asset('images/home.jpeg') }}"
+                             alt="Student apartment near campus" class="property-card__image">
+                    </div>
+                    <div class="property-card__price">$1,850 / month</div>
+                    <div class="property-card__body">
+                        <h3 class="property-card__title">The University Lofts</h3>
+                        <p class="property-card__location">0.4 mi from Stanford University</p>
+
+                        <div class="property-card__meta">
+                            <span>2 bedrooms • 2 bathrooms</span>
+                            <span class="property-card__tag">Premium</span>
+                        </div>
+
+                        <a href="#" class="btn btn--primary" style="width: 100%; justify-content: center;">
+                            View details
+                        </a>
+                    </div>
+                </article>
+
+                {{-- Property 2 --}}
+                <article class="property-card">
+                    <div class="property-card__image-wrap">
+                        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                             alt="Modern studio apartment" class="property-card__image">
+                    </div>
+                    <div class="property-card__price">$2,100 / month</div>
+                    <div class="property-card__body">
+                        <h3 class="property-card__title">Campus View Apartments</h3>
+                        <p class="property-card__location">0.2 mi from Harvard University</p>
+
+                        <div class="property-card__meta">
+                            <span>Studio • 1 bathroom</span>
+                            <span class="property-card__tag">Elite</span>
+                        </div>
+
+                        <a href="#" class="btn btn--primary" style="width: 100%; justify-content: center;">
+                            View details
+                        </a>
+                    </div>
+                </article>
+
+                {{-- Property 3 --}}
+                <article class="property-card">
+                    <div class="property-card__image-wrap">
+                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                             alt="Shared student house" class="property-card__image">
+                    </div>
+                    <div class="property-card__price">$3,100 / month</div>
+                    <div class="property-card__body">
+                        <h3 class="property-card__title">The Scholar’s Residence</h3>
+                        <p class="property-card__location">0.3 mi from MIT</p>
+
+                        <div class="property-card__meta">
+                            <span>4 bedrooms • 3 bathrooms</span>
+                            <span class="property-card__tag">Signature</span>
+                        </div>
+
+                        <a href="#" class="btn btn--primary" style="width: 100%; justify-content: center;">
+                            View details
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {{-- STATS --}}
+    <section class="section section--dark">
+        <div class="container">
+            <div class="section__heading">
+                <h2 class="section__title">
+                    Trusted by students and landlords
+                </h2>
+                <p class="section__subtitle">
+                    UniCrib is growing with every intake. The numbers below represent real matches
+                    between students and verified homes.
+                </p>
+            </div>
+
+            <div class="stats-grid">
+                <div>
+                    <div class="stat__value">50,000+</div>
+                    <div class="stat__label">Students served</div>
+                </div>
+                <div>
+                    <div class="stat__value">2,500+</div>
+                    <div class="stat__label">Active properties</div>
+                </div>
+                <div>
+                    <div class="stat__value">120+</div>
+                    <div class="stat__label">Universities covered</div>
+                </div>
+                <div>
+                    <div class="stat__value">98%</div>
+                    <div class="stat__label">Satisfaction rating</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- TESTIMONIALS --}}
+    <section class="section section--deep">
+        <div class="container">
+            <div class="section__heading">
+                <div class="section__eyebrow">Student feedback</div>
+                <h2 class="section__title">
+                    Students share their UniCrib experience
+                </h2>
+                <p class="section__subtitle">
+                    Real stories from students who secured housing quickly and confidently using UniCrib.
+                </p>
+            </div>
+
+            <div class="testimonials-grid">
+                <article class="testimonial-card">
+                    <div class="testimonial-card__header">
+                        <div class="testimonial-card__avatar">JS</div>
+                        <div>
+                            <div class="testimonial-card__name">Jessica Smith</div>
+                            <div class="testimonial-card__school">Stanford University</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-card__body">
+                        “UniCrib saved me weeks of searching. I found a great apartment within walking
+                        distance of campus in just two days.”
+                    </p>
+                </article>
+
+                <article class="testimonial-card">
+                    <div class="testimonial-card__header">
+                        <div class="testimonial-card__avatar">AR</div>
+                        <div>
+                            <div class="testimonial-card__name">Ahmed Rahman</div>
+                            <div class="testimonial-card__school">MIT</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-card__body">
+                        “As an international student, verified listings and support made the move feel safe.
+                        I could focus on classes instead of worrying about housing.”
+                    </p>
+                </article>
+
+                <article class="testimonial-card">
+                    <div class="testimonial-card__header">
+                        <div class="testimonial-card__avatar">MC</div>
+                        <div>
+                            <div class="testimonial-card__name">Marcus Chen</div>
+                            <div class="testimonial-card__school">Harvard University</div>
+                        </div>
+                    </div>
+                    <p class="testimonial-card__body">
+                        “The roommate matching options helped me find housemates with similar schedules.
+                        The whole process was straightforward.”
+                    </p>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    {{-- FINAL CTA --}}
+    <section class="section section--deep">
+        <div class="container">
+            <div class="cta">
+                <h2 class="section__title">
+                    Ready to secure your next home?
+                </h2>
+                <p class="section__subtitle">
+                    Create your UniCrib account, explore properties, and move into a place that fits
+                    your studies and your budget.
+                </p>
+
+                <div class="cta__actions">
+                    <a href="{{ url('/register') }}" class="btn btn--primary">
+                        Get started now
+                    </a>
+                    <a href="{{ url('/dashboard') }}" class="cta__secondary-link">
+                        View properties on the dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {{-- FOOTER --}}
+    <footer class="site-footer">
+        <div class="container">
+            <div class="footer__top">
+                <div class="footer__brand">UniCrib</div>
+                <p class="footer__description">
+                    Premium student accommodations with clear information and responsive support.
+                    UniCrib is committed to improving the housing experience for students and landlords.
+                </p>
+            </div>
+
+            <div class="footer__columns">
+                <div class="footer__column">
+                    <h3 class="footer__column-title">Platform</h3>
+                    <ul>
+                        <li><a href="{{ url('/dashboard') }}">Properties</a></li>
+                        <li><a href="{{ url('/dashboard') }}">Universities</a></li>
+                        <li><a href="{{ url('/dashboard') }}">Services</a></li>
+                        <li><a href="{{ url('/dashboard') }}">Dashboard</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__column">
+                    <h3 class="footer__column-title">Company</h3>
+                    <ul>
+                        <li><a href="#">About us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Press</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer__column">
+                    <h3 class="footer__column-title">Contact</h3>
+                    <ul>
+                        <li>Kutus – Kirinyaga</li>
+                        <li>+254 704 969 006</li>
+                        <li>unicrib@gmail.com</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer__bottom">
+                <p>© 2026 UniCrib. All rights reserved.</p>
+                <div class="footer__links">
+                    <a href="#">Privacy policy</a>
+                    <a href="#">Terms of service</a>
+                    <a href="#">Cookie policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
 </html>
