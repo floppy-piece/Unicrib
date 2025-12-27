@@ -8,9 +8,40 @@ use App\Events\MessageSent;
 use App\Events\MessageRead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
 {
+    // Show all pending bookings (messages) for this landlord
+    public function index()
+
+    {
+        $user = Auth::user();
+
+        $landlordBookings = collect();
+
+        if ($user && $user->category === 'landlord') {
+            $landlordBookings = Booking::where('landlord_id', $user->id)
+                ->where('status', 'pending')
+                ->with(['student', 'property'])
+                ->latest()
+                ->get();
+        }
+
+        return view('messages', [
+            'landlordBookings' => $landlordBookings,
+        ]);
+        $bookings = Booking::where('landlord_id', Auth::id())
+            ->where('status', 'pending')
+            ->with(['student', 'property'])
+            ->latest()
+            ->get();
+
+        return view('messages', compact('bookings'));
+    }
+
     public function send(Request $request)
     {
         $request->validate([
@@ -125,3 +156,4 @@ class MessageController extends Controller
         return response()->json(['success' => true]);
     }
 }
+

@@ -29,7 +29,7 @@ class PropertyController extends Controller
     {
         // Get properties you want students to see
         // e.g., only active ones, maybe with pagination
-        $properties = Property::where('is_available', true)->latest()->paginate(10);
+        $properties = Property::latest()->paginate(10);
 
          return view('student.dashboard', compact('properties'));        
     }
@@ -69,6 +69,7 @@ class PropertyController extends Controller
             'street' => 'nullable|string',
             'building_name' => 'nullable|string',
             'landmark' => 'nullable|string',
+            'capacity' => 'required|integer|min:1',
         ]);
 
         // Handle file uploads
@@ -102,6 +103,8 @@ class PropertyController extends Controller
             'building_name' => $validated['building_name'] ?? null,
             'landmark' => $validated['landmark'] ?? null,
             'location_confirmed' => !empty($validated['map_lat']) && !empty($validated['map_lng']),
+            'capacity'     => $validated['capacity'],
+            'booked_count' => 0,
         ]);
 
         // Geocode address if coordinates not provided
@@ -157,6 +160,7 @@ class PropertyController extends Controller
             'street' => 'nullable|string',
             'building_name' => 'nullable|string',
             'landmark' => 'nullable|string',
+            'capacity' => 'required|integer|min:1',
         ]);
 
         // Handle image uploads

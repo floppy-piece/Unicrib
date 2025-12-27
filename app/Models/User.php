@@ -61,6 +61,16 @@ class User extends Authenticatable
         return $query->where('category', 'admin');
     }
 
+    public function bookingsAsStudent()
+{
+    return $this->hasMany(Booking::class, 'student_id');
+}
+
+public function bookingsAsLandlord()
+{
+    return $this->hasMany(Booking::class, 'landlord_id');
+}
+
     // Helpers
     
     public function isstudent()

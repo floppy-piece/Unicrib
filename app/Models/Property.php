@@ -36,6 +36,8 @@ class Property extends Model
         'location_confirmed',
         'formatted_address',
         'geocoding_data',
+        'capacity',
+        'booked_count',
     ];
 
     protected $casts = [
@@ -112,6 +114,12 @@ class Property extends Model
         return $query->where('is_available', true);
     }
 
+    public function bookings()
+{
+    return $this->hasMany(Booking::class);
+}
+
+
     /**
      * Scope for verified properties.
      */
@@ -142,4 +150,8 @@ class Property extends Model
             ->whereRaw("{$haversine} < ?", [$radius])
             ->orderBy('distance');
     }
+    public function isFull(): bool
+{
+    return $this->booked_count >= $this->capacity;
+}
 }

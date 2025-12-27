@@ -287,12 +287,39 @@
                         <p class="uc-price-sub">
                             per month
                         </p>
-                        <form method="POST" action="#">
-                            @csrf
-                            <button type="submit" class="uc-btn-primary">
-                                Book this property
-                            </button>
-                        </form>
+                       
+                        {{-- property info and map here, always visible --}}
+
+                        @auth
+                            @if(auth()->user()->category === 'student')
+                                @php
+                                    $user = auth()->user();
+                                    $hasActiveBooking = \App\Models\Booking::where('student_id', $user->id)
+                                        ->whereIn('status', ['pending', 'approved'])
+                                        ->exists();
+                                @endphp
+
+                                @if($property->isFull())
+                                    <p style="margin-top:8px;font-size:13px;color:#f97316;">
+                                        This property is fully booked. You can still view its details and map.
+                                    </p>
+                                @elseif($hasActiveBooking)
+                                    <p style="margin-top:8px;font-size:13px;color:#9ca3af;">
+                                        You already have an active booking. Wait for it to be approved or rejected before booking another property.
+                                    </p>
+                                @else
+                                    <form method="POST" action="{{ route('student.bookings.store', $property->id) }}">
+                                        @csrf
+                                        <button type="submit" class="uc-btn uc-btn-primary">
+                                            Book this property
+                                        </button>
+                                    </form>
+                                @endif
+                            @endif
+                        @endauth
+
+
+
                     </div>
                 </div>
 
@@ -403,6 +430,33 @@
             </div>
         </div>
     </div>
+    <div id="toast"
+         style="position:fixed;top:1rem;right:1rem;z-index:9999;
+                background:#020617;color:#f9fafb;border:1px solid #1f2937;
+                padding:0.7rem 1rem;border-radius:0.6rem;
+                opacity:0;transition:opacity .2s ease;">
+    </div>
+
+    @if(session('booking_status'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                const data = @json(session('booking_status'));
+                toast.textContent = data.message;
+                toast.style.opacity = '1';
+                if (data.type === 'error') {
+                    toast.style.borderColor = '#b91c1c';
+                    toast.style.color = '#fecaca';
+                } else {
+                    toast.style.borderColor = '#16a34a';
+                }
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                }, 3000);
+            });
+        </script>
+    @endif
 
     {{-- Leaflet JS --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"

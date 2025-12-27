@@ -275,6 +275,7 @@
         }
     </style>
 
+
     <x-slot name="header">
         <div>
             <h2 class="uc-header-title">
@@ -305,6 +306,24 @@
                     </div>
                 </div>
 
+                @php
+                    $landlord = auth()->user();
+                    $properties = $landlord->properties;
+                    // rooms available = sum(capacity - booked_count, but not below 0)
+                    $totalRoomsAvailable = $properties->sum(function ($p) {
+                        $cap = (int) ($p->capacity ?? 0);
+                        $booked = (int) ($p->booked_count ?? 0);
+                        $free = $cap - $booked;
+                        return $free > 0 ? $free : 0;
+                    });
+                    $totalRooms = $properties->sum(function ($p) {
+                        return (int) ($p->capacity ?? 0);
+                    });
+                    $totalRoomsBooked = $properties->sum(function ($p) {
+                        return (int) ($p->booked_count ?? 0);
+                    });
+                @endphp
+
                 <div class="uc-card">
                     <div class="uc-card-row">
                         <div class="uc-stat-icon-wrap uc-stat-icon-green">
@@ -314,9 +333,9 @@
                             </svg>
                         </div>
                         <div class="uc-stat-text">
-                            <p class="uc-stat-label">Available</p>
+                            <p class="uc-stat-label">Rooms available</p>
                             <p class="uc-stat-value">
-                                {{ auth()->user()->properties()->where('is_available', true)->count() }}
+                                {{ $totalRoomsAvailable }}
                             </p>
                         </div>
                     </div>
@@ -331,9 +350,9 @@
                             </svg>
                         </div>
                         <div class="uc-stat-text">
-                            <p class="uc-stat-label">Verified</p>
+                            <p class="uc-stat-label">Total rooms</p>
                             <p class="uc-stat-value">
-                                {{ auth()->user()->properties()->where('is_verified', true)->count() }}
+                                {{ $totalRooms }}
                             </p>
                         </div>
                     </div>
@@ -348,9 +367,9 @@
                             </svg>
                         </div>
                         <div class="uc-stat-text">
-                            <p class="uc-stat-label">Rented</p>
+                            <p class="uc-stat-label">Rooms booked</p>
                             <p class="uc-stat-value">
-                                {{ auth()->user()->properties()->where('is_available', false)->count() }}
+                                {{ $totalRoomsBooked }}
                             </p>
                         </div>
                     </div>
@@ -405,6 +424,7 @@
                                     <th>Property</th>
                                     <th>Area</th>
                                     <th>Price</th>
+                                    <th>Rooms</th>
                                     <th>Status</th>
                                     <th>Actions</th>
                                 </tr>
@@ -433,17 +453,15 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div>
-                                            @php
-                                                $areaNames = [
-                                                    'mjini' => 'Mjini',
-                                                    'ngomongo' => 'Ngomongo', 
-                                                    'diaspora' => 'Diaspora',
-                                                    'kutus' => 'Kutus'
-                                                ];
-                                            @endphp
-                                            {{ $areaNames[$property->area] ?? $property->area }}
-                                        </div>
+                                        @php
+                                            $areaNames = [
+                                                'mjini' => 'Mjini',
+                                                'ngomongo' => 'Ngomongo',
+                                                'diaspora' => 'Diaspora',
+                                                'kutus' => 'Kutus'
+                                            ];
+                                        @endphp
+                                        {{ $areaNames[$property->area] ?? $property->area }}
                                     </td>
                                     <td>
                                         <div style="color:#6ee7b7;font-weight:500;">
@@ -452,10 +470,19 @@
                                         <div style="font-size:11px;color:#9ca3af;">per month</div>
                                     </td>
                                     <td>
-                                        @if($property->is_available)
-                                            <span class="uc-pill uc-pill-green">Available</span>
+                                        <span class="uc-pill uc-pill-blue">
+                                            {{ (int)($property->booked_count ?? 0) }} / {{ (int)($property->capacity ?? 0) }} rooms
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $isFull = (($property->booked_count ?? 0) >= ($property->capacity ?? 0)) && ($property->capacity ?? 0) > 0;
+                                        @endphp
+
+                                        @if($isFull)
+                                            <span class="uc-pill uc-pill-red">Full</span>
                                         @else
-                                            <span class="uc-pill uc-pill-red">Rented</span>
+                                            <span class="uc-pill uc-pill-green">Has rooms</span>
                                         @endif
 
                                         @if($property->is_verified)
