@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             // Add column with default value
-            $table->enum('category', ['student', 'landlord'])
+            $table->enum('category', ['student', 'landlord', 'admin'])
                   ->default('student')
                   ->after('email'); // Or wherever you want it
             });

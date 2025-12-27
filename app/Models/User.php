@@ -88,6 +88,26 @@ public function bookingsAsLandlord()
         return $this->category === 'admin';
     }
 
+    public function hasValidStudentAccess(): bool
+    {
+        if ($this->category !== 'student') {
+            return false;
+        }
+        if (!$this->is_verified) {
+            return false;
+        }
+        if (!$this->access_expires_at) {
+            return false;
+        }
+        return now()->lt($this->access_expires_at);
+    }
+
+    public function hasValidLandlordAccess(): bool
+    {
+        //return $this->category === 'landlord' && $this->is_verified;
+        return $this->category === 'landlord';
+    }
+
     //properties
     public function properties()
     {

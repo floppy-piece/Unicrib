@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Landlord\PropertyController;
 use App\Http\Controllers\MessageController;
+use App\Http\Controllers\PaymentController;
+
 Route::view('/', 'welcome');
 
 
@@ -23,13 +25,62 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::get('/api/properties/{area}', [PropertyController::class, 'getPropertiesByArea']);
     Route::get('/student/dashboard', [PropertyController::class, 'studentIndex'])->name('student.dashboard');
     // Student-facing property details
-    Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
+    //Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 });
+
+
+
+// Student makes a booking on a property
+Route::middleware(['auth', 'category:student'])->group(function () {
+Route::post('/properties/{property}/book', [BookingController::class, 'store'])
+    ->name('student.bookings.store');
+Route::post('/properties/{property}/book', [BookingController::class, 'store'])
+    ->name('student.bookings.store');
+
+Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])
+    ->name('student.bookings.cancel');
+});
+
+// Landlord handles bookings (approve / reject)
 Route::middleware(['auth', 'category:landlord'])
+->prefix('landlord')
+->name('landlord.')
+->group(function () {
+    Route::prefix('bookings')->name('bookings.')->group(function () {
+        Route::post('{booking}/approve', [BookingController::class, 'approve'])->name('approve');
+        Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
+    });
+});
+    
+       
+
+// replace your old Route::view('messages', ...) with:
+Route::middleware(['auth', 'category:landlord'])
+    ->get('/messages', [MessageController::class, 'index'])
+    ->name('messages');
+        
+          
+
+// Student: pay KES 50 to view details for 6 hours
+Route::middleware(['auth','category:student'])->group(function () {
+    Route::get('/payments/student', [PaymentController::class, 'showStudentForm'])->name('payments.student.form');
+    Route::post('/payments/student', [PaymentController::class, 'handleStudentPayment'])->name('payments.student.pay');
+});
+
+// Landlord: pay KES 500 per semester to verify account and property
+Route::middleware(['auth','category:landlord'])->group(function () {
+    Route::get('/payments/landlord', [PaymentController::class, 'showLandlordForm'])->name('payments.landlord.form');
+    Route::post('/payments/landlord', [PaymentController::class, 'handleLandlordPayment'])->name('payments.landlord.pay');
+});
+//show students property i.e accessible to only students that paid
+Route::get('/properties/{property}', [PropertyController::class, 'show'])
+    ->middleware(['auth', 'category:student'/*, 'student.access'*/])
+    ->name('properties.show');
+
+Route::middleware(['auth','category:landlord',/*'landlord.verified'*/])
     ->prefix('landlord')
     ->name('landlord.')
     ->group(function () {
-
         Route::prefix('properties')->name('properties.')->group(function () {
             Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
             Route::get('/create', [PropertyController::class, 'create'])->name('add');
@@ -39,29 +90,3 @@ Route::middleware(['auth', 'category:landlord'])
             Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
         });
     });
-
-
-    // Student makes a booking on a property
-    Route::middleware(['auth', 'category:student'])->group(function () {
-        Route::post('/properties/{property}/book', [BookingController::class, 'store'])
-            ->name('student.bookings.store');
-    });
-    
-    // Landlord handles bookings (approve / reject)
-    Route::middleware(['auth', 'category:landlord'])
-        ->prefix('landlord')
-        ->name('landlord.')
-        ->group(function () {
-            Route::prefix('bookings')->name('bookings.')->group(function () {
-                Route::post('{booking}/approve', [BookingController::class, 'approve'])->name('approve');
-                Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
-            });
-        });
-    
-       
-
-        // replace your old Route::view('messages', ...) with:
-        Route::middleware(['auth', 'category:landlord'])
-            ->get('/messages', [MessageController::class, 'index'])
-            ->name('messages');
-        

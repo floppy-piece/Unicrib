@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class Property extends Model
 {
     use HasFactory;
@@ -52,6 +53,7 @@ class Property extends Model
         'is_available' => 'boolean',
         'is_verified' => 'boolean',
         'location_confirmed' => 'boolean',
+        'verification_expires_at' => 'datetime',
     ];
 
     /**
@@ -135,6 +137,15 @@ class Property extends Model
     {
         return $query->where('area', $area);
     }
+    //if verification is valid
+    public function isVerificationValid(): bool
+    {
+        if (!$this->is_verified || !$this->verification_expires_at) {
+            return false;
+        }
+        return now()->lt($this->verification_expires_at);
+        return (bool) $this->is_verified;
+    }
 
     /**
      * Scope for properties near a location (in kilometers).
@@ -151,7 +162,7 @@ class Property extends Model
             ->orderBy('distance');
     }
     public function isFull(): bool
-{
-    return $this->booked_count >= $this->capacity;
-}
+    {
+        return $this->booked_count >= $this->capacity;
+    }
 }

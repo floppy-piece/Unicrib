@@ -381,21 +381,20 @@
                                     >
                                 </div>
 
-                                <div class="uc-grid-4">
-                                    {{-- existing fields --}}
+                               
 
-                                    <div>
-                                        <label class="uc-label">Rooms available *</label>
-                                        <input
-                                            type="number"
-                                            name="capacity"
-                                            value="{{ old('capacity', $property->capacity) }}"
-                                            min="1"
-                                            class="uc-input"
-                                            required
-                                        >
-                                    </div>
+                                <div>
+                                    <label class="uc-label">Rooms available *</label>
+                                    <input
+                                        type="number"
+                                        name="capacity"
+                                        value="{{ old('capacity', $property->capacity) }}"
+                                        min="1"
+                                        class="uc-input"
+                                        required
+                                    >
                                 </div>
+                                
 
 
                                 <div>

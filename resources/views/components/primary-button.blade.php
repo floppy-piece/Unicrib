@@ -1,45 +1,41 @@
 <style>
-  .button1{
-display:block;
-margin-left:auto;
-margin-right:auto;
-  padding: 12px 28px;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(245, 243, 255, 0.9) 50%,
-    rgba(233, 213, 255, 0.9) 100%
-  );
-  border: 1px solid #e9d5ff;
-  border-radius: 8px;
-  color: #7c3aed;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(124, 58, 237, 0.1);
-}
-
-.button1:hover {
-  transform: translateY(-1px);
-  background: linear-gradient(
-    90deg,
-    white 0%,
-    #f5f3ff 50%,
-    #e9d5ff 100%
-  );
-  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.15);
-}
-
-.button1:active {
-  transform: translateY(0);
-  background: linear-gradient(
-    90deg,
-    #f8f7ff 0%,
-    #f1ebff 50%,
-    #e5d5fa 100%
-  );
-}
+    .uc-btn-main {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        padding: 10px 24px;
+        border-radius: 999px;
+        border: 1px solid #4f46e5;
+        background: linear-gradient(90deg, #6366f1 0%, #4f46e5 50%, #8b5cf6 100%);
+        color: #f9fafb;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: .02em;
+        cursor: pointer;
+        box-shadow: 0 18px 40px rgba(79,70,229,0.55);
+        transition:
+            background-color .18s ease,
+            box-shadow .18s ease,
+            transform .12s ease,
+            border-color .18s ease;
+    }
+    .uc-btn-main:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 22px 50px rgba(79,70,229,0.7);
+        border-color: #818cf8;
+    }
+    .uc-btn-main:active {
+        transform: translateY(0);
+        box-shadow: 0 14px 30px rgba(15,23,42,0.8);
+        background: linear-gradient(90deg, #4f46e5 0%, #4338ca 50%, #7c3aed 100%);
+    }
+    .uc-btn-main:disabled {
+        opacity: .65;
+        cursor: not-allowed;
+        box-shadow: none;
+    }
 </style>
-<button {{ $attributes->merge(['type' => 'submit','class' =>'button1']) }}>
+
+<button {{ $attributes->merge(['type' => 'submit','class' =>'uc-btn-main']) }}>
     {{ $slot }}
 </button>

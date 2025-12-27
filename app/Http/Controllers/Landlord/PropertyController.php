@@ -213,6 +213,15 @@ class PropertyController extends Controller
             'property' => $property->fresh()
         ]);
     }
+    public function destroy($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->delete();
+
+        return redirect()->route('landlord.properties.myProperties')
+            ->with('success', 'Property deleted successfully.');
+    }
+
 
     /**
      * Geocode address to get coordinates.

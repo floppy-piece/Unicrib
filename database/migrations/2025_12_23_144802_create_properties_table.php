@@ -28,7 +28,7 @@ return new class extends Migration
             $table->json('amenities'); // JSON array of amenities
             $table->string('property_type')->default('single-room'); // apartment, house, room, etc.
             $table->boolean('is_available')->default(true);
-            $table->boolean('is_verified')->default(false);
+            $table->boolean('is_verified')->default(true);
             $table->json('images')->nullable(); // JSON array of image paths
             $table->timestamps();
             

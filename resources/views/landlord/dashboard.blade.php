@@ -309,20 +309,21 @@
                 @php
                     $landlord = auth()->user();
                     $properties = $landlord->properties;
-                    // rooms available = sum(capacity - booked_count, but not below 0)
-                    $totalRoomsAvailable = $properties->sum(function ($p) {
-                        $cap = (int) ($p->capacity ?? 0);
-                        $booked = (int) ($p->booked_count ?? 0);
-                        $free = $cap - $booked;
-                        return $free > 0 ? $free : 0;
-                    });
+
                     $totalRooms = $properties->sum(function ($p) {
                         return (int) ($p->capacity ?? 0);
                     });
+
+                    // total booked rooms = sum of bookings with status 'approved' per property
                     $totalRoomsBooked = $properties->sum(function ($p) {
-                        return (int) ($p->booked_count ?? 0);
+                        return $p->bookings()->where('status', 'approved')->count();
                     });
+
+                    // rooms available = total capacity - total booked, but not below 0
+                    $totalRoomsAvailable = max(0, $totalRooms - $totalRoomsBooked);
                 @endphp
+
+
 
                 <div class="uc-card">
                     <div class="uc-card-row">
@@ -470,13 +471,16 @@
                                         <div style="font-size:11px;color:#9ca3af;">per month</div>
                                     </td>
                                     <td>
+                                       
                                         <span class="uc-pill uc-pill-blue">
-                                            {{ (int)($property->booked_count ?? 0) }} / {{ (int)($property->capacity ?? 0) }} rooms
+                                        {{ (int)($property->bookings()->where('status', 'approved')->count()) }}/ {{ (int)($property->capacity ?? 0) }} rooms
                                         </span>
                                     </td>
                                     <td>
                                         @php
-                                            $isFull = (($property->booked_count ?? 0) >= ($property->capacity ?? 0)) && ($property->capacity ?? 0) > 0;
+                                            $currentBooked = $property->bookings()->where('status', 'approved')->count();
+                                            $capacity = (int) ($property->capacity ?? 0);
+                                            $isFull = $capacity > 0 && $currentBooked >= $capacity;
                                         @endphp
 
                                         @if($isFull)
@@ -485,11 +489,16 @@
                                             <span class="uc-pill uc-pill-green">Has rooms</span>
                                         @endif
 
-                                        @if($property->is_verified)
+                                        @php
+                                            $verificationValid = $property->isVerificationValid();
+                                        @endphp
+
+                                        @if($verificationValid)
                                             <span class="uc-pill uc-pill-blue" style="margin-left:4px;">Verified</span>
                                         @else
-                                            <span class="uc-pill uc-pill-amber" style="margin-left:4px;">Pending</span>
+                                            <span class="uc-pill uc-pill-amber" style="margin-left:4px;">Not verified</span>
                                         @endif
+
                                     </td>
                                     <td>
                                         <a href="{{ route('landlord.properties.edit', $property) }}" class="uc-link" style="margin-right:8px;">

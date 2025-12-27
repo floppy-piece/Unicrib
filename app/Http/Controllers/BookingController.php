@@ -109,5 +109,24 @@ class BookingController extends Controller
     return back()->with('success', 'Booking rejected and student notified.');
 }
 
+public function cancel(\App\Models\Booking $booking)
+{
+    $user = auth()->user();
+
+    // Ensure the booking belongs to this student
+    if ($booking->student_id !== $user->id) {
+        abort(403);
+    }
+
+    // Change status to rejected
+    $booking->status = 'rejected';
+    $booking->save(); // updates bookings table [web:104][web:100]
+
+    return back()->with('booking_status', [
+        'type' => 'success',
+        'message' => 'Your booking has been cancelled.',
+    ]);
+}
+
 }
 
