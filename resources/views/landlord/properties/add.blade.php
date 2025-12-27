@@ -379,21 +379,20 @@
                                     <input type="number" name="size" required min="0" step="0.01"
                                            class="uc-input">
                                 </div>
-                                <div class="uc-grid-4">
-                                    {{-- existing bedrooms / bathrooms / size fields --}}
+                              
 
-                                    <div>
-                                        <label class="uc-label">Rooms available *</label>
-                                        <input
-                                            type="number"
-                                            name="capacity"
-                                            value="{{ old('capacity', 1) }}"
-                                            min="1"
-                                            class="uc-input"
-                                            required
-                                        >
-                                    </div>
+                                <div>
+                                    <label class="uc-field-label">Rooms available *</label>
+                                    <input
+                                        type="number"
+                                        name="capacity"
+                                        value="{{ old('capacity', 1) }}"
+                                        min="1"
+                                        class="uc-input"
+                                        required
+                                    >
                                 </div>
+                            
 
                                 
                                 <div>
