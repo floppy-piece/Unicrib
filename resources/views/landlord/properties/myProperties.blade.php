@@ -254,126 +254,132 @@
                             {{ session('success') }}
                         </div>
                     @endif
+                    @php
+                    $recentProperties = auth()->user()->properties()->latest()->take(5)->get();
+                @endphp
 
-                    @if($properties->count() > 0)
-                        <div class="uc-table-wrap">
-                            <table class="uc-table">
-                                <thead>
-                                    <tr>
-                                        <th>Property</th>
-                                        <th>Location</th>
-                                        <th>Price</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($properties as $property)
-                                    <tr>
-                                        <td>
-                                            <div class="uc-prop-cell">
-                                                @if($property->images && count($property->images) > 0)
-                                                    <img
-                                                        class="uc-prop-thumb"
-                                                        src="{{ asset('storage/' . $property->images[0]) }}"
-                                                        alt="{{ $property->title }}"
-                                                    >
-                                                @endif
-                                                <div class="uc-prop-text">
-                                                    <div class="uc-prop-title">{{ $property->title }}</div>
-                                                    <div class="uc-prop-type">{{ $property->property_type }}</div>
+                @if($recentProperties->count() > 0)
+                    <div class="uc-table-wrap">
+                        <table class="uc-table">
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Area</th>
+                                    <th>Price</th>
+                                    <th>Rooms</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentProperties as $property)
+                                <tr>
+                                    <td>
+                                        <div class="uc-table-property">
+                                            @if($property->images && count($property->images) > 0)
+                                                <img class="uc-table-thumb"
+                                                     src="{{ asset('storage/' . $property->images[0]) }}"
+                                                     alt="{{ $property->title }}">
+                                            @else
+                                                <div class="uc-table-thumb-placeholder">
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                                    </svg>
                                                 </div>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="uc-prop-location-main">
-                                                @php
-                                                    $areaNames = [
-                                                        'mjini' => 'Mjini',
-                                                        'ngomongo' => 'Ngomongo', 
-                                                        'diaspora' => 'Diaspora',
-                                                        'kutus' => 'Kutus'
-                                                    ];
-                                                @endphp
-                                                {{ $areaNames[$property->area] ?? $property->area }}
-                                            </div>
-                                            <div class="uc-prop-location-sub">
-                                                {{ Str::limit($property->address, 30) }}
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="uc-price-main">
-                                                KES {{ number_format($property->price) }}
-                                            </div>
-                                            <div class="uc-price-sub">
-                                                per month
-                                            </div>
-                                        </td>
-                                        <td>
-                                            @if($property->is_available)
-                                                <span class="uc-pill uc-pill-green">Available</span>
-                                            @else
-                                                <span class="uc-pill uc-pill-red">Rented</span>
                                             @endif
+                                            <div class="uc-table-text-block">
+                                                <div class="uc-table-title">{{ $property->title }}</div>
+                                                <div class="uc-table-meta">{{ ucfirst($property->property_type) }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $areaNames = [
+                                                'mjini' => 'Mjini',
+                                                'ngomongo' => 'Ngomongo',
+                                                'diaspora' => 'Diaspora',
+                                                'kutus' => 'Kutus'
+                                            ];
+                                        @endphp
+                                        {{ $areaNames[$property->area] ?? $property->area }}
+                                    </td>
+                                    <td>
+                                        <div style="color:#6ee7b7;font-weight:500;">
+                                            KES {{ number_format($property->price) }}
+                                        </div>
+                                        <div style="font-size:11px;color:#9ca3af;">per month</div>
+                                    </td>
+                                    <td>
+                                       
+                                        <span class="uc-pill uc-pill-blue">
+                                        {{ (int)($property->bookings()->where('status', 'approved')->count()) }}/ {{ (int)($property->capacity ?? 0) }} rooms
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $currentBooked = $property->bookings()->where('status', 'approved')->count();
+                                            $capacity = (int) ($property->capacity ?? 0);
+                                            $isFull = $capacity > 0 && $currentBooked >= $capacity;
+                                        @endphp
 
-                                            @if($property->is_verified)
-                                                <span class="uc-pill uc-pill-blue">Verified</span>
-                                            @else
-                                                <span class="uc-pill uc-pill-amber">Pending</span>
-                                            @endif
-                                        </td>
-                                        <td style="font-size:13px;">
-                                            <a
-                                                href="{{ route('landlord.properties.edit', $property) }}"
-                                                class="uc-link"
-                                            >
-                                                Edit
-                                            </a>
-                                            <form
-                                                action="{{ route('landlord.properties.destroy', $property) }}"
-                                                method="POST"
-                                                style="display:inline;"
-                                                onsubmit="return confirm('Are you sure you want to delete this property?')"
-                                            >
-                                                @csrf
-                                                @method('DELETE')
-                                                <button
-                                                    type="submit"
-                                                    class="uc-link uc-link-danger"
-                                                    style="background:none;border:none;padding:0;"
-                                                >
-                                                    Delete
-                                                </button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+                                        @if($isFull)
+                                            <span class="uc-pill uc-pill-red">Full</span>
+                                        @else
+                                            <span class="uc-pill uc-pill-green">Has rooms</span>
+                                        @endif
 
-                        <div class="uc-pagination">
-                            {{ $properties->links() }}
+                                        @php
+                                            $verificationValid = $property->isVerificationValid();
+                                        @endphp
+
+                                        @if($verificationValid)
+                                            <span class="uc-pill uc-pill-blue" style="margin-left:4px;">Verified</span>
+                                        @else
+                                            <span class="uc-pill uc-pill-amber" style="margin-left:4px;">Not verified</span>
+                                        @endif
+
+                                    </td>
+                                    <td>
+                                        <a href="{{ route('landlord.properties.edit', $property) }}" class="uc-link" style="margin-right:8px;">
+                                            Edit
+                                        </a>
+                                        <form action="{{ route('landlord.properties.destroy', $property) }}"
+                                              method="POST" style="display:inline;"
+                                              onsubmit="return confirm('Delete this property?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="uc-link uc-link-danger" style="background:none;border:none;padding:0;">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="uc-empty">
+                        <div class="uc-empty-icon">
+                            <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin:auto;">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
                         </div>
-                    @else
-                        <div class="uc-empty">
-                            <div class="uc-empty-icon">
-                                <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="margin:auto;">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                                </svg>
-                            </div>
-                            <h3 class="uc-empty-title">No properties yet</h3>
-                            <p class="uc-empty-text">Get started by adding your first property.</p>
-                            <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
-                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                                </svg>
-                                Add Your First Property
-                            </a>
-                        </div>
-                    @endif
+                        <h3 class="uc-empty-title">No properties yet</h3>
+                        <p class="uc-empty-text">Get started by adding your first property.</p>
+                        <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                            </svg>
+                            Add your first property
+                        </a>
+                    </div>
+                @endif
+
                 </div>
             </div>
         </div>
