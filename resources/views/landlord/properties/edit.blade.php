@@ -615,6 +615,138 @@
             diaspora: { lat: -0.5150, lng: 37.2850 },
             kutus: { lat: -0.5200, lng: 37.2700 }
         };
+        const landmarks = [
+            {
+                name: 'skymart Supermarket',
+                type: 'supermarket',
+                lat: -0.567700,
+                lng: 37.324526
+            },
+            {
+                name: 'cooperative Bank',
+                type: 'bank',
+                lat: -0.5667250,
+                lng: 37.324600
+            },
+            {
+                name: 'Rubis Station',
+                type: 'petrol',
+                lat: -0.5682000,
+                lng: 37.3209166
+            },
+            /*{
+                name: 'Shops Center',
+                type: 'shop',
+                lat: ,
+                lng: 
+            },*/
+            {
+                name: 'Holy Rosary Catholic Church',
+                type: 'church',
+                lat: -0.567122,
+                lng: 37.325788
+            },
+            {
+                name: 'Central Mosque',
+                type: 'mosque',
+                lat: -0.5630,
+                lng: 37.3235
+            },
+            {
+                name: 'Hostel Building A',
+                type: 'building',
+                lat: -0.5660,
+                lng: 37.3260
+            }
+        ];
+        function getLandmarkIcon(type) {
+            // simple mapping: choose emoji and color per type
+            let emoji = '📍';
+            let bg = '#4b5563'; // default gray
+
+            switch (type) {
+                case 'supermarket':
+                    emoji = '🛒';
+                    bg = '#22c55e';
+                    break;
+                case 'bank':
+                    emoji = '🏦';
+                    bg = '#0ea5e9';
+                    break;
+                case 'petrol':
+                    emoji = '⛽';
+                    bg = '#f97316';
+                    break;
+                case 'shop':
+                    emoji = '🏬';
+                    bg = '#6366f1';
+                    break;
+                case 'church':
+                    emoji = '⛪';
+                    bg = '#a855f7';
+                    break;
+                case 'mosque':
+                    emoji = '🕌';
+                    bg = '#10b981';
+                    break;
+                case 'building':
+                    emoji = '🏢';
+                    bg = '#facc15';
+                    break;
+            }
+
+            return { emoji, bg };
+        }
+
+        function createExtraLandmarks() {
+            if (!map) return;
+
+            landmarks.forEach(l => {
+                const { emoji, bg } = getLandmarkIcon(l.type);
+
+                const marker = L.marker([l.lat, l.lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker-extra-landmark',
+                        html: `
+                            <div style="
+                                background:${bg};
+                                color:black;
+                                max-width:30px;
+                                max-height:30px;
+                                padding:4px 8px;
+                                border-radius:9999px;
+                               
+                                display:flex;
+                                flex-direction:column;
+                                align-items:center;
+                                justify-content:center;
+                                font-weight:bold;
+                                gap:4px;
+                                text-align:center;
+                                font-size:10px;
+                                box-shadow:0 2px 5px rgba(0,0,0,0.3);
+                                white-space:nowrap;
+                            ">
+                                <span>${emoji}</span>
+                                <span style="font-size:8px;line-height:1;margin-top:2px;">
+                                    ${l.name}
+                                </span>
+                            </div>
+                        `,
+                        iconSize: [40, 24],
+                        iconAnchor: [20, 24]
+                    })
+                }).addTo(map);
+
+                // optional tooltip on hover
+                marker.bindTooltip(`${l.name} (${l.type})`, {
+                    permanent: false,
+                    direction: 'top'
+                });
+            });
+        }
+
+
 
         let map = null;
         let landmarkMarker = null;
@@ -632,6 +764,7 @@
         document.addEventListener('DOMContentLoaded', function () {
             initMap();
             setupEventListeners();
+            createExtraLandmarks();
             const loadingEl = document.getElementById('mapLoading');
             if (loadingEl) loadingEl.style.display = 'none';
         });

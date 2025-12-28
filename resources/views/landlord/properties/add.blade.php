@@ -588,14 +588,14 @@
             {
                 name: 'cooperative Bank',
                 type: 'bank',
-                lat: -0.5670,
-                lng: 37.3205
+                lat: -0.5667250,
+                lng: 37.324600
             },
             {
-                name: 'Petrol Station',
+                name: 'Rubis Station',
                 type: 'petrol',
-                lat: -0.5640,
-                lng: 37.3185
+                lat: -0.5682000,
+                lng: 37.3209166
             },
             /*{
                 name: 'Shops Center',
@@ -604,10 +604,10 @@
                 lng: 
             },*/
             {
-                name: 'St. Mary Church',
+                name: 'Holy Rosary Catholic Church',
                 type: 'church',
-                lat: -0.5690,
-                lng: 37.3190
+                lat: -0.567122,
+                lng: 37.325788
             },
             {
                 name: 'Central Mosque',

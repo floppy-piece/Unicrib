@@ -63,40 +63,40 @@
             color: #6b7280;
         }
 
-        .uc-student-pay-btn-row {
+        .uc-pay-btn-row {
             display: flex;
             justify-content: flex-start;
             margin-top: 8px;
         }
-        .uc-student-pay-btn {
+        .uc-pay-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             padding: 9px 22px;
             border-radius: 999px;
-            border: 1px solid #22c55e;
-            background: linear-gradient(90deg, #22c55e 0%, #16a34a 50%, #4ade80 100%);
-            color: #022c22;
+            border: 1px solid #4f46e5;
+            background: linear-gradient(90deg, #6366f1 0%, #4f46e5 50%, #8b5cf6 100%);
+            color: #f9fafb;
             font-size: 14px;
             font-weight: 600;
             letter-spacing: .02em;
             cursor: pointer;
-            box-shadow: 0 18px 40px rgba(34,197,94,0.45);
+            box-shadow: 0 18px 40px rgba(79,70,229,0.55);
             transition:
                 background-color .18s ease,
                 box-shadow .18s ease,
                 transform .12s ease,
                 border-color .18s ease;
         }
-        .uc-student-pay-btn:hover {
+        .uc-pay-btn:hover {
             transform: translateY(-1px);
-            box-shadow: 0 22px 50px rgba(34,197,94,0.7);
-            border-color: #4ade80;
+            box-shadow: 0 22px 50px rgba(79,70,229,0.7);
+            border-color: #818cf8;
         }
-        .uc-student-pay-btn:active {
+        .uc-pay-btn:active {
             transform: translateY(0);
             box-shadow: 0 14px 30px rgba(15,23,42,0.8);
-            background: linear-gradient(90deg, #16a34a 0%, #15803d 50%, #22c55e 100%);
+            background: linear-gradient(90deg, #4f46e5 0%, #4338ca 50%, #7c3aed 100%);
         }
     </style>
 
@@ -131,8 +131,8 @@
 
                     <form method="POST" action="{{ route('payments.student.pay') }}">
                         @csrf
-                        <div class="uc-student-pay-btn-row">
-                            <button type="submit" class="uc-student-pay-btn">
+                        <div class="uc-btn-row">
+                            <button type="submit" class="uc-pay-btn">
                                 Pay KES 50 now
                             </button>
                         </div>
