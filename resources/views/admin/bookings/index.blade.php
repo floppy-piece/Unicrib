@@ -147,7 +147,7 @@
                                             <option value="pending" {{ $s === 'pending' ? 'selected' : '' }}>Pending</option>
                                             <option value="approved" {{ $s === 'approved' ? 'selected' : '' }}>Approved</option>
                                             <option value="rejected" {{ $s === 'rejected' ? 'selected' : '' }}>Rejected</option>
-                                            <option value="cancelled" {{ $s === 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                                           
                                         </select>
                                         <button type="submit" class="uc-btn-small">
                                             Save
