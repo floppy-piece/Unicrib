@@ -41,6 +41,13 @@ $logout = function (Logout $logout) {
                     </x-nav-link>
                 </div>
                 @endif
+                @if (Auth::user()->category==='admin')
+                <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
+                    <x-nav-link :href="route('admin.dashboard')" :active="request()->routeIs('admin.dashboard')" wire:navigate>
+                        {{ __('Dashboard') }}
+                    </x-nav-link>
+                </div>
+                @endif
 
                 @if (Auth::user()->category==='student')
                 <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">

@@ -6,6 +6,34 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Landlord\PropertyController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
+use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+
+Route::middleware(['auth', 'category:admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+
+        // Users
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
+
+        // Properties
+        Route::get('/properties', [AdminPropertyController::class, 'index'])->name('properties.index');
+        Route::post('/properties/{property}/status', [AdminPropertyController::class, 'updateStatus'])->name('properties.updateStatus');
+
+        // Bookings
+        Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
+        Route::post('/bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.updateStatus');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::post('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+    });
+
 
 Route::view('/', 'welcome');
 
@@ -21,7 +49,7 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/student/dashboard', [DashboardController::class, 'studentDashboard'])->name('student.dashboard');
     Route::get('/landlord/dashboard', [DashboardController::class, 'landlordDashboard'])->name('landlord.dashboard');
-    Route::get('/admin/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
+    //Route::get('/admin/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/api/properties/{area}', [PropertyController::class, 'getPropertiesByArea']);
     Route::get('/student/dashboard', [PropertyController::class, 'studentIndex'])->name('student.dashboard');
     // Student-facing property details

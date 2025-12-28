@@ -571,12 +571,144 @@
         const landmarkLng = 37.321184;
 
         // Area coordinates
-        const areaCoordinates = {
+        /*const areaCoordinates = {
             mjini: { lat: -0.5080, lng: 37.2752 },
             ngomongo: { lat: -0.5100, lng: 37.2800 },
             diaspora: { lat: -0.5150, lng: 37.2850 },
             kutus: { lat: -0.5200, lng: 37.2700 }
-        };
+        };*/
+        // Multiple landmarks around Kirinyaga University
+        const landmarks = [
+            {
+                name: 'skymart Supermarket',
+                type: 'supermarket',
+                lat: -0.567700,
+                lng: 37.324526
+            },
+            {
+                name: 'cooperative Bank',
+                type: 'bank',
+                lat: -0.5670,
+                lng: 37.3205
+            },
+            {
+                name: 'Petrol Station',
+                type: 'petrol',
+                lat: -0.5640,
+                lng: 37.3185
+            },
+            /*{
+                name: 'Shops Center',
+                type: 'shop',
+                lat: ,
+                lng: 
+            },*/
+            {
+                name: 'St. Mary Church',
+                type: 'church',
+                lat: -0.5690,
+                lng: 37.3190
+            },
+            {
+                name: 'Central Mosque',
+                type: 'mosque',
+                lat: -0.5630,
+                lng: 37.3235
+            },
+            {
+                name: 'Hostel Building A',
+                type: 'building',
+                lat: -0.5660,
+                lng: 37.3260
+            }
+        ];
+        function getLandmarkIcon(type) {
+            // simple mapping: choose emoji and color per type
+            let emoji = '📍';
+            let bg = '#4b5563'; // default gray
+
+            switch (type) {
+                case 'supermarket':
+                    emoji = '🛒';
+                    bg = '#22c55e';
+                    break;
+                case 'bank':
+                    emoji = '🏦';
+                    bg = '#0ea5e9';
+                    break;
+                case 'petrol':
+                    emoji = '⛽';
+                    bg = '#f97316';
+                    break;
+                case 'shop':
+                    emoji = '🏬';
+                    bg = '#6366f1';
+                    break;
+                case 'church':
+                    emoji = '⛪';
+                    bg = '#a855f7';
+                    break;
+                case 'mosque':
+                    emoji = '🕌';
+                    bg = '#10b981';
+                    break;
+                case 'building':
+                    emoji = '🏢';
+                    bg = '#facc15';
+                    break;
+            }
+
+            return { emoji, bg };
+        }
+
+        function createExtraLandmarks() {
+            if (!map) return;
+
+            landmarks.forEach(l => {
+                const { emoji, bg } = getLandmarkIcon(l.type);
+
+                const marker = L.marker([l.lat, l.lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker-extra-landmark',
+                        html: `
+                            <div style="
+                                background:${bg};
+                                color:black;
+                                max-width:30px;
+                                max-height:30px;
+                                padding:4px 8px;
+                                border-radius:9999px;
+                                border:2px solid white;
+                                display:flex;
+                                flex-direction:column;
+                                align-items:center;
+                                justify-content:center;
+                                font-weight:bold;
+                                gap:4px;
+                                text-align:center;
+                                font-size:10px;
+                                box-shadow:0 2px 5px rgba(0,0,0,0.3);
+                                white-space:nowrap;
+                            ">
+                                <span>${emoji}</span>
+                                <span style="font-size:8px;line-height:1;margin-top:2px;">
+                                    ${l.name}
+                                </span>
+                            </div>
+                        `,
+                        iconSize: [40, 24],
+                        iconAnchor: [20, 24]
+                    })
+                }).addTo(map);
+
+                // optional tooltip on hover
+                marker.bindTooltip(`${l.name} (${l.type})`, {
+                    permanent: false,
+                    direction: 'top'
+                });
+            });
+        }
+
 
         // Geoapify API key from Laravel config
         const GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
@@ -599,6 +731,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
             setupEventListeners();
+            createExtraLandmarks();
 
             const loadingEl = document.getElementById('mapLoading');
             if (loadingEl) {
@@ -618,7 +751,7 @@
                     html: `
                         <div style="
                             background:#1d4ed8;
-                            color:white;
+                            color:black;
                             max-width:30px;
                             max-height:30px;
                             padding:4px 8px;

@@ -106,22 +106,22 @@ class TestSeeder extends Seeder
         $demoStudents = [
             [
                 'name'     => 'Verified Student One',
-                'email'    => 'student_verified1@example.com',
+                'email'    => 'student0v@example.com',
                 'is_verified' => true,
             ],
             [
                 'name'     => 'Verified Student Two',
-                'email'    => 'student_verified2@example.com',
+                'email'    => 'student1v@example.com',
                 'is_verified' => true,
             ],
             [
                 'name'     => 'Unverified Student One',
-                'email'    => 'student_unverified1@example.com',
+                'email'    => 'student0u@example.com',
                 'is_verified' => false,
             ],
             [
                 'name'     => 'Unverified Student Two',
-                'email'    => 'student_unverified2@example.com',
+                'email'    => 'student1u@example.com',
                 'is_verified' => false,
             ],
         ];
@@ -134,7 +134,7 @@ class TestSeeder extends Seeder
                     'password' => 'password',
                     'category' => 'student',
                     // if you add student verification flags later, you can plug them here:
-                    // 'is_verified_student'   => $student['verified'],
+                    'is_verified'   => $student['is_verified'],
                     // 'student_verified_at'   => $student['verified'] ? now() : null,
                 ]
             );
