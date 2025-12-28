@@ -17,13 +17,13 @@ class UserController extends Controller
     public function updateStatus(Request $request, User $user)
     {
         $request->validate([
-            'status' => 'required|in:active,suspended',
+            'is_verified' => 'required|boolean',
         ]);
-
-        $user->status = $request->status;
+    
+        $user->is_verified = (bool) $request->is_verified;
         $user->save();
-
-        return back()->with('success', 'User status updated.');
+    
+        return back()->with('success', 'User verification updated.');
 
     }
     public function destroy(User $user)

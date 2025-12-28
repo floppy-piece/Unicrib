@@ -150,20 +150,20 @@
                                     </span>
                                 </td>
                                 <td>
-                                    @php $status = $user->status ?? 'active'; @endphp
-                                    <span class="uc-pill {{ $status === 'active' ? 'uc-pill-green' : 'uc-pill-red' }}">
-                                        {{ ucfirst($status) }}
+                                    {{-- show verification for all users based on boolean is_verified --}}
+                                    <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">
+                                        {{ $user->is_verified ? 'Verified' : 'Unverified' }}
                                     </span>
                                 </td>
                                 <td>
-                                    {{-- Status change --}}
+                                    {{-- Toggle is_verified --}}
                                     <form action="{{ route('admin.users.updateStatus', $user) }}"
-                                          method="POST"
-                                          style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;">
+                                        method="POST"
+                                        style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;">
                                         @csrf
-                                        <select name="status" class="uc-select">
-                                            <option value="active" {{ $status === 'active' ? 'selected' : '' }}>Active</option>
-                                            <option value="suspended" {{ $status === 'suspended' ? 'selected' : '' }}>Suspended</option>
+                                        <select name="is_verified" class="uc-select">
+                                            <option value="1" {{ $user->is_verified ? 'selected' : '' }}>Verified</option>
+                                            <option value="0" {{ !$user->is_verified ? 'selected' : '' }}>Unverified</option>
                                         </select>
                                         <button type="submit" class="uc-btn-small">
                                             Save
@@ -172,9 +172,9 @@
 
                                     {{-- Delete --}}
                                     <form action="{{ route('admin.users.destroy', $user) }}"
-                                          method="POST"
-                                          style="display:inline;"
-                                          onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                                        method="POST"
+                                        style="display:inline;"
+                                        onsubmit="return confirm('Delete this user? This cannot be undone.');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
@@ -184,6 +184,7 @@
                                         </button>
                                     </form>
                                 </td>
+
                             </tr>
                         @empty
                             <tr><td colspan="5">No users found.</td></tr>

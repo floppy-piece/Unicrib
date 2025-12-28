@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
+use App\Models\Property;
 
 class EnsureLandlordVerified
 {
@@ -29,25 +30,28 @@ class EnsureLandlordVerified
         return $next($request);
     }*/
    
+    
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
-        // Optional: still ensure only landlords can access
+        // Still make sure only landlords reach these routes
         if (!$user || $user->category !== 'landlord') {
             abort(403);
         }
 
-        // Get the Property from the route (assumes route model binding: {property})
+        // Get property, assuming route model binding: {property}
         $property = $request->route('property');
 
-        // If not using implicit binding, uncomment:
-        // $property = Property::findOrFail($request->route('property'));
+        if (!$property instanceof Property) {
+            // if using ID not binding:
+            $property = Property::find($request->route('property'));
+        }
 
-        // Check property verification via isVerificationValid()
+        // Property must exist and be verified
         if (!$property || !$property->isVerificationValid()) {
             return redirect()->route('payments.landlord.form')
-                ->with('error', 'This property is not verified yet.Verify your account with a KES 500 semester fee before adding properties.');
+                ->with('error', 'This property is not verified or its verification has expired.');
         }
 
         return $next($request);

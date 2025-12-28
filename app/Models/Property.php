@@ -144,7 +144,7 @@ class Property extends Model
             return false;
         }
         return now()->lt($this->verification_expires_at);
-        return (bool) $this->is_verified;
+        //return (bool) $this->is_verified;
     }
 
     /**

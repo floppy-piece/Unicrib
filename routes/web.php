@@ -105,7 +105,7 @@ Route::get('/properties/{property}', [PropertyController::class, 'show'])
     ->middleware(['auth', 'category:student'/*, 'student.access'*/])
     ->name('properties.show');
 
-Route::middleware(['auth','category:landlord',/*'landlord.verified'*/])
+    Route::middleware(['auth', 'category:landlord'])
     ->prefix('landlord')
     ->name('landlord.')
     ->group(function () {
@@ -113,8 +113,13 @@ Route::middleware(['auth','category:landlord',/*'landlord.verified'*/])
             Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
             Route::get('/create', [PropertyController::class, 'create'])->name('add');
             Route::post('/', [PropertyController::class, 'store'])->name('store');
-            Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
-            Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
-            Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
+
+            // Only verified properties can be edited/deleted/published:
+            Route::middleware('landlord.verified')->group(function () {
+                Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
+                Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
+                Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
+            });
         });
     });
+
