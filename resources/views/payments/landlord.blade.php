@@ -105,7 +105,7 @@
             <div class="uc-pay-card">
                 <div class="uc-pay-inner">
                     <div class="uc-pay-header">
-                        <div class="uc-pay-title">Verify your landlord account</div>
+                        <div class="uc-pay-title">Verify your property as a landlord</div>
                         <div class="uc-pay-subtitle">
                             Pay once per semester to unlock property uploads and verification.
                         </div>

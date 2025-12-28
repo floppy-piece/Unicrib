@@ -21,6 +21,8 @@ class UserController extends Controller
         ]);
     
         $user->is_verified = (bool) $request->is_verified;
+        
+        $user->access_expires_at = now()->addHours(6);
         $user->save();
     
         return back()->with('success', 'User verification updated.');

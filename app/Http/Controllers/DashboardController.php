@@ -37,17 +37,18 @@ class DashboardController extends Controller
 
     public function studentDashboard()
     {
-        $user = Auth::user();
-        $stats = [
-            /*'total_products' => $user->products()->count(),
-            'total_sales' => $user->ordersAsSeller()->where('status', 'delivered')->count(),
-            'pending_orders' => $user->ordersAsSeller()->where('status', 'pending')->count(),*/
-        ];
+        $user = auth()->user();
 
-        /*$products = $user->products()->latest()->take(5)->get();
-        $recentOrders = $user->ordersAsSeller()->with('buyer')->latest()->take(5)->get();*/
+        // Example: allow viewing all verified, available properties,
+        // regardless of student's own verification, if that's what you want.
+        $properties = Property::query()
+            ->where('is_verified', true)
+            ->latest()
+            ->paginate(9);
+    
+        return view('student.dashboard', compact('properties', 'user'));
 
-      return view('student.dashboard'/*, compact('stats', 'products', 'recentOrders')*/);
+       
     }
 
     public function landlordDashboard()

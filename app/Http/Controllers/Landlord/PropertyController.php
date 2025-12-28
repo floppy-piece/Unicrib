@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class PropertyController extends Controller
 {
@@ -20,7 +21,7 @@ class PropertyController extends Controller
     public function show(Property $property)
     {
         // Optionally restrict which properties are visible to students:
-        // if (! $property->is_available) abort(404);
+        if ($property->is_verified===false) abort(404);
 
         return view('properties.show', compact('property'));
     }
@@ -29,9 +30,13 @@ class PropertyController extends Controller
     {
         // Get properties you want students to see
         // e.g., only active ones, maybe with pagination
-        $properties = Property::latest()->paginate(10);
-
-         return view('student.dashboard', compact('properties'));        
+       
+         $properties = Property::where('is_verified', true)
+         ->where('is_available', true)
+         ->latest()
+         ->paginate(9);
+ 
+     return view('student.dashboard', compact('properties'));       
     }
    /* public function studentIndex()
 {

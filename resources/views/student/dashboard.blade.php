@@ -115,6 +115,13 @@
 
     <div class="uc-page">
         <div class="uc-container">
+        @if(auth()->user()->category === 'student')
+                            @if(auth()->user()->hasValidStudentAccess())
+                                <span class="uc-pill uc-pill-green">Your account is Verified (access active)</span>
+                            @else
+                                <span class="uc-pill uc-pill-amber">Y our account is Not verified</span>
+                            @endif
+                        @endif
             <div class="uc-card">
                 @if($properties->count())
                     <div class="uc-grid">

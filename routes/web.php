@@ -102,7 +102,7 @@ Route::middleware(['auth','category:landlord'])->group(function () {
 });
 //show students property i.e accessible to only students that paid
 Route::get('/properties/{property}', [PropertyController::class, 'show'])
-    ->middleware(['auth', 'category:student'/*, 'student.access'*/])
+    ->middleware(['auth', 'category:student', 'student.access'])
     ->name('properties.show');
 
     Route::middleware(['auth', 'category:landlord'])

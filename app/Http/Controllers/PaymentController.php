@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class PaymentController extends Controller
 {
@@ -22,10 +23,15 @@ class PaymentController extends Controller
         // TODO: integrate real payment here (M-Pesa/STK push or card)
         // For now, assume paid successfully:
 
+
+        //after integrattion of mpesa use the commeneted code
         $user->update([
             'is_verified'       => true,
             'access_expires_at' => now()->addHours(6),
         ]);
+       /* $user->is_verified = 1;
+        $user->access_expires_at = now()->addHours(6);
+        $user->save(); */
 
         return redirect()->route('student.dashboard')
             ->with('success', 'Payment received. You can now view property details for 6 hours.');

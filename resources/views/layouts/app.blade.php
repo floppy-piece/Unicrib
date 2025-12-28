@@ -68,13 +68,7 @@
                         {{ $header }}
                         <h5>- {{ Auth()->user()->name }}</h5>
                         <div>
-                        @if(auth()->user()->category === 'student')
-                            @if(auth()->user()->hasValidStudentAccess())
-                                <span class="uc-pill uc-pill-green">Verified (access active)</span>
-                            @else
-                                <span class="uc-pill uc-pill-amber">Not verified</span>
-                            @endif
-                        @endif
+                        
 
                         </div>
                     </div>

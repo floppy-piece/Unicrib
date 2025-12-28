@@ -1,4 +1,4 @@
-{{-- resources/views/student/property-show.blade.php --}}
+{{-- resources/views/properties/show.blade.php --}}
 <x-app-layout>
     <style>
         .uc-page {
