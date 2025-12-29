@@ -10,6 +10,15 @@ use App\Models\User;
 
 class PropertyController extends Controller
 {
+    //for welcome landing page
+    public function welcome()
+    {
+        $properties = Property::latest()->where('is_verified', true)->take(6)->get();
+        $totalProperties = Property::count();
+        $totalStudents      = User::where('category', 'student')->count();
+
+        return view('welcome', compact('properties','totalProperties','totalStudents'));
+    }
     /**
      * Display a listing of the landlord's properties.
      */

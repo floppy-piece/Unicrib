@@ -73,27 +73,37 @@
 </style>
 
 <div class="uc-header-links">
-    <a href="{{ url('/') }}" class="uc-header-link uc-active">
+    {{-- Home --}}
+    <a href="{{ url('/') }}"
+       class="uc-header-link {{ request()->is('/') ? 'uc-active' : '' }}">
         <img src="{{ asset('images/home.jpeg') }}" alt="Home">
         <span>Home</span>
     </a>
 
-    <a href="#" class="uc-header-link">
+    {{-- Universities (adjust URL when you have a real route) 
+    <a href="{{ url('/universities') }}"
+       class="uc-header-link {{ request()->is('universities*') ? 'uc-active' : '' }}">
         <img src="{{ asset('images/property.jpeg') }}" alt="Properties">
-        <span>Properties</span>
-    </a>
-
-    <a href="#" class="uc-header-link">
-        <img src="{{ asset('images/university.jpeg') }}" alt="Universities">
         <span>Universities</span>
+    </a> --}}
+
+    {{-- About --}}
+    <a href="{{ url('/about') }}"
+       class="uc-header-link {{ request()->is('about') ? 'uc-active' : '' }}">
+        <img src="{{ asset('images/university.jpeg') }}" alt="About Us">
+        <span>About Us</span>
     </a>
 
-    <a href="#" class="uc-header-link">
+    {{-- Services --}}
+    <a href="{{ url('/services') }}"
+       class="uc-header-link {{ request()->is('services') ? 'uc-active' : '' }}">
         <img src="{{ asset('images/services.jpeg') }}" alt="Services">
         <span>Services</span>
     </a>
 
-    <a href="#" class="uc-header-link">
+    {{-- Contact --}}
+    <a href="{{ url('/contact') }}"
+       class="uc-header-link {{ request()->is('contact') ? 'uc-active' : '' }}">
         <img src="{{ asset('images/contact.jpeg') }}" alt="Contact">
         <span>Contact</span>
     </a>

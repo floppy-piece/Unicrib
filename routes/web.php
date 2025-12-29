@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
+use App\Http\Controllers\ContactController;
 
 Route::middleware(['auth', 'category:admin'])
     ->prefix('admin')
@@ -35,15 +36,24 @@ Route::middleware(['auth', 'category:admin'])
     });
 
 
-Route::view('/', 'welcome');
+//Route::view('/', 'welcome');
+Route::get('/', [PropertyController::class, 'welcome'])->name('welcome');
+Route::view('/about', 'about')->name('about');
+Route::view('/services', 'services')->name('services');
+//contacts
+Route::get('/contact', [ContactController::class, 'show'])
+    ->name('contact.show');
 
-
-
+Route::post('/contact', [ContactController::class, 'submit'])
+    ->name('contact.submit');    
+//profile
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
 require __DIR__.'/auth.php';
+
+//dashboard redirect
 Route::middleware(['auth','verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

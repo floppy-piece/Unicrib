@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>UniCrib – Premium Student Housing</title>
+    <title>{{ config('app.name') }}– Premium Student Housing</title>
     <x-icon/>
 
     <!-- Font -->
@@ -740,7 +740,9 @@
 
     {{-- FEATURED PROPERTIES --}}
     <section class="section section--deep">
+    
         <div class="container">
+
             <div class="section__heading">
                 <div class="section__eyebrow">Featured properties</div>
                 <h2 class="section__title">
@@ -750,75 +752,47 @@
                     A taste of the verified student homes available near major universities.
                 </p>
             </div>
-
+            
             <div class="properties-grid">
+            @foreach($properties as $property)
                 {{-- Property 1 --}}
                 <article class="property-card">
                     <div class="property-card__image-wrap">
-                        <img src="{{ asset('images/home.jpeg') }}"
-                             alt="Student apartment near campus" class="property-card__image">
-                    </div>
-                    <div class="property-card__price">$1,850 / month</div>
-                    <div class="property-card__body">
-                        <h3 class="property-card__title">The University Lofts</h3>
-                        <p class="property-card__location">0.4 mi from Stanford University</p>
+                        @if($property->images && count($property->images) > 0)
+                            <img class="property-card__image"
+                                    src="{{ asset('storage/' . $property->images[0]) }}"
+                                    alt="{{ $property->title }}">
+                        @else
+                            <div class="property-card__image">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                </svg>
+                            </div>
+                        @endif
+                        
+                            
+                            
+                            <div class="property-card__price">Ksh{{ $property->price }}</div>
+                            <div class="property-card__body">
+                            <h3 class="property-card__title" >{{ $property->building_name }}</h3>                        
+                            <p class="property-card__location">walking distance</p>
 
-                        <div class="property-card__meta">
-                            <span>2 bedrooms • 2 bathrooms</span>
-                            <span class="property-card__tag">Premium</span>
-                        </div>
-
-                        <a href="#" class="btn btn--primary" style="width: 100%; justify-content: center;">
+                            <div class="property-card__meta">
+                                <span>&bull; {{ $property->property_type }}</span>
+                                <span class="property-card__tag">{{ $property->title }}</span>
+                            </div>                     
+                    
+                        <a  href="{{ route('properties.show', $property) }}" class="btn btn--primary" style="width: 100%; justify-content: center;">
                             View details
                         </a>
                     </div>
                 </article>
-
-                {{-- Property 2 --}}
-                <article class="property-card">
-                    <div class="property-card__image-wrap">
-                        <img src="https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                             alt="Modern studio apartment" class="property-card__image">
-                    </div>
-                    <div class="property-card__price">$2,100 / month</div>
-                    <div class="property-card__body">
-                        <h3 class="property-card__title">Campus View Apartments</h3>
-                        <p class="property-card__location">0.2 mi from Harvard University</p>
-
-                        <div class="property-card__meta">
-                            <span>Studio • 1 bathroom</span>
-                            <span class="property-card__tag">Elite</span>
-                        </div>
-
-                        <a href="#" class="btn btn--primary" style="width: 100%; justify-content: center;">
-                            View details
-                        </a>
-                    </div>
-                </article>
-
-                {{-- Property 3 --}}
-                <article class="property-card">
-                    <div class="property-card__image-wrap">
-                        <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                             alt="Shared student house" class="property-card__image">
-                    </div>
-                    <div class="property-card__price">$3,100 / month</div>
-                    <div class="property-card__body">
-                        <h3 class="property-card__title">The Scholar’s Residence</h3>
-                        <p class="property-card__location">0.3 mi from MIT</p>
-
-                        <div class="property-card__meta">
-                            <span>4 bedrooms • 3 bathrooms</span>
-                            <span class="property-card__tag">Signature</span>
-                        </div>
-
-                        <a href="#" class="btn btn--primary" style="width: 100%; justify-content: center;">
-                            View details
-                        </a>
-                    </div>
-                </article>
+            @endforeach
             </div>
+           
         </div>
+        
     </section>
 
     {{-- STATS --}}
@@ -836,11 +810,11 @@
 
             <div class="stats-grid">
                 <div>
-                    <div class="stat__value">50,000+</div>
+                    <div class="stat__value">{{ number_format($totalStudents) }}+</div>
                     <div class="stat__label">Students served</div>
                 </div>
                 <div>
-                    <div class="stat__value">2,500+</div>
+                    <div class="stat__value">{{ number_format($totalProperties) }}+</div>
                     <div class="stat__label">Active properties</div>
                 </div>
                 <div>
