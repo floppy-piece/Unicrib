@@ -377,7 +377,7 @@
     </style>
 </head>
 <body>
-<header class="site-header">
+<header class="site-header"  style="overflow:scroll;">
     <div class="container">
         <div class="site-header__inner">
             <div class="brand">

@@ -395,7 +395,7 @@
                 <x-application-logo class="brand__logo" />
                 <span class="brand__name">UniCrib</span>
             </div>
-            <div class="header-nav">
+            <div class="header-nav" style="overflow:scroll;">
                 <x-non-nav/>
                 @if (Route::has('login'))
                     <livewire:welcome.navigation/>
