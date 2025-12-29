@@ -11,6 +11,20 @@ use App\Notifications\BookingRejected;
 
 class BookingController extends Controller
 {
+    public function showBooking(Booking $booking)   // route: /landlord/bookings/{booking}
+    {
+        $user = Auth::user();
+
+        // Ensure only the landlord who owns this booking can view it
+        if (! $user || $user->category !== 'landlord' || $booking->landlord_id !== $user->id) {
+            abort(403);
+        }
+
+        // Load related models if not already eager loaded
+        $booking->load(['student', 'property']);
+
+        return view('landlord.bookings.show', compact('booking'));
+    }
     // Student creates booking
     public function store(Property $property)
     {
@@ -72,7 +86,7 @@ class BookingController extends Controller
     $booking->update(['status' => 'approved']);
 
     // increment booked_count
-    $property->increment('booked_count');
+    //$property->increment('booked_count');
 
     // if now full, mark as not available
     //if ($property->isFull()) {
@@ -95,7 +109,7 @@ class BookingController extends Controller
     if ($booking->status === 'approved') {
         $property = $booking->property;
 
-        $property->decrement('booked_count');
+       // $property->decrement('booked_count');
 
         if (!$property->isFull()) {
             $property->update(['is_available' => true]);
@@ -109,7 +123,7 @@ class BookingController extends Controller
     return back()->with('success', 'Booking rejected and student notified.');
 }
 
-public function cancel(\App\Models\Booking $booking)
+public function cancel(Booking $booking)
 {
     $user = auth()->user();
 
@@ -127,6 +141,22 @@ public function cancel(\App\Models\Booking $booking)
         'message' => 'Your booking has been cancelled.',
     ]);
 }
+public function cancelStudent(Booking $booking)
+    {
+        $user = Auth::user();
+
+        // Ensure landlord owns this booking
+        if (! $user || $user->category !== 'landlord' || $booking->landlord_id !== $user->id) {
+            abort(403);
+        }
+
+        if ($booking->status === 'approved') {
+            $booking->status = 'rejected';
+            $booking->save();
+        }
+
+        return back()->with('status', 'Tenant booking has been cancelled.');
+    }
 
 }
 

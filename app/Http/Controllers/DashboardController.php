@@ -13,6 +13,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Property;
 
 class DashboardController extends Controller
 {
@@ -54,15 +55,17 @@ class DashboardController extends Controller
     public function landlordDashboard()
     {
         $user = Auth::user();
-        $stats = [
-            /*'total_products' => $user->products()->count(),
-            'total_revenue' => $user->ordersAsSeller()->where('payment_status', 'paid')->sum('total_amount'),*/
-        ];
+        $landlord = Auth::user();
 
-        /*$products = $user->products()->latest()->take(5)->get();
-        $recentOrders = $user->ordersAsSeller()->with('buyer')->latest()->take(5)->get();*/
+        // All properties belonging to this landlord
+        $properties = Property::where('landlord_id', $landlord->id)->get();
 
-    return view('landlord.dashboard'/*, compact('stats', 'products', 'recentOrders')*/);
+        // Sum of booked_count for this landlord
+        $totalBookedCount = Property::where('landlord_id', $landlord->id)
+            ->sum('booked_count');
+
+        return view('landlord.dashboard', compact('properties', 'totalBookedCount'));
+
     }
 
     /*public function adminDashboard()

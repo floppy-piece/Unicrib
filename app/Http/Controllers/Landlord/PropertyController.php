@@ -18,6 +18,22 @@ class PropertyController extends Controller
         $properties = Auth::user()->properties()->latest()->paginate(10);
         return view('landlord.properties.myProperties', compact('properties'));
     }
+
+    //show landlord the property booked by tenant
+    public function showProperty(Property $property)
+    {
+        $user = Auth::user();
+
+        // Ensure landlord owns this property
+        if (! $user || $user->category !== 'landlord' || $property->landlord_id !== $user->id) {
+            abort(403);
+        }
+
+        // Load any needed relations, e.g. bookings
+        $property->load(['bookings', 'bookings.student']);
+
+        return view('landlord.properties.show', compact('property'));
+    }
     public function show(Property $property)
     {
         // Optionally restrict which properties are visible to students:
@@ -75,7 +91,17 @@ class PropertyController extends Controller
             'building_name' => 'nullable|string',
             'landmark' => 'nullable|string',
             'capacity' => 'required|integer|min:1',
-        ]);
+            'booked_count'=>'required|integer|min:0|lte:capacity',
+        ],
+
+        [
+            'capacity.required'     => 'Please enter the total capacity for this property.',
+            'capacity.min'          => 'Capacity must be at least 1 room.',
+            'booked_count.required' => 'Please enter how many rooms are already booked.',
+            'booked_count.lte'      => 'Initial rented rooms cannot be more than the total rooms available.',
+        ]
+    
+    );
 
         // Handle file uploads
         $imagePaths = [];
@@ -109,7 +135,7 @@ class PropertyController extends Controller
             'landmark' => $validated['landmark'] ?? null,
             'location_confirmed' => !empty($validated['map_lat']) && !empty($validated['map_lng']),
             'capacity'     => $validated['capacity'],
-            'booked_count' => 0,
+            'booked_count' => $validate['booked_count'],
         ]);
 
         // Geocode address if coordinates not provided
@@ -166,6 +192,7 @@ class PropertyController extends Controller
             'building_name' => 'nullable|string',
             'landmark' => 'nullable|string',
             'capacity' => 'required|integer|min:1',
+            'booked_count'=> 'required|integer|min:0|lte:capacity',
         ]);
 
         // Handle image uploads

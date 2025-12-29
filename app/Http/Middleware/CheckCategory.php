@@ -28,7 +28,7 @@ class CheckCategory
         if (!in_array($user->category, $categories)) {
             // Redirect based on user's actual category
             if ($user->category === 'student') {
-                return redirect()->route('dashboard')
+                return redirect()->route('student.dashboard')
                     ->with('error', 'You do not have access to the landlord area.');
             } elseif ($user->category === 'landlord') {
                 return redirect()->route('landlord.dashboard')

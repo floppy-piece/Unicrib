@@ -70,15 +70,6 @@ Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])
 });
 
 // Landlord handles bookings (approve / reject)
-Route::middleware(['auth', 'category:landlord'])
-->prefix('landlord')
-->name('landlord.')
-->group(function () {
-    Route::prefix('bookings')->name('bookings.')->group(function () {
-        Route::post('{booking}/approve', [BookingController::class, 'approve'])->name('approve');
-        Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
-    });
-});
     
        
 
@@ -93,6 +84,12 @@ Route::middleware(['auth', 'category:landlord'])
 Route::middleware(['auth','category:student'])->group(function () {
     Route::get('/payments/student', [PaymentController::class, 'showStudentForm'])->name('payments.student.form');
     Route::post('/payments/student', [PaymentController::class, 'handleStudentPayment'])->name('payments.student.pay');
+
+    //show students property i.e accessible to only students that paid
+    Route::middleware('studentAccess')->group(function (){
+        Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
+    });
+       
 });
 
 // Landlord: pay KES 500 per semester to verify account and property
@@ -100,26 +97,36 @@ Route::middleware(['auth','category:landlord'])->group(function () {
     Route::get('/payments/landlord', [PaymentController::class, 'showLandlordForm'])->name('payments.landlord.form');
     Route::post('/payments/landlord', [PaymentController::class, 'handleLandlordPayment'])->name('payments.landlord.pay');
 });
-//show students property i.e accessible to only students that paid
-Route::get('/properties/{property}', [PropertyController::class, 'show'])
-    ->middleware(['auth', 'category:student', 'student.access'])
-    ->name('properties.show');
+
+
 
     Route::middleware(['auth', 'category:landlord'])
     ->prefix('landlord')
     ->name('landlord.')
     ->group(function () {
+        Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])
+            ->name('dashboard');
         Route::prefix('properties')->name('properties.')->group(function () {
             Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
             Route::get('/create', [PropertyController::class, 'create'])->name('add');
             Route::post('/', [PropertyController::class, 'store'])->name('store');
+            Route::get('/{property}', [PropertyController::class, 'showProperty'])->name('show'); 
 
             // Only verified properties can be edited/deleted/published:
-            Route::middleware('landlord.verified')->group(function () {
+            Route::middleware('landlordVerified')->group(function () {
                 Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
                 Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
                 Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
             });
+        });               
+
+        Route::prefix('bookings')->name('bookings.')->group(function () {
+            Route::post('{booking}/approve', [BookingController::class, 'approve'])->name('approve');
+            Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
+            Route::get('/{booking}', [BookingController::class, 'showBooking'])->name('show');
+            Route::post('/{booking}/cancel', [BookingController::class, 'cancelStudent'])->name('cancelStudent');
         });
+       
     });
+    
 

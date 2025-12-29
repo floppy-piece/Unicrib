@@ -364,19 +364,25 @@
                             <div class="uc-grid-4">
                                 <div>
                                     <label class="uc-field-label">Bedrooms *</label>
-                                    <input type="number" name="bedrooms" required min="0"
+                                    <input type="number" name="bedrooms" required min="0" value="{{ old('bedrooms', 0) }}"
                                            class="uc-input">
                                 </div>
                                 
                                 <div>
                                     <label class="uc-field-label">Bathrooms *</label>
-                                    <input type="number" name="bathrooms" required min="0"
+                                    <input type="number" name="bathrooms" required min="0" value="{{ old('bathrooms', 0) }}"
                                            class="uc-input">
                                 </div>
                                 
                                 <div>
                                     <label class="uc-field-label">Size (sqm) *</label>
-                                    <input type="number" name="size" required min="0" step="0.01"
+                                    <input type="number" name="size" required min="0" step="0.01" value="{{ old('size', 0) }}"
+                                           class="uc-input">
+                                </div>
+
+                                <div>
+                                    <label class="uc-field-label">Currently Rented Rooms*</label>
+                                    <input type="number" name="booked_count" required min="0" value="{{ old('booked_count', 0) }}"
                                            class="uc-input">
                                 </div>
                               

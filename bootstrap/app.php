@@ -15,8 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'category' => \App\Http\Middleware\CheckCategory::class,
-            'student.access'   => \App\Http\Middleware\EnsureStudentHasAccess::class,
-            'landlord.verified'=> \App\Http\Middleware\EnsureLandlordVerified::class,
+            'studentAccess'   => \App\Http\Middleware\EnsureStudentHasAccess::class,
+            'landlordVerified'=> \App\Http\Middleware\EnsureLandlordVerified::class,
             // Add other middleware aliases here
         ]);
     })

@@ -381,6 +381,20 @@
                                     >
                                 </div>
 
+                                <div>
+                                    <label class="uc-label">Initial Rented Rooms*</label>
+                                    <input
+                                        type="number"
+                                        name="booked_count"
+                                        value="{{ old('booked_count', $property->booked_count) }}"
+                                        required min="0" 
+                                        class="uc-input"
+                                    >
+                                    @error('capacity')
+                                        <div class="text-red-500 text-sm">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
                                
 
                                 <div>
@@ -393,6 +407,9 @@
                                         class="uc-input"
                                         required
                                     >
+                                    @error('booked_count')
+                                        <div class="text-red-500 text-sm">{{ $message }}</div>
+                                    @enderror
                                 </div>
                                 
 

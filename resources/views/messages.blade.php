@@ -138,11 +138,31 @@
             font-size: 13px;
             color: #9ca3af;
         }
+
+        .uc-btn-primary {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid #4f46e5;
+            background-color: #6366f1;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .uc-btn-primary:hover {
+            background-color: #4f46e5;
+        }
     </style>
 
     <x-slot name="header">
         <h2 class="uc-header-title">
-            {{ __('Messages') }}
+            {{ __('Tenants') }}
         </h2>
     </x-slot>
 
@@ -169,7 +189,7 @@
                     @if($user && $user->category === 'landlord')
                         <h3 class="uc-msg-section-title">Pending requests</h3>
 
-                        @forelse($landlordBookings as $booking)
+                        @forelse($pendingBookings as $booking)
                             <div class="uc-msg-item">
                                 <div class="uc-msg-meta">
                                     Request #{{ $booking->id }}
@@ -252,14 +272,8 @@
                     @if($user && $user->category === 'landlord')
                         <h3 class="uc-msg-section-title" style="margin-top: 18px;">Your tenants</h3>
 
-                        @php
-                            // Assumes $landlordBookings is passed with relations: property, student
-                            $tenantBookings = $landlordBookings->filter(function ($booking) {
-                                return $booking->status === 'approved';
-                            });
-                        @endphp
-
-                        @forelse($tenantBookings as $booking)
+                       
+                        @forelse($approvedBookings as $booking)
                             <div class="uc-msg-item">
                                 <div class="uc-msg-meta">
                                     Tenant #{{ $booking->student->id }} • Booking #{{ $booking->id }}
@@ -299,6 +313,15 @@
                                        class="uc-msg-btn uc-msg-btn-primary">
                                         View booking
                                     </a>
+
+                                    <form action="{{ route('landlord.bookings.cancelStudent', ['booking' => $booking->id]) }}"
+                                        method="POST" style="display:inline;">
+                                        @csrf
+                                        <button type="submit" class="uc-btn-primary uc-msg-btn-danger" 
+                                                style="background-color:#b91c1c;border-color:#7f1d1d;">
+                                            Cancel tenant
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         @empty

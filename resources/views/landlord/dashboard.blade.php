@@ -307,20 +307,42 @@
                 </div>
 
                 @php
-                    $landlord = auth()->user();
+                    $landlord   = auth()->user();
                     $properties = $landlord->properties;
 
-                    $totalRooms = $properties->sum(function ($p) {
-                        return (int) ($p->capacity ?? 0);
-                    });
+                    
+                    $stats = [
+                        'totalRooms'          => 0,
+                        'totalRoomsBooked'    => 0,
+                        'totalRoomsAvailable' => 0,
+                        'fullCount'           => 0,
+                        'notFullCount'        => 0,
+                        'properties'          => [], // per-property stats
+                    ];
 
-                    // total booked rooms = sum of bookings with status 'approved' per property
-                    $totalRoomsBooked = $properties->sum(function ($p) {
-                        return $p->bookings()->where('status', 'approved')->count();
-                    });
+                    foreach ($properties as $p) {
+                        $capacity       = (int) ($p->capacity ?? 0);
+                        $initialBooked  = (int) ($p->booked_count ?? 0);
+                        $approvedBooked = $p->bookings()
+                            ->where('status', 'approved')
+                            ->count();
+                        $totalBooked    = $initialBooked + $approvedBooked;
+                        $available      = max(0, $capacity - $totalBooked);
+                        $isFull         = $capacity > 0 && $totalBooked >= $capacity;
+                        $isVerified     = (bool) $p->is_verified;
 
-                    // rooms available = total capacity - total booked, but not below 0
-                    $totalRoomsAvailable = max(0, $totalRooms - $totalRoomsBooked);
+                        $stats['totalRooms']          += $capacity;
+                        $stats['totalRoomsBooked']    += $totalBooked;
+                        $stats['totalRoomsAvailable'] += $available;
+
+                        
+
+                        $stats['properties'][$p->id] = [
+                            'capacity'    => $capacity,
+                            'totalBooked' => $totalBooked,
+                            'available'   => $available,
+                        ];
+                    }
                 @endphp
 
 
@@ -336,7 +358,7 @@
                         <div class="uc-stat-text">
                             <p class="uc-stat-label">Rooms available</p>
                             <p class="uc-stat-value">
-                                {{ $totalRoomsAvailable }}
+                            {{ $stats['totalRoomsAvailable'] }}
                             </p>
                         </div>
                     </div>
@@ -353,7 +375,7 @@
                         <div class="uc-stat-text">
                             <p class="uc-stat-label">Total rooms</p>
                             <p class="uc-stat-value">
-                                {{ $totalRooms }}
+                            {{ $stats['totalRooms'] }}
                             </p>
                         </div>
                     </div>
@@ -370,8 +392,32 @@
                         <div class="uc-stat-text">
                             <p class="uc-stat-label">Rooms booked</p>
                             <p class="uc-stat-value">
-                                {{ $totalRoomsBooked }}
+                            {{ $stats['totalRoomsBooked'] }}
                             </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uc-card">
+                    <div class="uc-card-row">
+                        <div class="uc-stat-icon-wrap uc-stat-icon-amber">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                            </svg>
+                        </div>
+                        <div class="uc-stat-text">
+                            <p class="uc-stat-label">Rooms initially rented</p>
+                            <p class="uc-stat-value">
+                            {{ $totalBookedCount }}
+                            </p>
+                            <ul>
+                                @foreach ($properties as $property)
+                                    <li>
+                                        {{ $property->title }} <br>intial rented: {{ $property->booked_count }}
+                                    </li>
+                                @endforeach
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -415,6 +461,14 @@
 
                 @php
                     $recentProperties = auth()->user()->properties()->latest()->take(5)->get();
+                @endphp
+                @php
+                    $pStats = $stats['properties'][$p->id] ?? [
+                        'capacity'    => 0,
+                        'totalBooked' => 0,
+                        'available'   => 0,
+                        'isFull'      => false,
+                    ];
                 @endphp
 
                 @if($recentProperties->count() > 0)
@@ -471,14 +525,16 @@
                                         <div style="font-size:11px;color:#9ca3af;">per month</div>
                                     </td>
                                     <td>
-                                       
+                                        @php
+                                       $unavailable=(int)($property->bookings()->where('status', 'approved')->count()+(int)($property->booked_count));
+                                       @endphp
                                         <span class="uc-pill uc-pill-blue">
-                                        {{ (int)($property->bookings()->where('status', 'approved')->count()) }}/ {{ (int)($property->capacity ?? 0) }} rooms
+                                        {{ $unavailable }}/ {{ (int)($property->capacity ?? 0) }} rooms
                                         </span>
                                     </td>
                                     <td>
                                         @php
-                                            $currentBooked = $property->bookings()->where('status', 'approved')->count();
+                                            $currentBooked = $unavailable;
                                             $capacity = (int) ($property->capacity ?? 0);
                                             $isFull = $capacity > 0 && $currentBooked >= $capacity;
                                         @endphp

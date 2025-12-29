@@ -20,26 +20,24 @@ class MessageController extends Controller
     {
         $user = Auth::user();
 
-        $landlordBookings = collect();
+        $pendingBookings  = collect();
+        $approvedBookings = collect();
 
         if ($user && $user->category === 'landlord') {
-            $landlordBookings = Booking::where('landlord_id', $user->id)
+            $pendingBookings = Booking::where('landlord_id', $user->id)
                 ->where('status', 'pending')
+                ->with(['student', 'property'])
+                ->latest()
+                ->get();
+
+            $approvedBookings = Booking::where('landlord_id', $user->id)
+                ->where('status', 'approved')
                 ->with(['student', 'property'])
                 ->latest()
                 ->get();
         }
 
-        return view('messages', [
-            'landlordBookings' => $landlordBookings,
-        ]);
-        $bookings = Booking::where('landlord_id', Auth::id())
-            ->where('status', 'pending')
-            ->with(['student', 'property'])
-            ->latest()
-            ->get();
-
-        return view('messages', compact('bookings'));
+        return view('messages', compact('pendingBookings', 'approvedBookings'));
     }
 
     public function send(Request $request)
