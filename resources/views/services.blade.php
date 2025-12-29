@@ -377,9 +377,9 @@
     </style>
 </head>
 <body>
-<header class="site-header"  style="overflow:scroll;">
+<header class="site-header">
     <div class="container">
-        <div class="site-header__inner">
+        <div class="site-header__inner" style="overflow:scroll;">
             <div class="brand">
                 <x-application-logo class="brand__logo" />
                 <span class="brand__name">UniCrib</span>

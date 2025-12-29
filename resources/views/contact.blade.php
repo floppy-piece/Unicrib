@@ -390,12 +390,12 @@
 <body>
 <header class="site-header">
     <div class="container">
-        <div class="site-header__inner">
+        <div class="site-header__inner" style="overflow:scroll;">
             <div class="brand">
                 <x-application-logo class="brand__logo" />
                 <span class="brand__name">UniCrib</span>
             </div>
-            <div class="header-nav" style="overflow:scroll;">
+            <div class="header-nav">
                 <x-non-nav/>
                 @if (Route::has('login'))
                     <livewire:welcome.navigation/>
