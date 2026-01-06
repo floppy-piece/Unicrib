@@ -818,11 +818,11 @@
                     <div class="stat__label">Active properties</div>
                 </div>
                 <div>
-                    <div class="stat__value">120+</div>
+                    <div class="stat__value">0+</div>
                     <div class="stat__label">Universities covered</div>
                 </div>
                 <div>
-                    <div class="stat__value">98%</div>
+                    <div class="stat__value">0%</div>
                     <div class="stat__label">Satisfaction rating</div>
                 </div>
             </div>
@@ -845,38 +845,38 @@
             <div class="testimonials-grid">
                 <article class="testimonial-card">
                     <div class="testimonial-card__header">
-                        <div class="testimonial-card__avatar">JS</div>
+                        <div class="testimonial-card__avatar">BO</div>
                         <div>
-                            <div class="testimonial-card__name">Jessica Smith</div>
-                            <div class="testimonial-card__school">Stanford University</div>
+                            <div class="testimonial-card__name">Benson Okwemba</div>
+                            <div class="testimonial-card__school">Kirinyaga University</div>
                         </div>
                     </div>
                     <p class="testimonial-card__body">
-                        “UniCrib saved me weeks of searching. I found a great apartment within walking
-                        distance of campus in just two days.”
+                        “UniCrib saved me weeks of searching. I found a great settlement within walking
+                        distance of campus in just one day at an affordable price.”
                     </p>
                 </article>
 
                 <article class="testimonial-card">
                     <div class="testimonial-card__header">
-                        <div class="testimonial-card__avatar">AR</div>
+                        <div class="testimonial-card__avatar">DO</div>
                         <div>
-                            <div class="testimonial-card__name">Ahmed Rahman</div>
-                            <div class="testimonial-card__school">MIT</div>
+                            <div class="testimonial-card__name">Daivine Oluoch</div>
+                            <div class="testimonial-card__school">Kirinyaga University</div>
                         </div>
                     </div>
                     <p class="testimonial-card__body">
-                        “As an international student, verified listings and support made the move feel safe.
+                        “As a student, verified listings and support made the move feel safe.
                         I could focus on classes instead of worrying about housing.”
                     </p>
                 </article>
 
                 <article class="testimonial-card">
                     <div class="testimonial-card__header">
-                        <div class="testimonial-card__avatar">MC</div>
+                        <div class="testimonial-card__avatar">GE</div>
                         <div>
-                            <div class="testimonial-card__name">Marcus Chen</div>
-                            <div class="testimonial-card__school">Harvard University</div>
+                            <div class="testimonial-card__name">Genius Etole</div>
+                            <div class="testimonial-card__school">Rongo University</div>
                         </div>
                     </div>
                     <p class="testimonial-card__body">

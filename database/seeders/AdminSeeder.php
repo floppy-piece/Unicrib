@@ -16,15 +16,16 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         // avoid duplicate admin with same email
-        if (User::where('email', 'admin@example.com')->exists()) {
+        if (User::where('email', 'admin@unicrib.com')->exists()) {
             return;
         }
 
         User::create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
+            'name' => 'Unicrib Admin',
+            'email' => 'admin@unicrib.com',
+            'phone'=> '0704969006',
             'category' => 'admin',     // make sure `category` column allows 'admin'
-            'password' => 'adminrules', // change to strong password
+            'password' => 'adminrules.105.ok,', // change to strong password
         ]);
     }
 }
