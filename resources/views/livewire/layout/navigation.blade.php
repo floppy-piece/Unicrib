@@ -65,6 +65,14 @@ $logout = function (Logout $logout) {
                 </div>
                 @endif
 
+                @if (Auth::user()->category==='student')
+                <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
+                    <x-nav-link :href="route('student.notifications')" :active="request()->routeIs('student.notifications')" wire:navigate>
+                        {{ __('Requests') }}
+                    </x-nav-link>
+                </div>
+                @endif
+
                 @if (Auth::user()->category==='landlord')
                     <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
                         <x-nav-link :href="route('landlord.properties.myProperties')" :active="request()->routeIs('landlord.properties.myProperties')" wire:navigate>
@@ -82,7 +90,16 @@ $logout = function (Logout $logout) {
                     </div>
                     
                 @endif
-            </div>
+                
+                @if (Auth::user()->category==='landlord'||Auth::user()->category==='student'||Auth::user()->category==='admin')
+                <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
+                    <x-nav-link :href="route('contact.show')" :active="request()->routeIs('contact.show')" wire:navigate>
+                        {{ __('Contact') }}
+                    </x-nav-link>
+                </div>
+                @endif
+
+            </div>                
 
 
             <!-- Settings Dropdown -->

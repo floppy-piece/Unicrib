@@ -242,31 +242,6 @@
                         @endforelse
                     @endif
 
-                    {{-- Student: booking confirmations --}}
-                    @if($user && $user->category === 'student')
-                        @php
-                            $notifications = $user->notifications()->latest()->get();
-                        @endphp
-
-                        <h3 class="uc-msg-section-title">Booking updates</h3>
-
-                        @forelse($notifications as $notification)
-                            <div class="uc-msg-item">
-                                <div class="uc-msg-meta">
-                                    {{ $notification->created_at->format('d M Y, H:i') }}
-                                </div>
-                                <div class="uc-msg-body">
-                                    {{ $notification->data['message'] ?? 'Update on your booking.' }}
-                                </div>
-                            </div>
-                        @empty
-                            <div class="uc-msg-empty">
-                                <p class="uc-msg-empty-text">
-                                    You have no booking updates yet.
-                                </p>
-                            </div>
-                        @endforelse
-                    @endif
 
                     {{-- Landlord: current tenants --}}
                     @if($user && $user->category === 'landlord')

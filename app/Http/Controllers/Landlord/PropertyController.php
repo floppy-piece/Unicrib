@@ -7,6 +7,8 @@ use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Booking;
+use App\Models\Transport;
 
 class PropertyController extends Controller
 {
@@ -47,8 +49,29 @@ class PropertyController extends Controller
     {
         // Optionally restrict which properties are visible to students:
         if ($property->is_verified===false) abort(404);
+   
+        $user = Auth::user();
 
-        return view('properties.show', compact('property'));
+        $booking = null;
+        $activeTransport = null;
+
+        if ($user && $user->category === 'student') {
+            $booking = Booking::where('property_id', $property->id)
+                ->where('student_id', $user->id)
+                ->latest()
+                ->first();
+        }
+
+        if ($booking) {
+            $activeTransport = Transport::where('booking_id', $booking->id)
+                ->where('student_id', $user->id)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->latest('assigned_at')
+                ->first();
+        }
+    
+
+        return view('properties.show', compact('property', 'user', 'booking', 'activeTransport'));          
     }
 
     public function studentIndex()

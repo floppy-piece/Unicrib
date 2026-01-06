@@ -409,7 +409,7 @@
                 <p class="hero__text">
                     UniCrib is more than listings. It combines a curated housing marketplace, landlord tools,
                     move & storage support, and campus partnerships into a single platform built to scale into
-                    a billion‑dollar category leader.
+                    a highly satisfactory category leader.
                 </p>
                 <div class="hero__actions">
                     <a href="{{ url('/register') }}" class="btn btn--primary">

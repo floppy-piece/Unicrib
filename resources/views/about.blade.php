@@ -417,7 +417,7 @@
                     <span>Built for serious student life</span>
                 </div>
                 <h1 class="hero__title">
-                    The infrastructure behind <span>student housing</span> in Africa.
+                    The infrastructure behind <span>student housing</span> in Kenya.
                 </h1>
                 <p class="hero__text">
                     UniCrib is a student‑first housing and move platform built to make finding, securing,
@@ -434,7 +434,7 @@
                     </div>
                     <div class="metric">
                         <div class="metric__value">Built to scale</div>
-                        <div class="metric__label">A platform worth billions</div>
+                        <div class="metric__label">A platform worth satisfaction</div>
                     </div>
                 </div>
             </div>
@@ -443,7 +443,7 @@
                 <div class="hero__side-title">From one campus to a continent</div>
                 <p class="hero__side-text">
                     UniCrib starts where demand is most intense—Kenyan university towns—then scales
-                    across African campuses with the same promise: verified homes, safer moves, and
+                    across Kenyan campuses with the same promise: verified homes, safer moves, and
                     serious tools for landlords.
                 </p>
             </div>
@@ -464,7 +464,7 @@
 
         <div class="story">
             <p>
-                Across African campuses, student housing is still fragmented: screenshots, WhatsApp groups,
+                Across Kenyan campuses, student housing is still fragmented: screenshots, WhatsApp groups,
                 “ask a friend of a friend”, and last‑minute moves that depend on luck more than process.
             </p>
             <p>
@@ -547,7 +547,7 @@
             <div class="footer__brand">UniCrib</div>
             <p class="footer__description">
                 Premium student accommodations and services built on trust, clarity, and a long‑term vision for
-                African campuses.
+                Kenyan campuses.
             </p>
         </div>
 

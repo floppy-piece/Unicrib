@@ -11,7 +11,7 @@ class UserController extends Controller
     {
         $users = User::where('id', '!=', auth()->id())
             ->orderBy('last_seen', 'desc')
-            ->get(['id', 'name', 'email', 'profile_photo_path as avatar', 'last_seen', 'status']);
+            ->get(['id', 'name', 'email', 'phone', 'profile_photo_path as avatar', 'last_seen', 'status']);
         
         return response()->json($users);
     }

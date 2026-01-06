@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Property;
 use Illuminate\Support\Facades\Auth;
 
 class MessageController extends Controller
@@ -38,6 +39,25 @@ class MessageController extends Controller
         }
 
         return view('messages', compact('pendingBookings', 'approvedBookings'));
+    }
+    public function notify()
+    {
+        $user = Auth::user();
+
+        // Only allow logged-in students
+        if (! $user || $user->category !== 'student') {
+            abort(403);
+        }
+        
+        // Get all notifications for this student, newest first
+        $notifications = Booking::where('student_id', $user->id)->get();
+        $bookings = Booking::with('property')->where('id', $user->id)->get();
+
+        return view('student.notifications', [
+            'user'          => $user,
+            'notifications' => $notifications,
+            'bookings'=>$bookings,
+        ]);
     }
 
     public function send(Request $request)

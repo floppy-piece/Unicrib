@@ -151,9 +151,11 @@
                                 </td>
                                 <td>
                                     {{-- show verification for all users based on boolean is_verified --}}
-                                    <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">
-                                        {{ $user->is_verified ? 'Verified' : 'Unverified' }}
-                                    </span>
+                                    @if ($user->status === 'verified')
+                                        <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Verified</span>
+                                    @else
+                                        <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Unverified</span>
+                                    @endif
                                 </td>
                                 <td>
                                     {{-- Toggle is_verified --}}

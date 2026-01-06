@@ -6,6 +6,10 @@ use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;   // ✅ correct import
+use App\Services\MpesaService;
+use App\Models\MpesaTransaction;
+
 
 class PaymentController extends Controller
 {
@@ -18,23 +22,57 @@ class PaymentController extends Controller
 
     public function handleStudentPayment(Request $request)
     {
-        $user = Auth::user();
 
         // TODO: integrate real payment here (M-Pesa/STK push or card)
-        // For now, assume paid successfully:
+        $user = Auth::user();
 
-
-        //after integrattion of mpesa use the commeneted code
-        $user->update([
-            'is_verified'       => true,
-            'access_expires_at' => now()->addHours(6),
+        // Only logged-in students allowed
+        if (! $user || $user->category !== 'student') {
+            abort(403);
+        }
+    
+        // Get and validate the phone number
+        $request->validate([
+            'phone' => ['required', 'string'],
         ]);
-       /* $user->is_verified = 1;
-        $user->access_expires_at = now()->addHours(6);
-        $user->save(); */
-
-        return redirect()->route('student.dashboard')
-            ->with('success', 'Payment received. You can now view property details for 6 hours.');
+    
+        // You can configure this in config/payments.php or .env
+        $amount      = (int) env('MPESA_STUDENT_AMOUNT', 50);
+        $reference   = env('MPESA_STUDENT_ACCOUNT_REFERENCE', 'STUDENT_VERIFICATION');
+        $description = env('MPESA_STUDENT_TRANSACTION_DESC', 'Student verification payment');
+    
+        try {
+            // Send STK push
+            $response = $mpesa->stkPush(
+                $request->input('phone'),
+                $amount,
+                $reference,
+                $description
+            );
+    
+            // Save transaction with purpose = STUDENT_VERIFICATION
+            MpesaTransaction::create([
+                'user_id'             => $user->id,
+                'checkout_request_id' => $response['CheckoutRequestID'] ?? null,
+                'merchant_request_id' => $response['MerchantRequestID'] ?? null,
+                'amount'              => $amount,
+                'phone'               => $request->input('phone'),
+                'status'              => 'PENDING',
+                'purpose'             => 'STUDENT_VERIFICATION',
+            ]);
+    
+            return back()->with(
+                'success',
+                'Payment prompt sent to your phone. Complete it on M‑Pesa to verify your account.'
+            );
+        } catch (\Throwable $e) {
+            \Log::error('Student M-Pesa STK error', ['error' => $e->getMessage()]);
+    
+            return back()->with(
+                'error',
+                'We are having a technical difficulty.Could not start student payment. Please try again later.'
+            );
+        }
     }
 
     // LANDLORD
@@ -46,22 +84,153 @@ class PaymentController extends Controller
 
     public function handleLandlordPayment(Request $request)
     {
-        $user = Auth::user();
 
         // TODO: integrate real payment here
+       
+    $user = Auth::user();
 
-        $user->update([
-            'is_verified' => true,
-        ]);
-
-        // Optional: mark all their properties verified for the semester
-        // or only future properties. Here, mark existing:
-        Property::where('landlord_id', $user->id)->update([
-            'is_verified'            => true,
-            'verification_expires_at'=> now()->addMonths(4), // example semester length
-        ]);
-
-        return redirect()->route('landlord.dashboard')
-            ->with('success', 'Account verified. You can now add and verify properties.');
+    // Only logged-in landlords
+    if (! $user || $user->category !== 'landlord') {
+        abort(403);
     }
+
+    // Validate phone input
+    $request->validate([
+        'phone' => ['required', 'string'],
+    ]);
+
+    // You can move this to config or .env
+    $amount      = (int) env('MPESA_LANDLORD_AMOUNT', 500);
+    $reference   = env('MPESA_LANDLORD_ACCOUNT_REFERENCE', 'LANDLORD_VERIFICATION');
+    $description = env('MPESA_LANDLORD_TRANSACTION_DESC', 'Landlord verification payment');
+    
+    try {
+        // 1) Trigger M-Pesa STK push
+        $response = $mpesa->stkPush(
+            $request->input('phone'),
+            $amount,
+            $reference,
+            $description
+        );
+
+        // 2) Save transaction as PENDING with purpose = LANDLORD_VERIFICATION
+        MpesaTransaction::create([
+            'user_id'             => $user->id,
+            'checkout_request_id' => $response['CheckoutRequestID'] ?? null,
+            'merchant_request_id' => $response['MerchantRequestID'] ?? null,
+            'amount'              => $amount,
+            'phone'               => $request->input('phone'),
+            'status'              => 'PENDING',
+            'purpose'             => 'LANDLORD_VERIFICATION',
+        ]);
+
+        // 3) Tell landlord to complete payment on phone
+        return back()->with(
+            'success',
+            'Payment prompt sent to your phone. Complete it on M-Pesa to verify your property.'
+        );
+    } catch (\Throwable $e) {
+        Log::error('Landlord M-Pesa STK error', ['error' => $e->getMessage()]);
+
+        return back()->with(
+            'error',
+            'We are having a technical difficulty.Could not start property payment. Please try again later.'
+        );
+    }
+}    
+
+    /**
+     * Daraja STK callback URL
+     */
+    public function mpesaCallback(Request $request)
+    {
+        $payload = $request->all();
+    
+        if (! isset($payload['Body']['stkCallback'])) {
+            return response()->json(['ResultCode' => 1, 'ResultDesc' => 'Invalid callback'], 400);
+        }
+    
+        $stk        = $payload['Body']['stkCallback'];
+        $resultCode = $stk['ResultCode'];
+        $resultDesc = $stk['ResultDesc'];
+        $checkoutId = $stk['CheckoutRequestID'];
+    
+        $transaction = MpesaTransaction::where('checkout_request_id', $checkoutId)->first();
+    
+        if (! $transaction) {
+            return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Received'], 200);
+        }
+    
+        if ($resultCode !== 0) {
+            $transaction->update([
+                'status'       => 'FAILED',
+                'raw_callback' => $payload,
+            ]);
+    
+            return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Received'], 200);
+        }
+    
+        // Success branch
+        $items     = $stk['CallbackMetadata']['Item'] ?? [];
+        $mpesaCode = null;
+    
+        foreach ($items as $item) {
+            if (($item['Name'] ?? '') === 'MpesaReceiptNumber') {
+                $mpesaCode = $item['Value'] ?? null;
+            }
+        }
+    
+        $transaction->update([
+            'status'       => 'SUCCESS',
+            'mpesa_receipt'=> $mpesaCode,
+            'raw_callback' => $payload,
+        ]);
+    
+        $user = $transaction->user;
+    
+        if (! $user) {
+            return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Received'], 200);
+        }
+    
+        // 1) Landlord verification: account + properties
+        if (
+            $transaction->purpose === 'LANDLORD_VERIFICATION' &&
+            $user->category === 'landlord' &&
+            ! $user->is_verified
+        ) {
+            $user->update([
+                'is_verified'       => true,
+                'access_expires_at' => now()->addMonths(4),
+            ]);
+    
+            Property::where('landlord_id', $user->id)->update([
+                'is_verified'             => true,
+                'verification_expires_at' => now()->addMonths(4),
+            ]);
+        }
+    
+        // 2) Student verification: account only
+        if (
+            $transaction->purpose === 'STUDENT_VERIFICATION' &&
+            $user->category === 'student' &&
+            ! $user->is_verified
+        ) {
+            $user->update([
+                'is_verified'       => true,
+                'access_expires_at' => now()->addMinute(),
+            ]);
+        }
+    
+        return response()->json(['ResultCode' => 0, 'ResultDesc' => 'Received'], 200);
+    }
+    
+    public function afterVerificationRedirect()
+    {
+        return redirect()
+            ->route('landlord.dashboard')
+            ->with('success', 'Account verified. Students can now view your property');
+    }
+
+        
+       
 }

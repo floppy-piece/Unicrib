@@ -304,6 +304,48 @@
                     </table>
                 </div>
             </div>
+            {{-- Recent transports --}}
+            <div class="uc-card" style="margin-top:16px;">
+                <div class="uc-card-header">
+                    <h3 class="uc-card-title">Recent transports</h3>
+                    <a href="{{ route('admin.transports.index') }}" class="uc-link">Manage transports</a>
+                </div>
+                <div class="uc-table-wrap">
+                    <table class="uc-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Student</th>
+                                <th>Property</th>
+                                <th>Date</th>
+                                <th>Assigned slot</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        @forelse($recentTransports as $transport)
+                            <tr>
+                                <td>#{{ $transport->id }}</td>
+                                <td>{{ $transport->student_name }}</td>
+                                <td>{{ optional($transport->property)->title ?? optional($transport->property)->name ?? 'N/A' }}</td>
+                                <td>{{ optional($transport->requested_date)->format('d M Y') }}</td>
+                                <td>{{ optional($transport->assigned_at)->format('d M Y, H:i') }}</td>
+                                <td>
+                                    @php $st = $transport->status; @endphp
+                                    <span class="uc-pill
+                                        {{ $st === 'completed' ? 'uc-pill-green'
+                                        : ($st === 'cancelled' ? 'uc-pill-red' : 'uc-pill-blue') }}">
+                                        {{ ucfirst($st) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6">No transport requests yet.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
         </div>
     </div>

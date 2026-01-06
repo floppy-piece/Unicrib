@@ -31,7 +31,7 @@ class EnsureLandlordVerified
     }*/
    
     
-    public function handle(Request $request, Closure $next): Response
+    /*public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
 
@@ -53,6 +53,42 @@ class EnsureLandlordVerified
             return redirect()->route('payments.landlord.form')
                 ->with('error', 'This property is not verified or its verification has expired.');
         }
+
+        return $next($request);
+    }*/
+    public function handle(Request $request, Closure $next): Response
+    {
+        $user = $request->user();
+
+        // Only landlords may access these routes
+        if (! $user || $user->category !== 'landlord') {
+            abort(403);
+        }
+
+        // Retrieve the property from the route (supports model binding or ID)
+        $routeProperty = $request->route('property');
+
+        if ($routeProperty instanceof Property) {
+            $property = $routeProperty;
+        } else {
+            $propertyId = is_numeric($routeProperty) ? (int) $routeProperty : null;
+            $property   = $propertyId ? Property::find($propertyId) : null;
+        }
+
+        // Ensure a valid property exists
+        if (! $property) {
+            abort(404);
+        }
+
+        // Property must be verified and not expired
+        if (! $property->isVerificationValid()) {
+            return redirect()
+                ->route('payments.landlord.form')
+                ->with('error', 'This property is not verified or its verification has expired.');
+        }
+
+        // Optionally: make the property available downstream
+        $request->attributes->set('property', $property);
 
         return $next($request);
     }

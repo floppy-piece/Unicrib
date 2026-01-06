@@ -92,6 +92,34 @@
             box-shadow: 0 14px 30px rgba(15,23,42,0.8);
             background: linear-gradient(90deg, #4f46e5 0%, #4338ca 50%, #7c3aed 100%);
         }
+        .error-text {
+            font-size: 0.78rem;
+            color: #fecaca;
+            margin-top: 0.15rem;
+        }
+        .error-border {
+            border-color: #b91c1c !important;
+        }
+        .input,
+        .textarea,
+        .select {
+            width: 100%;
+            border-radius: 0.65rem;
+            border: 1px solid #111827;
+            background: #020617;
+            color: var(--text-main);
+            padding: 0.6rem 0.75rem;
+            font-size: 0.9rem;
+            transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+        }
+        .input:focus,
+        .textarea:focus,
+        .select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 1px rgba(99,102,241,0.7);
+            background: #020617;
+        }
     </style>
 
     <x-slot name="header">
@@ -123,6 +151,14 @@
                     <form method="POST" action="{{ route('payments.landlord.pay') }}">
                         @csrf
                         <div class="uc-pay-btn-row">
+                        <div class="mb-3">
+                            <label for="phone">M-Pesa phone number</label>
+                            <input type="text" 
+                            name="phone" 
+                            id="phone" 
+                            class="input @error('name') error-border @enderror"
+                             required placeholder="07XXXXXXXX">
+                        </div>
                             <button type="submit" class="uc-pay-btn">
                                 Pay KES 500 now
                             </button>

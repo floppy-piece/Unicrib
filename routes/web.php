@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\PropertyController as AdminPropertyController;
 use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\TransportController;
+use App\Http\Controllers\Admin\TransportAdminController;
 
 Route::middleware(['auth', 'category:admin'])
     ->prefix('admin')
@@ -33,6 +35,13 @@ Route::middleware(['auth', 'category:admin'])
         Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
         Route::post('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        // routes/web.php
+        Route::get('/transports', [TransportAdminController::class, 'index'])->name('transports.index');
+
+        Route::patch('/transports/{transport}', [TransportAdminController::class, 'update'])->name('transports.update');
+  
+
     });
 
 
@@ -65,36 +74,18 @@ Route::middleware(['auth','verified'])->group(function () {
     // Student-facing property details
     //Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
 });
-
-
-
-// Student makes a booking on a property
-Route::middleware(['auth', 'category:student'])->group(function () {
-Route::post('/properties/{property}/book', [BookingController::class, 'store'])
-    ->name('student.bookings.store');
-Route::post('/properties/{property}/book', [BookingController::class, 'store'])
-    ->name('student.bookings.store');
-
-Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])
-    ->name('student.bookings.cancel');
-});
-
-// Landlord handles bookings (approve / reject)
-    
-       
-
-// replace your old Route::view('messages', ...) with:
-Route::middleware(['auth', 'category:landlord'])
-    ->get('/messages', [MessageController::class, 'index'])
-    ->name('messages');
         
-          
 
 // Student: pay KES 50 to view details for 6 hours
 Route::middleware(['auth','category:student'])->group(function () {
     Route::get('/payments/student', [PaymentController::class, 'showStudentForm'])->name('payments.student.form');
     Route::post('/payments/student', [PaymentController::class, 'handleStudentPayment'])->name('payments.student.pay');
-
+    //show notifications
+    Route::get('/student/notifications', [MessageController::class, 'notify'])->name('student.notifications');
+    //store booking
+    Route::post('/properties/{property}/book', [BookingController::class, 'store'])->name('student.bookings.store');
+    //cancel booking
+    Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('student.bookings.cancel');
     //show students property i.e accessible to only students that paid
     Route::middleware('studentAccess')->group(function (){
         Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
@@ -104,11 +95,15 @@ Route::middleware(['auth','category:student'])->group(function () {
 
 // Landlord: pay KES 500 per semester to verify account and property
 Route::middleware(['auth','category:landlord'])->group(function () {
+    //view requests from students
+    Route::get('/messages', [MessageController::class, 'index'])->name('messages');
     Route::get('/payments/landlord', [PaymentController::class, 'showLandlordForm'])->name('payments.landlord.form');
     Route::post('/payments/landlord', [PaymentController::class, 'handleLandlordPayment'])->name('payments.landlord.pay');
+    Route::post('/mpesa/callback', [PaymentController::class, 'mpesaCallback'])
+    ->name('mpesa.callback');
+    Route::get('/landlord/payment/verified', [PaymentController::class, 'afterVerificationRedirect'])
+    ->name('payments.landlord.verified');
 });
-
-
 
     Route::middleware(['auth', 'category:landlord'])
     ->prefix('landlord')
@@ -138,5 +133,14 @@ Route::middleware(['auth','category:landlord'])->group(function () {
         });
        
     });
+
+//transport routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/bookings/{booking}/transport/request', [TransportController::class, 'create'])->name('transport.request.create');
+
+    Route::post('/bookings/{booking}/transport/request', [TransportController::class, 'store'])->name('transport.request.store');
+    
+});
+
     
 

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Property;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use App\Models\Transport;
 
 class DashboardController extends Controller
 {
@@ -29,6 +30,9 @@ class DashboardController extends Controller
         $recentProperties = Property::latest()->take(5)->get();
         $recentBookings = Booking::with(['student', 'property'])->latest()->take(5)->get();
 
+        $recentTransports = Transport::with(['student', 'property'])->latest('assigned_at')->take(5)->get();
+        
+
         return view('admin.dashboard', compact(
             'totalUsers',
             'totalLandlords',
@@ -42,7 +46,8 @@ class DashboardController extends Controller
             'rejectedBookings',
             'recentUsers',
             'recentProperties',
-            'recentBookings'
+            'recentBookings',
+            'recentTransports'
         ));
     }
 }

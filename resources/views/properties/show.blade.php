@@ -7,6 +7,161 @@
             padding-top: 16px;
             padding-bottom: 24px;
         }
+/*
+    Modal transport form css
+*/
+
+.uc-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+}
+
+.uc-modal.show {
+    display: block;
+}
+
+/* Backdrop matches dark UniCrib background */
+.uc-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+    opacity: 0.92;
+}
+
+/* Dialog: similar to uc-card but centered and slightly lighter border */
+.uc-modal-dialog {
+    position: relative;
+    max-width: 520px;
+    margin: 5rem auto;
+    background-color: #020617;
+    border-radius: 12px;
+    border: 1px solid #1f2937;
+    box-shadow: 0 28px 80px rgba(15,23,42,0.9);
+    overflow: hidden;
+}
+
+/* Header: gradient accent like your primary buttons */
+.uc-modal-header {
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #f9fafb;
+}
+
+.uc-modal-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* Close button */
+.uc-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    color: #e5e7eb;
+}
+.uc-modal-close:hover {
+    color: #ffffff;
+}
+
+/* Body uses same dark gradient vibe as uc-page */
+.uc-modal-body {
+    padding: 16px;
+    background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
+}
+
+/* Inner form card, similar to uc-card */
+.uc-modal-form-card {
+    background-color: #020617;
+    border-radius: 10px;
+    border: 1px solid #1f2937;
+    box-shadow: 0 18px 50px rgba(15,23,42,0.75);
+    padding: 14px 16px;
+    text-align:left;
+}
+
+/* Labels and helper text */
+.uc-modal-form-card label {
+    display: block;
+    font-size: 12px;
+    color: #e5e7eb;
+    margin-bottom: 4px;
+}
+
+.uc-modal-form-card .form-text {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* Inputs styled for dark theme */
+.uc-modal-form-card .form-control {
+    background-color: #020617;
+    border: 1px solid #1f2937;
+    color: #e5e7eb;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 13px;
+}
+.uc-modal-form-card .form-control::placeholder {
+    color: #6b7280;
+}
+.uc-modal-form-card .form-control:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.7);
+    background-color: #020617;
+}
+
+/* Space between fields */
+.uc-modal-form-card .mb-3 {
+    margin-bottom: 10px !important;
+}
+
+/* Footer with accent buttons */
+.uc-modal-footer {
+    padding: 10px 16px;
+    border-top: 1px solid #111827;
+    background-color: #020617;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+/* Primary/secondary buttons in footer following uc-btn-primary style */
+.uc-modal-footer .btn-primary {
+    border-radius: 999px;
+    border: 1px solid #4f46e5;
+    background-color: #6366f1;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 6px 14px;
+}
+.uc-modal-footer .btn-primary:hover {
+    background-color: #4f46e5;
+}
+
+.uc-modal-footer .btn-secondary {
+    border-radius: 999px;
+    border: 1px solid #1f2937;
+    background-color: #020617;
+    color: #e5e7eb;
+    font-size: 13px;
+    padding: 6px 14px;
+}
+.uc-modal-footer .btn-secondary:hover {
+    background-color: #111827;
+}
+
+/* end of transport form*/
+
         .uc-container {
             max-width: 1040px;
             margin-left: auto;
@@ -325,6 +480,122 @@
                                             Cancel booking
                                         </button>
                                     </form>
+
+                                    @if($user && $user->category === 'student' && $booking)
+                                            {{-- Transport status + countdown --}}
+                                            @if($activeTransport)
+                                                <div class="mt-2" style="font-size:12px;color:#9ca3af;">
+                                                    <div>
+                                                        Transport status:
+                                                        <span class="uc-pill
+                                                            {{ $activeTransport->status === 'completed' ? 'uc-pill-green'
+                                                                : ($activeTransport->status === 'cancelled' ? 'uc-pill-red' : 'uc-pill-blue') }}">
+                                                            {{ ucfirst($activeTransport->status) }}
+                                                        </span>
+                                                    </div>
+
+                                                    @if($activeTransport->assigned_at && $activeTransport->status !== 'completed')
+                                                        <div style="margin-top:4px;">
+                                                            Assigned time:
+                                                            <span style="color:#e5e7eb;">
+                                                                {{ $activeTransport->assigned_at->format('d M Y, H:i') }}
+                                                            </span>
+                                                        </div>
+                                                        <div style="margin-top:4px;">
+                                                            Time until transport:
+                                                            <span id="transport-countdown"
+                                                                data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}"
+                                                                style="color:#93c5fd;">
+                                                                calculating...
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
+                                        @if($user && $user->category === 'student' && $booking)
+                                            {{-- Trigger button --}}
+                                            <button type="button"
+                                                    id="openTransportModalButton"
+                                                    class="uc-btn-primary">
+                                                Request transport
+                                            </button>
+
+                                            {{-- Simple custom modal --}}
+                                            <div id="transportRequestModal"
+                                                class="uc-modal"
+                                                aria-hidden="true">
+                                                <div class="uc-modal-backdrop"></div>
+                                                <div class="uc-modal-dialog">
+                                                    <div class="uc-modal-header">
+                                                        <h5 class="uc-modal-title">
+                                                            Request transport to {{ $property->name }}
+                                                        </h5>
+                                                        <button type="button"
+                                                                class="uc-modal-close"
+                                                                id="closeTransportModalButton">
+                                                            ×
+                                                        </button>
+                                                    </div>
+
+                                                    <form action="{{ route('transport.request.store', $booking->id) }}" method="POST">
+                                                        @csrf
+                                                        <div class="uc-modal-body">
+                                                            <div class="mb-3">
+                                                                <label for="student_name">Name</label>
+                                                                <input
+                                                                    type="text"
+                                                                    id="student_name"
+                                                                    name="student_name"
+                                                                    class="uc-modal-form-card "
+                                                                    value="{{ old('student_name', $user->name) }}"
+                                                                    required
+                                                                >
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label for="student_phone">Phone number</label>
+                                                                <input
+                                                                    type="text"
+                                                                    id="student_phone"
+                                                                    name="student_phone"
+                                                                    class="uc-modal-form-card "
+                                                                    value="{{ old('student_phone', $user->phone) }}"
+                                                                    required
+                                                                >
+                                                            </div>
+
+                                                            <div class="mb-3">
+                                                                <label for="requested_date">Preferred transport date</label>
+                                                                <input
+                                                                    type="date"
+                                                                    id="requested_date"
+                                                                    name="requested_date"
+                                                                    class="uc-modal-form-card "
+                                                                    value="{{ old('requested_date') }}"
+                                                                    required
+                                                                ><br>
+                                                                <small class="form-text text-muted">
+                                                                    Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
+                                                                </small>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="uc-modal-footer">
+                                                            <button type="button"
+                                                                    class="btn btn-secondary"
+                                                                    id="closeTransportModalButton2">
+                                                                Close
+                                                            </button>
+                                                            <button type="submit" class="btn btn-primary">
+                                                                Send request
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                    @endif
                                 @else
                                     <form method="POST" action="{{ route('student.bookings.store', $property->id) }}">
                                         @csrf
@@ -502,6 +773,140 @@
             }, duration);
         }
 
+        // Multiple landmarks around Kirinyaga University
+        const landmarks = [
+            {
+                name: 'skymart Supermarket',
+                type: 'supermarket',
+                lat: -0.567700,
+                lng: 37.324526
+            },
+            {
+                name: 'cooperative Bank',
+                type: 'bank',
+                lat: -0.5667250,
+                lng: 37.324600
+            },
+            {
+                name: 'Rubis Station',
+                type: 'petrol',
+                lat: -0.5682000,
+                lng: 37.3209166
+            },
+            /*{
+                name: 'Shops Center',
+                type: 'shop',
+                lat: ,
+                lng: 
+            },*/
+            {
+                name: 'Holy Rosary Catholic Church',
+                type: 'church',
+                lat: -0.567122,
+                lng: 37.325788
+            },
+            {
+                name: 'Central Mosque',
+                type: 'mosque',
+                lat: -0.5630,
+                lng: 37.3235
+            },
+            {
+                name: 'Hostel Building A',
+                type: 'building',
+                lat: -0.5660,
+                lng: 37.3260
+            }
+        ];
+        function getLandmarkIcon(type) {
+            // simple mapping: choose emoji and color per type
+            let emoji = '📍';
+            let bg = '#4b5563'; // default gray
+
+            switch (type) {
+                case 'supermarket':
+                    emoji = '🛒';
+                    bg = '#22c55e';
+                    break;
+                case 'bank':
+                    emoji = '🏦';
+                    bg = '#0ea5e9';
+                    break;
+                case 'petrol':
+                    emoji = '⛽';
+                    bg = '#f97316';
+                    break;
+                case 'shop':
+                    emoji = '🏬';
+                    bg = '#6366f1';
+                    break;
+                case 'church':
+                    emoji = '⛪';
+                    bg = '#a855f7';
+                    break;
+                case 'mosque':
+                    emoji = '🕌';
+                    bg = '#10b981';
+                    break;
+                case 'building':
+                    emoji = '🏢';
+                    bg = '#facc15';
+                    break;
+            }
+
+            return { emoji, bg };
+        }
+
+        function createExtraLandmarks() {
+            if (!map) return;
+
+            landmarks.forEach(l => {
+                const { emoji, bg } = getLandmarkIcon(l.type);
+
+                const marker = L.marker([l.lat, l.lng], {
+                    icon: L.divIcon({
+                        className: 'custom-marker-extra-landmark',
+                        html: `
+                            <div style="
+                                background:${bg};
+                                color:black;
+                                max-width:30px;
+                                max-height:30px;
+                                padding:4px 8px;
+                                border-radius:9999px;
+                                border:2px solid white;
+                                display:flex;
+                                flex-direction:column;
+                                align-items:center;
+                                justify-content:center;
+                                font-weight:bold;
+                                gap:4px;
+                                text-align:center;
+                                font-size:10px;
+                                box-shadow:0 2px 5px rgba(0,0,0,0.3);
+                                white-space:nowrap;
+                            ">
+                                <span>${emoji}</span>
+                                <span style="font-size:8px;line-height:1;margin-top:2px;">
+                                    ${l.name}
+                                </span>
+                            </div>
+                        `,
+                        iconSize: [40, 24],
+                        iconAnchor: [20, 24]
+                    })
+                }).addTo(map);
+
+                // optional tooltip on hover
+                marker.bindTooltip(`${l.name} (${l.type})`, {
+                    permanent: false,
+                    direction: 'top'
+                });
+            });
+        }
+
+
+
         function createLandmarkMarker() {
             if (!map) return;
             if (landmarkMarker) map.removeLayer(landmarkMarker);
@@ -631,6 +1036,7 @@
                 map.whenReady(() => {
                     showToast('Map loaded successfully!');
                     createLandmarkMarker();
+                    createExtraLandmarks();
                     updatePropertyMarker(lat, lng);
                     fetchRouteFromLandmark(lat, lng);
                 });
@@ -641,4 +1047,112 @@
             }
         });
     </script>
+    <script>
+        //script for transport window
+    document.addEventListener('DOMContentLoaded', function () {
+        const openBtn  = document.getElementById('openTransportModalButton');
+        const modal    = document.getElementById('transportRequestModal');
+        const closeBtn = document.getElementById('closeTransportModalButton');
+        const closeBtn2= document.getElementById('closeTransportModalButton2');
+        const backdrop = modal ? modal.querySelector('.uc-modal-backdrop') : null;
+
+        if (!modal || !openBtn) {
+            return;
+        }
+
+        function openModal() {
+            modal.classList.add('show');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.classList.remove('show');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+
+        openBtn.addEventListener('click', openModal);
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeModal);
+        }
+        if (closeBtn2) {
+            closeBtn2.addEventListener('click', closeModal);
+        }
+        if (backdrop) {
+            backdrop.addEventListener('click', closeModal);
+        }
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Modal JS from earlier (open/close) ...
+        const openBtn  = document.getElementById('openTransportModalButton');
+        const modal    = document.getElementById('transportRequestModal');
+        const closeBtn = document.getElementById('closeTransportModalButton');
+        const closeBtn2= document.getElementById('closeTransportModalButton2');
+        const backdrop = modal ? modal.querySelector('.uc-modal-backdrop') : null;
+
+        if (modal && openBtn) {
+            function openModal() {
+                modal.classList.add('show');
+                modal.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function closeModal() {
+                modal.classList.remove('show');
+                modal.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            openBtn.addEventListener('click', openModal);
+            if (closeBtn)  closeBtn.addEventListener('click', closeModal);
+            if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+            if (backdrop)  backdrop.addEventListener('click', closeModal);
+        }
+
+        // Countdown logic
+        const countdownEl = document.getElementById('transport-countdown');
+        if (!countdownEl) return;
+
+        const deadlineStr = countdownEl.getAttribute('data-deadline');
+        if (!deadlineStr) return;
+
+        const deadline = new Date(deadlineStr).getTime();
+
+        function updateCountdown() {
+            const now    = new Date().getTime();
+            const diff   = deadline - now;
+
+            if (diff <= 0) {
+                countdownEl.textContent = 'Transport time reached';
+                clearInterval(timer);
+                return;
+            }
+
+            const second = 1000;
+            const minute = 60 * second;
+            const hour   = 60 * minute;
+
+            const hours   = Math.floor(diff / hour);
+            const minutes = Math.floor((diff % hour) / minute);
+            const seconds = Math.floor((diff % minute) / second);
+
+            let parts = [];
+            if (hours > 0)   parts.push(hours + 'h');
+            if (minutes >= 0) parts.push(minutes + 'm');
+            parts.push(seconds + 's');
+
+            countdownEl.textContent = parts.join(' ');
+        }
+
+        updateCountdown();
+        const timer = setInterval(updateCountdown, 1000);
+    });
+</script>
+
+
+    
+
 </x-app-layout>

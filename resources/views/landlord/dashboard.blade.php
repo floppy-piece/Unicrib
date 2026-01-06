@@ -595,6 +595,7 @@
                     </div>
                 @endif
             </div>
+            <p class="uc-empty-text">Note: Your property must be verified for it to be displayed to tenants.</p>
         </div>
     </div>
 </x-app-layout>

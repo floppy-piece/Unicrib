@@ -11,6 +11,12 @@ class UserController extends Controller
     public function index()
     {
         $users = User::latest()->paginate(20);
+        $user = User::latest()->first(); // single model, not collection
+
+        foreach ($users as $user) {
+            $user->status = $user->is_verified ? 'verified' : 'Not verified';
+        }
+
         return view('admin.users.index', compact('users'));
     }
 
