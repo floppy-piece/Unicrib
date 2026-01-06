@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             'category'=>'landlord',
         ]);*/
         $this->call([
-            TestSeeder::class,
+           // TestSeeder::class,
             AdminSeeder::class,
         ]);
     }
