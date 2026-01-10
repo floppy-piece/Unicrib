@@ -44,7 +44,7 @@ Route::middleware(['auth'])->group(function () {
 //
 
 
-//email verificttion//
+/*email verificttion//
 Route::get('pages/auth/verify-email', function () {
     return view('pages.auth.verify-email');
 })->middleware('auth', '!hasVerifiedEmail')->name('verification.notice');
@@ -60,7 +60,7 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('message', 'Verification link sent!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-//end//
+//end//*/
 
 Route::middleware(['auth', 'category:admin'])
     ->prefix('admin')
