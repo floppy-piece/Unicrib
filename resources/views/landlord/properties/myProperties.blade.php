@@ -312,9 +312,11 @@
                                         <div style="font-size:11px;color:#9ca3af;">per month</div>
                                     </td>
                                     <td>
-                                       
+                                        @php
+                                            $unavailable=(int)($property->bookings()->where('status', 'approved')->count()+(int)($property->booked_count));
+                                        @endphp
                                         <span class="uc-pill uc-pill-blue">
-                                        {{ (int)($property->bookings()->where('status', 'approved')->count()) }}/ {{ (int)($property->capacity ?? 0) }} rooms
+                                        {{ $unavailable }}/ {{ (int)($property->capacity ?? 0) }} rooms
                                         </span>
                                     </td>
                                     <td>

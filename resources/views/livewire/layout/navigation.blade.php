@@ -73,6 +73,14 @@ $logout = function (Logout $logout) {
                 </div>
                 @endif
 
+                @if (Auth::user()->category==='student')
+                <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
+                    <x-nav-link :href="route('store-housing')" :active="request()->routeIs('store-housing')" wire:navigate>
+                        {{ __('Store house') }}
+                    </x-nav-link>
+                </div>
+                @endif
+
                 @if (Auth::user()->category==='landlord')
                     <div style="flex-shrink: 0;align-items: center;display: none;display: flex;margin-left: 2rem;margin-top: -1px;margin-bottom: -1px;margin-left: 2.5rem;">
                         <x-nav-link :href="route('landlord.properties.myProperties')" :active="request()->routeIs('landlord.properties.myProperties')" wire:navigate>

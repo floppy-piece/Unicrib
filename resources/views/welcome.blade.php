@@ -184,7 +184,7 @@
         .hero {
             padding: 4.5rem 0 4rem;
             background-image:
-                linear-gradient(rgba(15,23,42,0.9), rgba(15,23,42,0.9)),
+                linear-gradient(rgba(15,23,42,0.95), rgba(15,23,42,0.9)),
                 url('https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80');
             background-size: cover;
             background-position: center;
@@ -661,7 +661,7 @@
                             <div class="metric__label">Average student rating</div>
                         </div>
                         <div class="metric">
-                            <div class="metric__value">2,500+</div>
+                            <div class="metric__value">{{ $totalProperties }}+</div>
                             <div class="metric__label">Verified properties</div>
                         </div>
                         <div class="metric">
@@ -948,8 +948,16 @@
                     <h3 class="footer__column-title">Contact</h3>
                     <ul>
                         <li>Kutus – Kirinyaga</li>
-                        <li>+254 704 969 006</li>
-                        <li>unicrib@gmail.com</li>
+                        <li>
+                            <a href="tel:+254704969006" style="text-decoration:underline;color:#bfdbfe;">
+                                +254 704 969 006
+                            </a>
+                        </li>
+                        <li>
+                            <a href="mailto:unicrib@gmail.com?subject=UniCrib%20Enquiry" style="text-decoration:underline;color:#bfdbfe;">
+                                unicrib@gmail.com
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

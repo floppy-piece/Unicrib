@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -13,6 +15,52 @@ use App\Http\Controllers\Admin\BookingController as AdminBookingController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\TransportController;
 use App\Http\Controllers\Admin\TransportAdminController;
+use App\Http\Controllers\StorageHousingController;
+use App\Http\Controllers\Admin\StorageAdminController;
+
+
+/*
+to do:  email verification
+        add feature admin only can create landlord accounts
+        find an api to simulate payment
+*/
+
+
+//storehousing for admin
+Route::middleware(['auth', 'category:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');
+    Route::patch('/storage/{storageBooking}', [StorageAdminController::class, 'update'])->name('storage.update');
+});
+//
+
+//store housing for students
+Route::middleware(['auth'])->group(function () {
+    Route::get('/store-housing', [StorageHousingController::class, 'index'])
+        ->name('store-housing');
+
+    Route::post('/storage/book', [StorageHousingController::class, 'store'])
+        ->name('storage.store');
+});
+//
+
+
+//email verificttion//
+Route::get('pages/auth/verify-email', function () {
+    return view('pages.auth.verify-email');
+})->middleware('auth', '!hasVerifiedEmail')->name('verification.notice');
+
+// Handle the verification link
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill(); // marks email as verified
+    return redirect('/dashboard');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+// Resend verification email
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('message', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+//end//
 
 Route::middleware(['auth', 'category:admin'])
     ->prefix('admin')
@@ -105,34 +153,34 @@ Route::middleware(['auth','category:landlord'])->group(function () {
     ->name('payments.landlord.verified');
 });
 
-    Route::middleware(['auth', 'category:landlord'])
-    ->prefix('landlord')
-    ->name('landlord.')
-    ->group(function () {
-        Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])
-            ->name('ashboard');
-        Route::prefix('properties')->name('properties.')->group(function () {
-            Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
-            Route::get('/create', [PropertyController::class, 'create'])->name('add');
-            Route::post('/', [PropertyController::class, 'store'])->name('store');
-            Route::get('/{property}', [PropertyController::class, 'showProperty'])->name('show'); 
+Route::middleware(['auth', 'category:landlord'])
+->prefix('landlord')
+->name('landlord.')
+->group(function () {
+    Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])
+        ->name('ashboard');
+    Route::prefix('properties')->name('properties.')->group(function () {
+        Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
+        Route::get('/create', [PropertyController::class, 'create'])->name('add');
+        Route::post('/', [PropertyController::class, 'store'])->name('store');
+        Route::get('/{property}', [PropertyController::class, 'showProperty'])->name('show'); 
 
-            // Only verified properties can be edited/deleted/published:
-            Route::middleware('landlordVerified')->group(function () {
-                Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
-                Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
-                Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
-            });
-        });               
-
-        Route::prefix('bookings')->name('bookings.')->group(function () {
-            Route::post('{booking}/approve', [BookingController::class, 'approve'])->name('approve');
-            Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
-            Route::get('/{booking}', [BookingController::class, 'showBooking'])->name('show');
-            Route::post('/{booking}/cancel', [BookingController::class, 'cancelStudent'])->name('cancelStudent');
+        // Only verified properties can be edited/deleted/published:
+        Route::middleware('landlordVerified')->group(function () {
+            Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
+            Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
+            Route::delete('/{property}', [PropertyController::class, 'destroy'])->name('destroy');
         });
-       
+    });               
+
+    Route::prefix('bookings')->name('bookings.')->group(function () {
+        Route::post('{booking}/approve', [BookingController::class, 'approve'])->name('approve');
+        Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
+        Route::get('/{booking}', [BookingController::class, 'showBooking'])->name('show');
+        Route::post('/{booking}/cancel', [BookingController::class, 'cancelStudent'])->name('cancelStudent');
     });
+    
+});
 
 //transport routes
 Route::middleware(['auth'])->group(function () {

@@ -180,7 +180,9 @@
                                         <p class="uc-price-main">
                                         KES {{ ($booking->property)->price }}
                                         </p>
-                                        
+                                        <p>
+                                            phone: {{-- optional($property->landlord)->phone --}}
+                                        </p>
                                     @endforeach
                                     <div class="uc-msg-meta">
                                         Request Date &rarr; {{ $notification->created_at->format('d M Y, H:i') }}

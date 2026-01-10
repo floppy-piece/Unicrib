@@ -622,8 +622,16 @@
                 <h3 class="footer__column-title">Contact</h3>
                 <ul>
                     <li>Kutus – Kirinyaga</li>
-                    <li>+254 704 969 006</li>
-                    <li>unicrib@gmail.com</li>
+                    <li>
+                        <a href="tel:+254704969006" style="text-decoration:underline;color:#bfdbfe;">
+                            +254 704 969 006
+                        </a>
+                    </li>
+                    <li>
+                        <a href="mailto:unicrib@gmail.com?subject=UniCrib%20Enquiry" style="text-decoration:underline;color:#bfdbfe;">
+                            unicrib@gmail.com
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

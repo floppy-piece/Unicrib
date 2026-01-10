@@ -94,6 +94,15 @@
             text-decoration:none;
         }
         .uc-link-danger:hover { color:#fecaca; }
+
+        .uc-filter-links a {
+            margin-right:8px;
+            text-decoration:none;
+            color:#9ca3af;
+        }
+        .uc-filter-links a.active {
+            color:#f9fafb;
+        }
     </style>
 
     <x-slot name="header">
@@ -118,8 +127,22 @@
                 @endif
 
                 <h3 style="font-size:15px;font-weight:600;color:#e5e7eb;margin-bottom:6px;">
-                    All users
+                    Unicrib Users
                 </h3>
+
+                {{-- Status filter links --}}
+                <div class="uc-filter-links">
+                    <a href="{{ route('admin.users.index') }}"
+                       class="{{ !$category ? 'active' : '' }}">
+                        All ({{ array_sum($categoryCounts) }})
+                    </a>
+                    @foreach (['student','landlord','admin'] as $st)
+                        <a href="{{ route('admin.users.index', ['category' => $st]) }}"
+                           class="{{ $category === $st ? 'active' : '' }}">
+                            {{ ucfirst($st) }} ({{ $categoryCounts[$st] }})
+                        </a>
+                    @endforeach
+                </div>
 
                 <div class="uc-table-wrap">
                     <table class="uc-table">
@@ -144,19 +167,33 @@
                                         {{ $user->email }}
                                     </div>
                                 </td>
-                                <td>
+
+                                <td>                        
+                                    @php $st = $user->category; @endphp
                                     <span class="uc-pill uc-pill-blue">
-                                        {{ ucfirst($user->category ?? 'n/a') }}
+                                        {{ ucfirst($st) }}
                                     </span>
                                 </td>
+
                                 <td>
+
                                     {{-- show verification for all users based on boolean is_verified --}}
-                                    @if ($user->status === 'verified')
-                                        <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Verified</span>
+                                    @if($user->category === 'student')
+                                        @if($user->hasValidStudentAccess())
+                                            <span class="uc-pill uc-pill-green">Verified</span>
+                                        @else
+                                            <span class="uc-pill uc-pill-red">Unverified</span>
+                                        @endif
                                     @else
-                                        <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Unverified</span>
+                                        @if ($user->status === 'verified')
+                                            <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Verified</span>
+                                        @else
+                                            <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Unverified</span>
+                                        @endif
                                     @endif
+                                    
                                 </td>
+
                                 <td>
                                     {{-- Toggle is_verified --}}
                                     <form action="{{ route('admin.users.updateStatus', $user) }}"

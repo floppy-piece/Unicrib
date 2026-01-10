@@ -462,14 +462,7 @@
                 @php
                     $recentProperties = auth()->user()->properties()->latest()->take(5)->get();
                 @endphp
-                @php
-                    $pStats = $stats['properties'][$p->id] ?? [
-                        'capacity'    => 0,
-                        'totalBooked' => 0,
-                        'available'   => 0,
-                        'isFull'      => false,
-                    ];
-                @endphp
+                
 
                 @if($recentProperties->count() > 0)
                     <div class="uc-table-wrap">

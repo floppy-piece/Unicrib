@@ -114,7 +114,7 @@
 
                 @if(!empty($booking->student->phone))
                     <p class="uc-text">
-                        <strong>Phone:</strong> {{ $booking->student->phone }}
+                        <strong>Phone:</strong> <a href="tel:{{ $booking->student->phone }}" style="text-decoration:underline"><strong>{{ $booking->student->phone }}</strong></a>
                     </p>
                 @endif
 

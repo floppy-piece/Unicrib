@@ -347,6 +347,63 @@
                 </div>
             </div>
 
+            {{-- STORAGE SUMMARY CARD --}}
+            <div class="uc-card" style="margin-top:16px;">
+                <div class="uc-card-header">
+                    <h3 class="uc-card-title">Store housing bookings</h3>
+                    <a href="{{ route('admin.storage.index') }}" class="uc-link">Manage store housing</a>
+                </div>
+
+                <div class="uc-table-wrap">
+                    <table class="uc-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Student</th>
+                            <th>Period</th>
+                            <th>Months</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @forelse($recentStorageBookings as $booking)
+                            <tr>
+                                <td>#{{ $booking->id }}</td>
+                                <td>
+                                    <div style="font-size:13px;font-weight:500;color:#f9fafb;">
+                                        {{ optional($booking->user)->name ?? 'N/A' }}
+                                    </div>
+                                    <div style="font-size:11px;color:#9ca3af;">
+                                        {{ optional($booking->user)->email ?? '' }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="font-size:12px;">
+                                        {{ $booking->start_date }} – {{ $booking->end_date }}
+                                    </div>
+                                </td>
+                                <td>{{ $booking->months }}</td>
+                                <td>KES {{ number_format($booking->amount) }}</td>
+                                <td>
+                                    @php $st = $booking->status; @endphp
+                                    <span class="uc-pill
+                                        {{ $st === 'paid' ? 'uc-pill-green'
+                                        : ($st === 'completed' ? 'uc-pill-blue' : 'uc-pill-red') }}">
+                                        {{ ucfirst($st) }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="6">No storage bookings yet.</td></tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+            
         </div>
     </div>
 </x-app-layout>

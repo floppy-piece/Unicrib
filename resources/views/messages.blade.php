@@ -264,11 +264,11 @@
 
                                     @if(!empty($booking->student->phone))
                                         <span class="uc-msg-label">Phone:</span>
-                                        {{ $booking->student->phone }}<br>
+                                        <a href="tel:{{ $booking->student->phone }}" style="text-decoration:underline;"><strong>{{ $booking->student->phone }}</strong></a><br>
                                     @endif
 
                                     <span class="uc-msg-label">Property:</span>
-                                    {{ $booking->property->title }}<br>
+                                    {{ $booking->property->building_name }}<br>
 
                                     <span class="uc-msg-label">Since:</span>
                                     {{ $booking->created_at->format('d M Y') }}

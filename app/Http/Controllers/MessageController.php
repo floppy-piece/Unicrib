@@ -34,8 +34,8 @@ class MessageController extends Controller
             $approvedBookings = Booking::where('landlord_id', $user->id)
                 ->where('status', 'approved')
                 ->with(['student', 'property'])
-                ->latest()
-                ->get();
+                ->latest()->paginate(20)
+                ;
         }
 
         return view('messages', compact('pendingBookings', 'approvedBookings'));

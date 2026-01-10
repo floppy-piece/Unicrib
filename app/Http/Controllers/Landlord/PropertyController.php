@@ -54,6 +54,7 @@ class PropertyController extends Controller
 
         $booking = null;
         $activeTransport = null;
+        $property->load('landlord');
 
         if ($user && $user->category === 'student') {
             $booking = Booking::where('property_id', $property->id)

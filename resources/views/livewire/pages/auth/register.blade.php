@@ -16,6 +16,7 @@ state([
     'category'=>'',
     'name' => '',
     'email' => '',
+    'phone'=>'',
     'password' => '',
     'password_confirmation' => ''
 ]);
@@ -25,6 +26,7 @@ rules([
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
     'category' => ['required', 'string', 'in:student,landlord,admin'],
+    'phone'=> ['required','string','max:13','unique:'.User::class],
 ]);
 
 $register = function () {
@@ -69,6 +71,14 @@ $register = function () {
             <x-input-label for="email" :value="__('Email')" />
             <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" />
             <x-input-error :messages="$errors->get('email')" class="mt-2" />
+        </div>
+
+<br>
+        <!-- Phone number-->
+        <div class="mt-4">
+            <x-input-label for="name" :value="__('Phone number')" />
+            <x-text-input wire:model="phone" id="phone" class="block mt-1 w-full" type="tel" name="phone" required autocomplete="phone" />
+            <x-input-error :messages="$errors->get('phone')" class="mt-2" />
         </div>
 
   <br>      <!-- Password -->

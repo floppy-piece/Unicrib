@@ -394,11 +394,31 @@
             z-index:9999;
             font-size: 0.85rem;
         }
+
+        .uc-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .uc-pill-green {
+            background-color: #064e3b;
+            color: #a7f3d0;
+            border: 1px solid #059669;
+        }
+        .uc-pill-amber {
+            background-color: #78350f;
+            color: #fed7aa;
+            border: 1px solid #f59e0b;
+        }
     </style>
 
     <x-slot name="header">
         <h2 class="uc-header-title">
-            {{ $property->title }}
+            {{ $property->building_name }}
         </h2>
     </x-slot>
 
@@ -418,15 +438,15 @@
                 <div class="uc-header-top">
                     <div>
                         <h1 class="uc-title-main">
-                            {{ $property->title }}
+                            {{ $property->building_name }}
                         </h1>
                         <p class="uc-subline">
                             {{ ucfirst($property->property_type) }} • Area: {{ ucfirst($property->area) }}
                             @if($property->street)
                                 • {{ $property->street }}
                             @endif
-                            @if($property->building_name)
-                                • {{ $property->building_name }}
+                            @if($property->title)
+                                • {{ $property->title }}
                             @endif
                         </p>
                         @if($property->landmark)
@@ -434,6 +454,13 @@
                                 Landmark: {{ $property->landmark }}
                             </p>
                         @endif
+
+                                 <br>                 
+                            <p class="uc-subline">
+                                Landlord phone:
+                                <a href="tel:{{ optional($property->landlord)->phone }}" style="text-decoration:underline;"><strong>{{ optional($property->landlord)->phone ?? 'No phone set' }}</strong></a>
+                            </p>
+                        
                     </div>
                     <div class="uc-price-box">
                         <p class="uc-price-main">
@@ -461,15 +488,15 @@
                                 @endphp
 
                                 @if($property->isFull() && !$hasActiveBooking)
-                                    <p style="margin-top:8px;font-size:13px;color:#f97316;">
+                                    <p style="margin-top:8px;font-size:13px;color:#f97316;" class="uc-pill uc-pill-amber">
                                         This property is fully booked. You can still view its details and map.
                                     </p>
                                 @elseif($hasActiveBooking)
-                                    <p style="margin-top:8px;font-size:13px;color:#9ca3af;">
-                                        You already have an active booking for this property.
+                                    <p style="margin-top:8px;font-size:13px;color:#9ca3af;" class="uc-pill uc-amenity-pill">
+                                        You already have an active booking for this property.To book another property contact the landlord of this Property and request for cancellation.
                                     </p>
 
-                                    {{-- Cancel booking button --}}
+                                    {{-- Cancel booking button 
                                     <form method="POST"
                                         action="{{ route('student.bookings.cancel', $activeBooking->id) }}"
                                         style="margin-top:8px;">
@@ -479,7 +506,7 @@
                                                 style="background-color:#b91c1c;border-color:#7f1d1d;">
                                             Cancel booking
                                         </button>
-                                    </form>
+                                    </form> --}}
 
                                     @if($user && $user->category === 'student' && $booking)
                                             {{-- Transport status + countdown --}}

@@ -8,6 +8,8 @@ use App\Models\Property;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use App\Models\Transport;
+use App\Models\StorageBooking;
+
 
 class DashboardController extends Controller
 {
@@ -31,6 +33,13 @@ class DashboardController extends Controller
         $recentBookings = Booking::with(['student', 'property'])->latest()->take(5)->get();
 
         $recentTransports = Transport::with(['student', 'property'])->latest('assigned_at')->take(5)->get();
+
+        $totalStorageBookings = StorageBooking::count();
+        $storageStatusCounts = StorageBooking::selectRaw('status, COUNT(*) as total')
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+        $recentStorageBookings = StorageBooking::with('user')->latest()->limit(5)->get();
         
 
         return view('admin.dashboard', compact(
@@ -47,7 +56,10 @@ class DashboardController extends Controller
             'recentUsers',
             'recentProperties',
             'recentBookings',
-            'recentTransports'
+            'recentTransports',
+            'totalStorageBookings',
+            'storageStatusCounts',
+            'recentStorageBookings',
         ));
     }
 }

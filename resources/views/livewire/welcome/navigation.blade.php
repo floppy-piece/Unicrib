@@ -14,13 +14,13 @@
             Log in
         </a>
 
-        @if (Route::has('register'))
+        {{-- @if (Route::has('register'))
             <a
                 href="{{ route('register') }}"
                 style="color:rgb(244,244,244);" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'"
             >
                 Register
             </a>
-        @endif
+        @endif --}}
     @endauth
 </nav>

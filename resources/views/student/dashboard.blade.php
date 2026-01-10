@@ -21,6 +21,26 @@
             padding: 18px 18px 20px;
         }
 
+        .uc-btn-primary {
+            margin-top: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1px solid #4f46e5;
+            background-color: #6366f1;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease;
+        }
+        .uc-btn-primary:hover {
+            background-color: #4f46e5;
+        }
+
         .uc-grid {
             display: grid;
             grid-template-columns: minmax(0,1fr);
@@ -100,6 +120,25 @@
             font-size: 13px;
             color: #9ca3af;
         }
+        .uc-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        .uc-pill-green {
+            background-color: #064e3b;
+            color: #a7f3d0;
+            border: 1px solid #059669;
+        }
+        .uc-pill-amber {
+            background-color: #78350f;
+            color: #fed7aa;
+            border: 1px solid #f59e0b;
+        }
     </style>
 
     <x-slot name="header">
@@ -117,9 +156,9 @@
         <div class="uc-container">
         @if(auth()->user()->category === 'student')
                             @if(auth()->user()->hasValidStudentAccess())
-                                <span class="uc-pill uc-pill-green">Your account is Verified (access active)</span>
+                                <span class="uc-pill uc-pill-green">Your account is Verified (enjoy the hunt)</span>
                             @else
-                                <span class="uc-pill uc-pill-amber">Y our account is Not verified</span>
+                                <span class="uc-pill uc-pill-amber">Your account is Not verified (let loose to enjoy)</span>
                             @endif
                         @endif
             <div class="uc-card">
@@ -128,7 +167,7 @@
                         @foreach($properties as $property)
                             <div class="uc-prop-card">
                                 <h3 class="uc-prop-title">
-                                    {{ $property->title }}
+                                    {{ $property->building_name }}
                                 </h3>
                                 <p class="uc-prop-line">
                                     {{ ucfirst($property->property_type) }} •
@@ -142,7 +181,11 @@
                                 </p>
                                 <a href="{{ route('properties.show', $property->id) }}"
                                    class="uc-prop-link">
+                                   <button class="btn uc-btn-primary">
+                                                                
                                     View details
+                                    
+                                    </button>
                                 </a>
                             </div>
                         @endforeach
