@@ -50,8 +50,8 @@ class MessageController extends Controller
         }
         
         // Get all notifications for this student, newest first
-        $notifications = Booking::where('student_id', $user->id)->get();
-        $bookings = Booking::with('property')->where('id', $user->id)->get();
+        $notifications = Booking::with('property')->where('student_id', $user->id)->get();
+        $bookings = Booking::with('property')->where('student_id', $user->id)->paginate(8);
 
         return view('student.notifications', [
             'user'          => $user,

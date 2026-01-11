@@ -289,7 +289,7 @@
                                                 </div>
                                             @endif
                                             <div class="uc-table-text-block">
-                                                <div class="uc-table-title">{{ $property->title }}</div>
+                                                <div class="uc-table-title">{{ $property->building_name }}</div>
                                                 <div class="uc-table-meta">{{ ucfirst($property->property_type) }}</div>
                                             </div>
                                         </div>
@@ -321,7 +321,7 @@
                                     </td>
                                     <td>
                                         @php
-                                            $currentBooked = $property->bookings()->where('status', 'approved')->count();
+                                            $currentBooked = $unavailable;
                                             $capacity = (int) ($property->capacity ?? 0);
                                             $isFull = $capacity > 0 && $currentBooked >= $capacity;
                                         @endphp

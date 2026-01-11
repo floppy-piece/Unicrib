@@ -485,15 +485,22 @@
                                         ->first();
 
                                     $hasActiveBooking = !is_null($activeBooking);
+                                    
+                                    $unavailable=(int)($property->bookings()->where('status', 'approved')->count()+(int)($property->booked_count));
+                                
+                                    $currentBooked = $unavailable;
+                                    $capacity = (int) ($property->capacity ?? 0);
+                                    $isFull = $capacity > 0 && $currentBooked >= $capacity;
+                                        
                                 @endphp
 
-                                @if($property->isFull() && !$hasActiveBooking)
+                                @if($isFull && !$hasActiveBooking)
                                     <p style="margin-top:8px;font-size:13px;color:#f97316;" class="uc-pill uc-pill-amber">
                                         This property is fully booked. You can still view its details and map.
                                     </p>
                                 @elseif($hasActiveBooking)
                                     <p style="margin-top:8px;font-size:13px;color:#9ca3af;" class="uc-pill uc-amenity-pill">
-                                        You already have an active booking for this property.To book another property contact the landlord of this Property and request for cancellation.
+                                        You have an active booking for this property.To book another property contact the landlord of this Property and request for cancellation.
                                     </p>
 
                                     {{-- Cancel booking button 

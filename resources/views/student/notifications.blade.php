@@ -172,18 +172,17 @@
 
                             @forelse($notifications as $notification)
                                 <div class="uc-msg-item">
-                                                                     
+
+                                        • {{ optional($notification->property)->building_name }}
+                                    <p class="uc-price-main">
+                                    KES {{ optional($notification->property)->price }}
+                                    </p>
+                                    <p class="uc-msg-body">
+                                        phone: {{-- optional($property->landlord)->phone --}}View under property details!
+                                    </p>
+                                                                    
                                         
-                                    @foreach ($bookings as $booking)
-                                        {{-- property may be null if missing, so use optional(?) --}}
-                                        • {{ ($booking->property)->building_name }}
-                                        <p class="uc-price-main">
-                                        KES {{ ($booking->property)->price }}
-                                        </p>
-                                        <p>
-                                            phone: {{-- optional($property->landlord)->phone --}}
-                                        </p>
-                                    @endforeach
+                
                                     <div class="uc-msg-meta">
                                         Request Date &rarr; {{ $notification->created_at->format('d M Y, H:i') }}
                                     </div>
@@ -192,15 +191,14 @@
                                     </div>
 
                                     <div class="uc-msg-body">
-                                        {{ $notification->data['message'] ?? 'Update on your booking.' }}
-                                    </div> 
-                                    <div>
+                                        {{ $notification->data['message'] ?? 'Update on your booking ' }} &rarr;
+                                    
                                         @if($notification->status === 'pending')
                                             <span class="uc-msg-pill uc-msg-pill-pending">Pending</span>
                                         @elseif($notification->status === 'approved')
-                                            <span class="uc-msg-pill uc-msg-pill-approved">Approved</span>
+                                            <span class="uc-msg-pill uc-msg-pill-approved">Approved, you can move in.</span>
                                         @else
-                                            <span class="uc-msg-pill uc-msg-pill-rejected">Rejected</span>
+                                            <span class="uc-msg-pill uc-msg-pill-rejected">Rejected, Proceed searching for another.</span>
                                         @endif
                                     </div>
                                     <hr style="height:1px;border:none;background-color:white;opacity:0.5;">

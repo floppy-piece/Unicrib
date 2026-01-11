@@ -198,11 +198,9 @@
                                     <span class="uc-msg-label">Student:</span>
                                     {{ $booking->student->name }}<br>
                                     <span class="uc-msg-label">Property:</span>
-                                    {{ $booking->property->title }}<br>
+                                    {{ $booking->property->building_name }}<br>
                                     <span class="uc-msg-label">Status:</span>
-                                    {{ ucfirst($booking->status) }}
-
-                                    <div>
+                                   
                                         @if($booking->status === 'pending')
                                             <span class="uc-msg-pill uc-msg-pill-pending">Pending</span>
                                         @elseif($booking->status === 'approved')

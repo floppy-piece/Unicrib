@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Auth\VerifyEmailController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;

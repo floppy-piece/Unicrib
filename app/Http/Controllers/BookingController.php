@@ -37,7 +37,7 @@ class BookingController extends Controller
         if ($existing) {
             return back()->with('booking_status', [
                 'type'    => 'error',
-                'message' => 'You already have an active booking.',
+                'message' => 'You already have an active booking. To book another property, request cancellation from your existing landlord.',
             ]);
         }
 

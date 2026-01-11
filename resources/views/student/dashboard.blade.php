@@ -147,7 +147,7 @@
             {{ __('Student') }}
             </h2>
             <p class="uc-header-sub">
-                Browse and book available properties near campus.
+                Browse and book available properties near campus, order by distance.
             </p>
         </div>
     </x-slot>

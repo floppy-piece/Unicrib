@@ -818,7 +818,7 @@
                     <div class="stat__label">Active properties</div>
                 </div>
                 <div>
-                    <div class="stat__value">0+</div>
+                    <div class="stat__value">1+</div>
                     <div class="stat__label">Universities covered</div>
                 </div>
                 <div>

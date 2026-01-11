@@ -127,7 +127,7 @@
                         @forelse($properties as $property)
                             <tr>
                                 <td>#{{ $property->id }}</td>
-                                <td>{{ $property->title }}</td>
+                                <td>{{ $property->building_name }}</td>
                                 <td>{{ optional($property->landlord)->name ?? 'N/A' }}</td>
                                 <td>{{ ucfirst($property->area ?? 'n/a') }}</td>
                                 <td>

@@ -270,7 +270,7 @@
         }
         .uc-empty-text {
             font-size: 13px;
-            color: #9ca3af;
+            color: rgb(210,50,50);
             margin-bottom: 16px;
         }
     </style>
@@ -413,8 +413,8 @@
                             </p>
                             <ul>
                                 @foreach ($properties as $property)
-                                    <li>
-                                        {{ $property->title }} <br>intial rented: {{ $property->booked_count }}
+                                    <li class="uc-stat-label">
+                                        {{ $property->building_name }} <br>intial rented: {{ $property->booked_count }}
                                     </li>
                                 @endforeach
                             </ul>
@@ -495,7 +495,7 @@
                                                 </div>
                                             @endif
                                             <div class="uc-table-text-block">
-                                                <div class="uc-table-title">{{ $property->title }}</div>
+                                                <div class="uc-table-title">{{ $property->building_name }}</div>
                                                 <div class="uc-table-meta">{{ ucfirst($property->property_type) }}</div>
                                             </div>
                                         </div>
