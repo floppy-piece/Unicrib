@@ -34,7 +34,7 @@ class ContactController extends Controller
 
         // 4) Email UniCrib inbox (configure .env mail first) [web:289][web:293]
         try {
-            Mail::to('unicrib@gmail.com')->send(new ContactMessageMail($data));
+            Mail::to('twabone50@gmail.com')->send(new ContactMessageMail($data));
         } catch (\Throwable $e) {
             // Optionally log the failure; DB still has the message
             report($e);

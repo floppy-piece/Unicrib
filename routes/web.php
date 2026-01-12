@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
-use App\Http\Auth\VerifyEmailController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BookingController;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +20,7 @@ use App\Http\Controllers\Admin\StorageAdminController;
 
 
 /*
-to do:  email verification
+to do: 
         add feature admin only can create landlord accounts
         find an api to simulate payment
 */
@@ -45,23 +44,6 @@ Route::middleware(['auth'])->group(function () {
 //
 
 
-/*email verificttion//
-Route::get('pages/auth/verify-email', function () {
-    return view('pages.auth.verify-email');
-})->middleware('auth', '!hasVerifiedEmail')->name('verification.notice');
-
-// Handle the verification link
-Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
-    $request->fulfill(); // marks email as verified
-    return redirect('/dashboard');
-})->middleware(['auth', 'signed'])->name('verification.verify');
-
-// Resend verification email
-Route::post('/email/verification-notification', function (Request $request) {
-    $request->user()->sendEmailVerificationNotification();
-    return back()->with('message', 'Verification link sent!');
-})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
-//end//*/
 
 Route::middleware(['auth', 'category:admin'])
     ->prefix('admin')
