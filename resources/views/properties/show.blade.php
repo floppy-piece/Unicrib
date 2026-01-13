@@ -1044,7 +1044,7 @@
                 map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
 
                 if (pathDisplay) pathDisplay.textContent =
-                    'Driving route from university to this property.';
+                    'Walking route from university to this property.';
                 if (distanceDisplay) distanceDisplay.textContent = `${distanceKm} km`;
             } catch (err) {
                 console.error('Error fetching route:', err);

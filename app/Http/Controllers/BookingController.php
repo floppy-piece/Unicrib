@@ -131,10 +131,11 @@ public function cancel(Booking $booking)
     if ($booking->student_id !== $user->id) {
         abort(403);
     }
-
+    if($booking->created_at->lte(now()->subhours(2))){
     // Change status to rejected
-    $booking->status = 'rejected';
-    $booking->save(); // updates bookings table [web:104][web:100]
+        $booking->status = 'rejected';
+        $booking->save(); // updates bookings table [web:104][web:100]
+    }
 
     return back()->with('booking_status', [
         'type' => 'success',
