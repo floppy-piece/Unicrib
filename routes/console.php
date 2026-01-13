@@ -14,6 +14,4 @@ Schedule::call(function () {
     Booking::where('status', 'pending')
         ->where('created_at', '<=', now()->subHours(2))
         ->update(['status' => 'rejected']);
-
-        Log::info("Auto-reject scheduler updated {$count} bookings.");
-})->hourly();
+})->everyTwoMinutes(); // or ->hourly();

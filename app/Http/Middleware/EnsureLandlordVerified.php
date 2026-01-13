@@ -81,7 +81,7 @@ class EnsureLandlordVerified
         }
 
         // Property must be verified and not expired
-        if (! $property->isVerificationValid()) {
+        if (!$property->is_verified) {
             return redirect()
                 ->route('payments.landlord.form')
                 ->with('error', 'This property is not verified or its verification has expired.');

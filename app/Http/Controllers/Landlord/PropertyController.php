@@ -168,7 +168,7 @@ class PropertyController extends Controller
             'landmark' => $validated['landmark'] ?? null,
             'location_confirmed' => !empty($validated['map_lat']) && !empty($validated['map_lng']),
             'capacity'     => $validated['capacity'],
-            'booked_count' => $validate['booked_count'],
+            'booked_count' => $validate['booked_count'] ?? 0,
         ]);
 
         // Geocode address if coordinates not provided

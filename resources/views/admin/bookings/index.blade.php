@@ -144,8 +144,8 @@
                                           style="display:inline-flex;align-items:center;gap:4px;">
                                         @csrf
                                         <select name="status" class="uc-select">
-                                            <option value="pending" {{ $s === 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="approved" {{ $s === 'approved' ? 'selected' : '' }}>Approved</option>
+                                           {{-- <option value="pending" {{ $s === 'pending' ? 'selected' : '' }}>Pending</option> --}}
+                                            {{-- <option value="approved" {{ $s === 'approved' ? 'selected' : '' }}>Approved</option> --}}
                                             <option value="rejected" {{ $s === 'rejected' ? 'selected' : '' }}>Rejected</option>
                                            
                                         </select>

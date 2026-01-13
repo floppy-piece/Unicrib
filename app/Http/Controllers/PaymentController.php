@@ -217,7 +217,7 @@ class PaymentController extends Controller
         ) {
             $user->update([
                 'is_verified'       => true,
-                'access_expires_at' => now()->addMinute(),
+                'access_expires_at' => now()->addHours(6),
             ]);
         }
     

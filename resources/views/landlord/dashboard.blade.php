@@ -542,7 +542,7 @@
                                             $verificationValid = $property->isVerificationValid();
                                         @endphp
 
-                                        @if($verificationValid)
+                                        @if($property->is_verified==1)
                                             <span class="uc-pill uc-pill-blue" style="margin-left:4px;">Verified</span>
                                         @else
                                             <span class="uc-pill uc-pill-amber" style="margin-left:4px;">Not verified</span>
