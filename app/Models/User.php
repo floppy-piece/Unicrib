@@ -22,7 +22,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'password',
         'category',
-        'phone'
+        'phone',
+        'is_verified'
     ];
 
     /**
@@ -105,8 +106,7 @@ public function bookingsAsLandlord()
 
     public function hasValidLandlordAccess(): bool
     {
-        //return $this->category === 'landlord' && $this->is_verified;
-        return $this->category === 'landlord';
+        return $this->category === 'landlord' && $this->is_verified;
     }
 
     //properties

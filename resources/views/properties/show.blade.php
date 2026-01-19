@@ -458,7 +458,7 @@
                                  <br>                 
                             <p class="uc-subline">
                                 Landlord phone:
-                                <a href="tel:{{ optional($property->landlord)->phone }}" style="text-decoration:underline;"><strong>{{ optional($property->landlord)->phone ?? 'No phone set' }}</strong></a>
+                                <a href="tel:{{ ($property->landlord)->phone }}" style="text-decoration:underline;"><strong>{{ ($property->landlord)->phone ?? 'No phone set' }}</strong></a>
                             </p>
                         
                     </div>
@@ -631,6 +631,9 @@
 
                                     @endif
                                 @else
+                                     <small class="form-text text-muted" style="color:rgb(233,100,100)">
+                                        Make sure to contact the owner of this property before booking.
+                                    </small>
                                     <form method="POST" action="{{ route('student.bookings.store', $property->id) }}">
                                         @csrf
                                         <button type="submit" class="uc-btn-primary">

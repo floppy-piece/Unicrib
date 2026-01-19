@@ -36,7 +36,7 @@ class BookingApproved extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
+            ->line('Your booking has been approved click the button below to view details or login to your account.')
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');
     }

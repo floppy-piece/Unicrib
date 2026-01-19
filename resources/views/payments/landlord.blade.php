@@ -148,7 +148,7 @@
                         <div class="uc-pay-error">{{ session('error') }}</div>
                     @endif
 
-                    <form method="POST" action="{{ route('payments.landlord.pay') }}">
+                   {{-- <form method="POST" action="{{ route('payments.landlord.pay') }}">
                         @csrf
                         <div class="uc-pay-btn-row">
                         <div class="mb-3">
@@ -163,6 +163,11 @@
                                 Pay KES 500 now
                             </button>
                         </div>
+                    </form> --}}
+                    <form method="POST" action="{{ route('pay') }}">
+                        @csrf
+                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (ksh 500)" required>
+                        <button class="uc-pay-btn" type="submit">Pay & Verify</button>
                     </form>
                 </div>
             </div>

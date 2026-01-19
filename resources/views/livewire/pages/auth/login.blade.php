@@ -43,6 +43,7 @@ $login = function () {
                             type="password"
                             name="password"
                             required autocomplete="current-password" />
+            <span id="toggle-password">👁️</span>
 
             <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
         </div>

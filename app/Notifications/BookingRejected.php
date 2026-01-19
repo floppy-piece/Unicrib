@@ -37,7 +37,7 @@ class BookingRejected extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line('The introduction to the notification.')
+            ->line('Your booking has been rejected and a refund of your fee made, try booking another property.')
             ->action('Notification Action', url('/'))
             ->line('Thank you for using our application!');
     }

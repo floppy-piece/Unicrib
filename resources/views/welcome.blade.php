@@ -929,7 +929,7 @@
                     <ul>
                         <li><a href="{{ url('/dashboard') }}">Properties</a></li>
                         <li><a href="{{ url('/dashboard') }}">Universities</a></li>
-                        <li><a href="{{ url('/dashboard') }}">Services</a></li>
+                        <li><a href="{{ url('/services') }}">Services</a></li>
                         <li><a href="{{ url('/dashboard') }}">Dashboard</a></li>
                     </ul>
                 </div>

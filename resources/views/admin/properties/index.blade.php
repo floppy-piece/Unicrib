@@ -141,7 +141,7 @@
                                     @if($property->is_available)
                                         <span class="uc-pill uc-pill-blue">Available</span>
                                     @else
-                                        <span class="uc-pill uc-pill-red">Hidden</span>
+                                        <span class="uc-pill uc-pill-red">Flagged</span>
                                     @endif
                                 </td>
                                 <td>

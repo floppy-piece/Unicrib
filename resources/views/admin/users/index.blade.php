@@ -152,6 +152,8 @@
                             <th>Name & email</th>
                             <th>Category</th>
                             <th>Status</th>
+                            <th>Updated at</th>
+                            <th>Expires at</th>
                             <th>Actions</th>
                         </tr>
                         </thead>
@@ -192,6 +194,12 @@
                                         @endif
                                     @endif
                                     
+                                </td>
+                                <td>
+                                    <span class="uc-pill"> {{ $user->updated_at }} </span>
+                                </td>
+                                <td>
+                                    <span class="uc-pill"> {{ $user->access_expires_at }} </span>
                                 </td>
 
                                 <td>

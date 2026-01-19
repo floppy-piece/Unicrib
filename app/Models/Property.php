@@ -163,6 +163,14 @@ class Property extends Model
     }
     public function isFull(): bool
     {
-        return $this->booked_count >= $this->capacity;
+        // Sum approved bookings + any pre-counted booked_count
+        $unavailable = (int) $this->bookings()
+            ->where('status', 'approved')
+            ->count() + (int) $this->booked_count;
+    
+        $capacity = (int) ($this->capacity ?? 0);
+    
+        return $capacity > 0 && $unavailable >= $capacity;
     }
+    
 }

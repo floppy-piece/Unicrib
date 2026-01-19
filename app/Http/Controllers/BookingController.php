@@ -59,7 +59,7 @@ class BookingController extends Controller
     
             return back()->with('booking_status', [
                 'type'    => 'success',
-                'message' => 'Booking sent to landlord for confirmation.',
+                'message' => 'Booking sent to landlord for confirmation. You will recieve an email to your account after confirmation.',
             ]);
         } catch (\Throwable $e) {
             return back()->with('booking_status', [
@@ -123,7 +123,7 @@ class BookingController extends Controller
     return back()->with('success', 'Booking rejected and student notified.');
 }
 
-public function cancel(Booking $booking)
+/*public function cancel(Booking $booking)
 {
     $user = auth()->user();
 
@@ -141,7 +141,7 @@ public function cancel(Booking $booking)
         'type' => 'success',
         'message' => 'Your booking has been cancelled.',
     ]);
-}
+}*/
 public function cancelStudent(Booking $booking)
     {
         $user = Auth::user();

@@ -157,7 +157,7 @@
                         <div class="uc-student-pay-error">{{ session('error') }}</div>
                     @endif
 
-                    <form method="POST" action="{{ route('payments.student.pay') }}">
+                    {{-- <form method="POST" action="{{ route('payments.student.pay') }}">
                         @csrf
                         <div class="uc-pay-btn-row">
                         <div class="mb-3">
@@ -172,7 +172,13 @@
                                 Pay KES 50 now
                             </button>
                         </div>
+                    </form> --}}
+                    <form method="POST" action="{{ route('pay') }}">
+                        @csrf
+                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (e.g. 100)" required>
+                        <button class="uc-pay-btn" type="submit">Pay & Verify</button>
                     </form>
+
                 </div>
             </div>
         </div>

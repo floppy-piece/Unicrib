@@ -15,7 +15,7 @@ class PropertyController extends Controller
     //for welcome landing page
     public function welcome()
     {
-        $properties = Property::latest()->where('is_verified', true)->take(6)->get();
+        $properties = Property::latest()->where('is_verified', true)->where('is_available', true)->take(6)->get();
         $totalProperties = Property::count();
         $totalStudents      = User::where('category', 'student')->count();
 

@@ -178,7 +178,8 @@
                                     KES {{ optional($notification->property)->price }}
                                     </p>
                                     <p class="uc-msg-body">
-                                        phone: {{-- optional($property->landlord)->phone --}}View under property details!
+                                        phone: <a href="tel:{{ optional($notification->landlord)->phone }}" style="text-decoration:underline;"><strong>{{ optional($notification->landlord)->phone ?? 'phone not set' }}</strong></a>
+
                                     </p>
                                                                     
                                         

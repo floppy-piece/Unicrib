@@ -17,24 +17,36 @@ use App\Http\Controllers\TransportController;
 use App\Http\Controllers\Admin\TransportAdminController;
 use App\Http\Controllers\StorageHousingController;
 use App\Http\Controllers\Admin\StorageAdminController;
+use App\Http\Controllers\RefundController;
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/pay', [PaymentController::class, 'showForm'])->name('pay.form');
+    Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
+    Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback'])
+        //->middleware('paystack.ip')
+        ->name('payment.callback');
+
+    Route::post('/payment/{payment}/refund', [RefundController::class, 'refund'])
+        ->name('payment.refund');
+});
+
 
 
 /*
 to do: 
         add feature admin only can create landlord accounts
-        find an api to simulate payment
 */
 
 
 //storehousing for admin
-Route::middleware(['auth', 'category:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'category:admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');
     Route::patch('/storage/{storageBooking}', [StorageAdminController::class, 'update'])->name('storage.update');
 });
 //
 
 //store housing for students
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/store-housing', [StorageHousingController::class, 'index'])
         ->name('store-housing');
 
@@ -45,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-Route::middleware(['auth', 'category:admin'])
+Route::middleware(['auth', 'category:admin', 'verified'])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
@@ -108,7 +120,7 @@ Route::middleware(['auth','verified'])->group(function () {
         
 
 // Student: pay KES 50 to view details for 6 hours
-Route::middleware(['auth','category:student'])->group(function () {
+Route::middleware(['auth','category:student','verified'])->group(function () {
     Route::get('/payments/student', [PaymentController::class, 'showStudentForm'])->name('payments.student.form');
     Route::post('/payments/student', [PaymentController::class, 'handleStudentPayment'])->name('payments.student.pay');
     //show notifications
@@ -125,7 +137,7 @@ Route::middleware(['auth','category:student'])->group(function () {
 });
 
 // Landlord: pay KES 500 per semester to verify account and property
-Route::middleware(['auth','category:landlord'])->group(function () {
+Route::middleware(['auth','category:landlord','verified'])->group(function () {
     //view requests from students
     Route::get('/messages', [MessageController::class, 'index'])->name('messages');
     Route::get('/payments/landlord', [PaymentController::class, 'showLandlordForm'])->name('payments.landlord.form');
@@ -136,7 +148,7 @@ Route::middleware(['auth','category:landlord'])->group(function () {
     ->name('payments.landlord.verified');
 });
 
-Route::middleware(['auth', 'category:landlord'])
+Route::middleware(['auth', 'category:landlord', 'verified'])
 ->prefix('landlord')
 ->name('landlord.')
 ->group(function () {
@@ -166,7 +178,7 @@ Route::middleware(['auth', 'category:landlord'])
 });
 
 //transport routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','verified'])->group(function () {
     Route::get('/bookings/{booking}/transport/request', [TransportController::class, 'create'])->name('transport.request.create');
 
     Route::post('/bookings/{booking}/transport/request', [TransportController::class, 'store'])->name('transport.request.store');
