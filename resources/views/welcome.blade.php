@@ -822,7 +822,7 @@
                     <div class="stat__label">Universities covered</div>
                 </div>
                 <div>
-                    <div class="stat__value">0%</div>
+                    <div class="stat__value">98.9%</div>
                     <div class="stat__label">Satisfaction rating</div>
                 </div>
             </div>
@@ -873,15 +873,14 @@
 
                 <article class="testimonial-card">
                     <div class="testimonial-card__header">
-                        <div class="testimonial-card__avatar">GE</div>
+                        <div class="testimonial-card__avatar">RM</div>
                         <div>
-                            <div class="testimonial-card__name">Genius Etole</div>
-                            <div class="testimonial-card__school">Rongo University</div>
+                            <div class="testimonial-card__name">Raymond Mwenda</div>
+                            <div class="testimonial-card__school">Kirinyaga University</div>
                         </div>
                     </div>
                     <p class="testimonial-card__body">
-                        “The roommate matching options helped me find housemates with similar schedules.
-                        The whole process was straightforward.”
+                        “Money refund on booking rejection is a very good feature which has boost my trust towards unicrib on my money.”
                     </p>
                 </article>
             </div>

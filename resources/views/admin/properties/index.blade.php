@@ -117,6 +117,7 @@
                             <th>ID</th>
                             <th>Title</th>
                             <th>Landlord</th>
+                            <th>Phone_Number</th>
                             <th>Area</th>
                             <th>Verified</th>
                             <th>Available</th>
@@ -129,6 +130,7 @@
                                 <td>#{{ $property->id }}</td>
                                 <td>{{ $property->building_name }}</td>
                                 <td>{{ optional($property->landlord)->name ?? 'N/A' }}</td>
+                                <td><a href="tel:{{ optional($property->landlord)->phone }} "> {{ optional($property->landlord)->phone }} </a></td>
                                 <td>{{ ucfirst($property->area ?? 'n/a') }}</td>
                                 <td>
                                     @if($property->is_verified)

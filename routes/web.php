@@ -18,6 +18,23 @@ use App\Http\Controllers\Admin\TransportAdminController;
 use App\Http\Controllers\StorageHousingController;
 use App\Http\Controllers\Admin\StorageAdminController;
 use App\Http\Controllers\RefundController;
+use App\Http\Controllers\Landlord\LandlordController;
+
+Route::middleware('auth', 'verified')->group(function () {
+    // Properties
+    Route::post('/properties/{property}/pay-and-book', [BookingController::class, 'payAndBook'])->name('properties.pay-and-book');
+    
+    // Paystack
+    Route::get('/paystack/verify', [BookingController::class, 'paystackVerify'])->name('paystack.verify');
+    Route::get('/bookings/{booking}', [BookingController::class, 'show'])->name('bookings.show');
+    
+    // Landlord
+    Route::post('/landlord/subaccount', [LandlordController::class, 'createSubaccount'])->name('landlord.subaccount');
+});
+
+
+
+
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/pay', [PaymentController::class, 'showForm'])->name('pay.form');
@@ -38,22 +55,6 @@ to do:
 */
 
 
-//storehousing for admin
-Route::middleware(['auth', 'category:admin', 'verified'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');
-    Route::patch('/storage/{storageBooking}', [StorageAdminController::class, 'update'])->name('storage.update');
-});
-//
-
-//store housing for students
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/store-housing', [StorageHousingController::class, 'index'])
-        ->name('store-housing');
-
-    Route::post('/storage/book', [StorageHousingController::class, 'store'])
-        ->name('storage.store');
-});
-//
 
 
 
@@ -83,7 +84,10 @@ Route::middleware(['auth', 'category:admin', 'verified'])
         Route::get('/transports', [TransportAdminController::class, 'index'])->name('transports.index');
 
         Route::patch('/transports/{transport}', [TransportAdminController::class, 'update'])->name('transports.update');
-  
+
+        //storehousing for admin
+        Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');
+        Route::patch('/storage/{storageBooking}', [StorageAdminController::class, 'update'])->name('storage.update');
 
     });
 
@@ -100,7 +104,7 @@ Route::post('/contact', [ContactController::class, 'submit'])
     ->name('contact.submit');    
 //profile
 Route::view('profile', 'profile')
-    ->middleware(['auth'])
+    ->middleware(['auth', 'verified'])
     ->name('profile');
 
 require __DIR__.'/auth.php';
@@ -116,6 +120,13 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::get('/student/dashboard', [PropertyController::class, 'studentIndex'])->name('student.dashboard');
     // Student-facing property details
     //Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
+
+    //store housing for students
+    Route::get('/store-housing', [StorageHousingController::class, 'index'])
+        ->name('store-housing');
+
+    Route::post('/storage/book', [StorageHousingController::class, 'store'])
+        ->name('storage.store');
 });
         
 
@@ -126,7 +137,7 @@ Route::middleware(['auth','category:student','verified'])->group(function () {
     //show notifications
     Route::get('/student/notifications', [MessageController::class, 'notify'])->name('student.notifications');
     //store booking
-    Route::post('/properties/{property}/book', [BookingController::class, 'store'])->name('student.bookings.store');
+    Route::post('/properties/{property}/book', [BookingController::class, 'payAndBook'])->name('student.bookings.store');
     //cancel booking
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('student.bookings.cancel');
     //show students property i.e accessible to only students that paid
@@ -173,6 +184,9 @@ Route::middleware(['auth', 'category:landlord', 'verified'])
         Route::post('{booking}/reject', [BookingController::class, 'reject'])->name('reject');
         Route::get('/{booking}', [BookingController::class, 'showBooking'])->name('show');
         Route::post('/{booking}/cancel', [BookingController::class, 'cancelStudent'])->name('cancelStudent');
+        Route::post('/{booking}/pay', [BookingController::class, 'pay'])->name('bookings.pay');
+        Route::get('/{booking}/paystack/callback', [BookingController::class, 'paystackCallback'])->name('bookings.paystack.callback');
+        //Route::post('/{booking}/reject', [BookingController::class, 'reject'])->name('bookings.reject');
     });
     
 });
@@ -182,6 +196,8 @@ Route::middleware(['auth','verified'])->group(function () {
     Route::get('/bookings/{booking}/transport/request', [TransportController::class, 'create'])->name('transport.request.create');
 
     Route::post('/bookings/{booking}/transport/request', [TransportController::class, 'store'])->name('transport.request.store');
+
+    Route::post('/paystack/webhook', [PaystackWebhookController::class, 'handle'])->name('paystack.webhook');
     
 });
 

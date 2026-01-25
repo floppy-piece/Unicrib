@@ -261,7 +261,7 @@ class PaymentController extends Controller
     public function redirectToGateway(Request $request)
     {
         $request->validate([
-            'amount' => ['required', 'numeric', 'min:1'],
+            'amount' => ['required', 'numeric', 'min:50'],
         ]);
 
         $user = Auth::user();
@@ -281,6 +281,7 @@ class PaymentController extends Controller
             'amount'    => $amountInKobo,
             'email'     => $user->email,
             'reference' => $reference,
+            'callback_url' => route('payment.callback'),
             'currency'  => 'KES',
             'metadata'  => [
                 'payment_id' => $payment->id,
@@ -340,7 +341,7 @@ class PaymentController extends Controller
         if (
             $user &&
             $user->category === 'student' &&
-            /*! $user->is_verified && */$payment->status==='success'
+            /*! $user->is_verified && */$payment->status==='success' && $payment->amount >=50
         ) {            
             $user->is_verified = true;
             $user->access_expires_at = now()->addHours(6);
@@ -351,7 +352,7 @@ class PaymentController extends Controller
         if (
             $user &&
             $user->category === 'landlord' &&
-            /*! $user->is_verified && */$payment->status==='success'
+            /*! $user->is_verified && */$payment->status==='success' && $payment->amount >= 500
         ) {
             $user->is_verified = true;
             $user->access_expires_at = now()->addMonths(4);

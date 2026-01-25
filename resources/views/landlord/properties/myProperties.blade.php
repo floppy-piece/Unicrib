@@ -108,8 +108,8 @@
             align-items: center;
         }
         .uc-prop-thumb {
-            width: 48px;
-            height: 48px;
+            width: 80px;
+            height: 70px;
             border-radius: 10px;
             object-fit: cover;
             border: 1px solid #1f2937;
@@ -277,7 +277,7 @@
                                     <td>
                                         <div class="uc-table-property">
                                             @if($property->images && count($property->images) > 0)
-                                                <img class="uc-table-thumb"
+                                                <img class="uc-prop-thumb"
                                                      src="{{ asset('storage/' . $property->images[0]) }}"
                                                      alt="{{ $property->title }}">
                                             @else

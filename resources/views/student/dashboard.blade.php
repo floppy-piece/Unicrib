@@ -141,9 +141,9 @@
         }
         .property-card__image {
             width: 100%;
-            max-width: 260px;
-            height: 260px;
-            border-radius: 200px;
+            max-width: 100%;
+            height: 240px;
+            border-radius: 10px;
             object-fit: cover;
             margin: 0 auto;
         }

@@ -14,6 +14,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Property;
+use App\Models\Booking;
 
 class DashboardController extends Controller
 {
@@ -64,7 +65,9 @@ class DashboardController extends Controller
         $totalBookedCount = Property::where('landlord_id', $landlord->id)
             ->sum('booked_count');
 
-        return view('landlord.dashboard', compact('properties', 'totalBookedCount'));
+        $recentBookings=Booking::with('property')->where('status', 'approved')->where('landlord_id',$landlord->id)->latest()->take(10)->get();
+
+        return view('landlord.dashboard', compact('properties', 'totalBookedCount','recentBookings'));
 
     }
 

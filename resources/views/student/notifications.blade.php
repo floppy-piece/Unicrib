@@ -159,6 +159,23 @@
         .uc-btn-primary:hover {
             background-color: #4f46e5;
         }
+        .uc-table-thumb {
+            width: 120px;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid #1f2937;
+        }
+        .uc-table-thumb-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background-color: #020617;
+            border: 1px solid #1f2937;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
     {{-- Student: booking confirmations --}}
     <div class="uc-msg-page">
@@ -171,6 +188,21 @@
                             <h3 class="uc-msg-section-title">Booking updates</h3>
 
                             @forelse($notifications as $notification)
+                            <div style="display:flex;">
+                                <div class="uc-table-property">
+                                    @if(($notification->property)->images && count(($notification->property)->images) > 0)
+                                        <img class="uc-table-thumb"
+                                                src="{{ asset('storage/' . ($notification->property)->images[0]) }}"
+                                                alt="{{ ($notification->property)->building_name }}">
+                                    @else
+                                        <div class="uc-table-thumb-placeholder">
+                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
                                 <div class="uc-msg-item">
 
                                         • {{ optional($notification->property)->building_name }}
@@ -220,15 +252,16 @@
                                             Landmark: {{ $notification->landmark }}
                                         </p>
                                     @endif --}}
-                                    
-                        @empty
-                            <div class="uc-msg-empty">
-                                <p class="uc-msg-empty-text">
-                                    You have no booking updates yet.
-                                </p>
+                                </div> 
                             </div>
-                        @endforelse
-                    @endif
+                            @empty
+                                <div class="uc-msg-empty">
+                                    <p class="uc-msg-empty-text">
+                                        You have no booking updates yet.
+                                    </p>
+                                </div>
+                            @endforelse
+                        @endif
                     </div>
                 </div>
             </div>

@@ -23,7 +23,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'category',
         'phone',
-        'is_verified'
+        'is_verified',
+        'paystack_subaccount_code',
     ];
 
     /**

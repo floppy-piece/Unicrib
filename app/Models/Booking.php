@@ -12,7 +12,20 @@ class Booking extends Model
         'property_id',
         'status',
         'message',
+        'payment_status',
+        'payment_reference', 
+        'rejection_reason',
+        'amount',
+        'paystack_subaccount_code'
     ];
+
+    const STATUS_PENDING   = 'pending';
+    const STATUS_APPROVED  = 'approved';
+    const STATUS_REJECTED  = 'rejected';
+
+    const PAYMENT_UNPAID   = 'unpaid';
+    const PAYMENT_PAID     = 'paid';
+    const PAYMENT_REFUNDED = 'refunded';
 
     public function student()
     {

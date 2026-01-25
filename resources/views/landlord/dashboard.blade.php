@@ -421,6 +421,30 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- landlord/dashboard.blade.php --}}
+                <div class="uc-card">
+                    <div class="uc-card-row">
+                        <h3 class="uc-stat-label">Your Earnings KES <span style="color:green;font-weight:bold;">{{ number_format($recentBookings->sum('amount'),0,'.',',') }}</span>
+                         From {{ $stats['totalRoomsBooked'] }} bookings</h3>
+                    </div>                    
+                    
+                    <div class="uc-stat-text">                        
+                        <div class="flex justify-between items-start" style="overflow:scroll;">
+                        @foreach($recentBookings as $booking)
+                            <div style="border-right:1px solid white; margin-right:2px;padding-right:8px;">
+                                <h4>{{ $booking->property->building_name }}</h4>
+                                <p>Deposit: <span class="font-bold text-green-600">KES {{ floor((int)($booking->amount)*0.999999999) }}</span></p>
+                                <p class="text-sm text-gray-500">Subaccount: {{ $booking->paystack_subaccount_code }}</p>
+                                <span class="uc-stat-label" style="color:green;font-weight:bold;">PAID</span>
+                            </div>
+                            
+                        @endforeach
+                        </div>                       
+                    </div>     
+
+                </div>
+
             </div>
 
             {{-- Quick Actions --}}
@@ -428,6 +452,29 @@
                 <div class="uc-card-header">
                     <h3 class="uc-card-title">Quick actions</h3>
                 </div>
+
+                {{-- landlord/dashboard.blade.php --}}
+                @if(session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                <form action="{{ route('landlord.subaccount') }}" method="POST" class="p-6 rounded-xl shadow-lg mb-8 w-1-rem">
+                    @csrf
+                    <h3 class="uc-card-title">Setup Payment Receiving (One-time)</h3>
+                    <div class="uc-card">
+                        <x-text-input type="number" name="account_number" placeholder="Account Number" class="block mt-1 w-full" required/><br>
+                        <x-text-input type="number" name="bank_code" placeholder="Bank Code" class="block mt-1 w-full" required/><br>
+                        
+                        <x-primary-button type="submit">
+                            Create Unicrib Subaccount
+                        </x-primary-button>
+                        <small >paid via paystack unicrib account</small>
+                    </div>
+                </form>
+
+
                 <div class="uc-btn-row">
                     <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">

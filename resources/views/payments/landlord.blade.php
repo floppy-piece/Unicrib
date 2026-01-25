@@ -166,7 +166,7 @@
                     </form> --}}
                     <form method="POST" action="{{ route('pay') }}">
                         @csrf
-                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (ksh 500)" required>
+                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (ksh 500)" min=500 required>
                         <button class="uc-pay-btn" type="submit">Pay & Verify</button>
                     </form>
                 </div>

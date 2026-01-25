@@ -150,7 +150,7 @@
                         This payment unlocks full property details, landlord contacts, and maps for 6 hours on your account.
                     </p>
                     <p class="uc-student-pay-info">
-                        You will be redirected back here after payment to continue browsing.
+                        You will be redirected back to dashboard after payment to continue browsing.
                     </p>
 
                     @if(session('error'))
@@ -175,7 +175,7 @@
                     </form> --}}
                     <form method="POST" action="{{ route('pay') }}">
                         @csrf
-                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (e.g. 100)" required>
+                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (e.g. 100)" min=50 required>
                         <button class="uc-pay-btn" type="submit">Pay & Verify</button>
                     </form>
 

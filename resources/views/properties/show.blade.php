@@ -631,15 +631,123 @@
 
                                     @endif
                                 @else
-                                     <small class="form-text text-muted" style="color:rgb(233,100,100)">
+                                    <p class="form-text text-muted" style="color:rgb(233,100,100); ">
                                         Make sure to contact the owner of this property before booking.
-                                    </small>
-                                    <form method="POST" action="{{ route('student.bookings.store', $property->id) }}">
+                                    </p>
+                                    {{-- <form method="POST" action="{{ route('student.bookings.store', $property->id) }}">
                                         @csrf
                                         <button type="submit" class="uc-btn-primary">
                                             Book this property
                                         </button>
-                                    </form>
+                                    </form> --}}
+
+
+                                    {{-- Replace your existing "Book" button --}}
+                                    <button onclick="openPaymentModal({{ $property->id }})" 
+                                            class="uc-btn-primary">
+                                        <span>Pay & Book Now</span>
+                                    </button>
+
+                                    {{-- Payment Modal --}}
+                                    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-6">
+                                        <div class="uc-modal-backdrop"></div>
+                                        <div class="uc-modal-dialog">
+                                            <!-- Header with Property Details -->
+                                            <div class="">
+                                                <div class="uc-modal-header">
+                                                    <div>
+                                                        <h2 class="uc-modal-title">Book & Pay Securely</h2>
+                                                        <p class="text-sm text-gray-600 mb-2">Complete payment to book this property</p>
+                                                        
+                                                            <span>
+                                                                {{ $property->building_name ?? 'Property' }}
+                                                            </span>
+                                                        
+                                                    </div>
+                                                    <button type="button" onclick="closeModal()" 
+                                                            class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 -m-2 rounded-full hover:bg-gray-100 transition-all">
+                                                        ×
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <!-- Form: Pay → Create Booking -->
+                                            <form  method="POST" action="{{ route('properties.pay-and-book', $property->id) }}" class="p-6 space-y-4">
+                                                @csrf            
+                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
+
+                                                {{-- Check-in/out dates (if applicable) 
+                                                <div class="mb-3">
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
+                                                        <input type="date" 
+                                                            name="check_in_date" 
+                                                            required
+                                                            min="{{ now()->format('Y-m-d') }}"
+                                                            class="uc-modal-form-card">
+                                                    </div>
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
+                                                        <input type="date" 
+                                                            name="check_out_date" 
+                                                            required
+                                                            class="uc-modal-form-card">
+                                                    </div>
+                                                </div>
+                                                --}}
+                                                {{-- Payment Amount --}}
+                                                <div class="mb-3">
+                                                    <label for="amount">
+                                                        Total Amount (KES)
+                                                    </label>
+                                                    <div class="flex items-center justify-between">
+                                                        <div>
+                                                            <p class="text-sm text-gray-600">Assuarance fee Required</p>
+                                                            <p class="text-2xl font-bold text-indigo-700">
+                                                                KES {{ number_format(ceil(5/100 * ($property->price ?? 0))) }}
+                                                            </p>
+                                                        </div>
+                                                        <div class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full">
+                                                            5% of {{ number_format($property->price ?? 0) }}
+                                                        </div>
+                                                    </div>
+                                                    @error('payment_amount')
+                                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                                    @enderror
+                                                </div>
+
+                                                {{-- Customer Email --}}
+                                                <div class="mb-3">
+                                                    <label for="email">Email</label>
+                                                    <input type="email" 
+                                                        name="email"
+                                                        value="{{ old('email', auth()->user()->email) }}"
+                                                        required
+                                                        class="uc-modal-form-card">
+                                                </div>
+
+                                                {{-- Terms --}}
+                                                <label for="terms_agreement">
+                                                    <input type="checkbox" name="terms_agreement" required 
+                                                        class="mt-1 h-5 w-5 text-indigo-600 focus:ring-indigo-500">
+                                                    <span class="text-sm text-gray-700 leading-relaxed">
+                                                        I agree to pay and book this property. Payment is non-refundable unless landlord rejects.
+                                                    </span>
+                                                </label>
+
+                                                {{-- Buttons --}}
+                                                <div class="uc-modal-footer">
+                                                    <x-secondary-button type="button" onclick="closeModal()">
+                                                        Cancel
+                                                    </x-secondary-button>
+                                                    <x-primary-button type="submit">
+                                                        Pay & Book Now
+                                                    </x-primary-button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
                                 @endif
                             @endif
                         @endauth
@@ -723,6 +831,10 @@
                                 🎓 University marker is fixed. 📍 shows this property location.
                             </p>
                         </div>
+
+                        {{-- <x-secondary-button id="myLocationBtn" class="btn btn-primary mt-2">
+                        ♟️ My Location
+                        </x-secondary-button> --}}
 
                         <div class="uc-coords" style="margin-top:8px;">
                             <p>
@@ -1058,6 +1170,94 @@
             }
         }
 
+        function getUserLocation() {
+            
+            let userMarker;
+            
+            // User location
+            map.locate({setView: true, maxZoom: 16,enableHighAccuracy: true });
+            
+            map.on('locationfound', function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+                const accuracy = e.accuracy; // meters
+                
+                console.log(`📍 EXACT LOCATION: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
+                console.log(`📏 Accuracy: ${accuracy.toFixed(0)}m`);
+                
+                // Remove old marker
+                if (userMarker) map.removeLayer(userMarker);
+                
+                // Add user location marker + accuracy circle
+                userMarker = L.marker(e.latlng)
+                    .addTo(map)
+                    .bindPopup(`
+                        <b>YOUR EXACT LOCATION</b><br>
+                        Lat: ${lat.toFixed(6)}<br>
+                        Lng: ${lng.toFixed(6)}<br>
+                        Accuracy: ${accuracy.toFixed(0)}m
+                    `).openPopup();
+                    
+                // Accuracy circle (blue ring)
+                L.circle(e.latlng, {
+                    radius: accuracy,
+                    color: '#3887be',
+                    fill: false,
+                    weight: 2
+                }).addTo(map);
+            });
+
+            // Location error
+            map.on('locationerror', function(e) {
+                alert('Location access denied or unavailable');
+                console.error('Geolocation error:', e.message);
+            });
+
+            // Method 2: Button click to re-locate
+            document.getElementById('myLocationBtn').onclick = function() {
+                map.locate({ 
+                    setView: true, 
+                    maxZoom: 18,
+                    enableHighAccuracy: true,
+                    timeout: 10000
+                });
+            };
+
+            function startLiveTracking() {
+            let watchId = null;
+            if (watchId) return;
+            
+            watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    
+                    if (userMarker) map.removeLayer(userMarker);
+                    
+                    userMarker = L.circleMarker([lat, lng], {
+                        radius: 8,
+                        fillColor: "#3887be",
+                        color: "#fff",
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    map.panTo([lat, lng], { animate: true });
+                },
+                (error) => console.error('Live tracking error:', error),
+                {
+                    enableHighAccuracy: true,
+                    timeout: 5000,
+                    maximumAge: 30000
+                }
+            );
+        }
+        };
+
+        
+      
+
         document.addEventListener('DOMContentLoaded', function () {
             const lat = @json($property->map_lat ?? $property->latitude);
             const lng = @json($property->map_lng ?? $property->longitude);
@@ -1188,6 +1388,24 @@
         const timer = setInterval(updateCountdown, 1000);
     });
 </script>
+<script>
+function openPaymentModal(propertyId) {
+    document.getElementById('payment-modal').classList.remove('hidden');
+}
+
+function closeModal() {
+    document.getElementById('payment-modal').classList.add('hidden');
+}
+
+// Backdrop + ESC
+document.getElementById('payment-modal').addEventListener('click', e => {
+    if (e.target === this) closeModal();
+});
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+});
+</script>
+
 
 
     

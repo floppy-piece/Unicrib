@@ -119,6 +119,7 @@
                             <th>Property</th>
                             <th>Landlord</th>
                             <th>Status</th>
+                            <th>Payment_status</th>
                             <th>Created</th>
                             <th>Change status</th>
                         </tr>
@@ -136,6 +137,15 @@
                                         {{ $s === 'approved' ? 'uc-pill-green' : ($s === 'rejected' ? 'uc-pill-red' : 'uc-pill-blue') }}">
                                         {{ ucfirst($s) }}
                                     </span>
+                                </td>
+                                <td>
+                                    @php
+                                        $s = $booking->payment_status
+                                    @endphp
+                                    <span class="uc-pill
+                                        {{ $s === 'paid' ? 'uc-pill-green' : ($s === 'refunded' ? 'uc-pill-red' : 'uc-pill-blue') }}">
+                                        {{ ucfirst($s) }}
+                                    </span> &rarr; <span style="color:green; font-weight:bold;">kes {{ number_format($booking->amount,0,'.',',') }}</span> 
                                 </td>
                                 <td>{{ $booking->created_at->format('d M Y, H:i') }}</td>
                                 <td>
