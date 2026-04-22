@@ -460,6 +460,8 @@
                     </div>
                 @endif
 
+                @if ($booking->paystack_subaccount_code==false)
+                
                 <form action="{{ route('landlord.subaccount') }}" method="POST" class="p-6 rounded-xl shadow-lg mb-8 w-1-rem">
                     @csrf
                     <h3 class="uc-card-title">Setup Payment Receiving (One-time)</h3>
@@ -473,7 +475,8 @@
                         <small >paid via paystack unicrib account</small>
                     </div>
                 </form>
-
+    
+                @endif
 
                 <div class="uc-btn-row">
                     <a href="{{ route('landlord.properties.add') }}" class="uc-btn uc-btn-primary">

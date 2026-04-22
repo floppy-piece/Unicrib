@@ -110,7 +110,7 @@ Route::view('profile', 'profile')
 require __DIR__.'/auth.php';
 
 //dashboard redirect
-Route::middleware(['auth','verified'])->group(function () {
+Route::middleware(['auth'/*,'verified'*/])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/student/dashboard', [DashboardController::class, 'studentDashboard'])->name('student.dashboard');
@@ -131,7 +131,7 @@ Route::middleware(['auth','verified'])->group(function () {
         
 
 // Student: pay KES 50 to view details for 6 hours
-Route::middleware(['auth','category:student','verified'])->group(function () {
+Route::middleware(['auth','category:student'/*,'verified'*/])->group(function () {
     Route::get('/payments/student', [PaymentController::class, 'showStudentForm'])->name('payments.student.form');
     Route::post('/payments/student', [PaymentController::class, 'handleStudentPayment'])->name('payments.student.pay');
     //show notifications
@@ -148,7 +148,7 @@ Route::middleware(['auth','category:student','verified'])->group(function () {
 });
 
 // Landlord: pay KES 500 per semester to verify account and property
-Route::middleware(['auth','category:landlord','verified'])->group(function () {
+Route::middleware(['auth','category:landlord'/*,'verified'*/])->group(function () {
     //view requests from students
     Route::get('/messages', [MessageController::class, 'index'])->name('messages');
     Route::get('/payments/landlord', [PaymentController::class, 'showLandlordForm'])->name('payments.landlord.form');
@@ -159,7 +159,7 @@ Route::middleware(['auth','category:landlord','verified'])->group(function () {
     ->name('payments.landlord.verified');
 });
 
-Route::middleware(['auth', 'category:landlord', 'verified'])
+Route::middleware(['auth', 'category:landlord'/*, 'verified'*/])
 ->prefix('landlord')
 ->name('landlord.')
 ->group(function () {
