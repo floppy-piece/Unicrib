@@ -1,228 +1,107 @@
 {{-- resources/views/admin/dashboard.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding: 16px 0 24px;
-        }
-        .uc-container {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .uc-header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 4px;
-        }
-        .uc-header-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        @media (max-width: 1024px) {
-            .uc-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        }
-        @media (max-width: 640px) {
-            .uc-stats-grid { grid-template-columns: minmax(0, 1fr); }
-        }
-        .uc-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            padding: 14px;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-        }
-        .uc-card-row {
-            display: flex;
-            align-items: center;
-        }
-        .uc-stat-icon-wrap {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .uc-stat-text { margin-left: 12px; }
-        .uc-stat-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: #9ca3af;
-        }
-        .uc-stat-value {
-            margin-top: 4px;
-            font-size: 20px;
-            font-weight: 600;
-            color: #f9fafb;
-        }
-        .uc-stat-icon-blue { background-color: rgba(59,130,246,0.18); color:#bfdbfe; }
-        .uc-stat-icon-green { background-color: rgba(16,185,129,0.18); color:#6ee7b7; }
-        .uc-stat-icon-purple { background-color: rgba(147,51,234,0.18); color:#e9d5ff; }
-        .uc-stat-icon-amber { background-color: rgba(245,158,11,0.18); color:#fed7aa; }
-        .uc-card-header {
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            margin-bottom:8px;
-        }
-        .uc-card-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #e5e7eb;
-        }
-        .uc-table-wrap { overflow-x:auto; margin-top:8px; }
-        .uc-table { width:100%; border-collapse:collapse; font-size:12px; }
-        .uc-table th, .uc-table td {
-            padding:6px 10px;
-            border-bottom:1px solid #111827;
-            text-align:left;
-        }
-        .uc-table th {
-            font-size:10px;
-            text-transform:uppercase;
-            letter-spacing:0.08em;
-            color:#9ca3af;
-        }
-        .uc-table td { color:#e5e7eb; }
-        .uc-pill {
-            display:inline-flex;
-            align-items:center;
-            padding:2px 8px;
-            border-radius:999px;
-            font-size:10px;
-            font-weight:500;
-            border:1px solid transparent;
-        }
-        .uc-pill-green {
-            background-color:rgba(16,185,129,0.15);
-            color:#6ee7b7;
-            border-color:rgba(16,185,129,0.5);
-        }
-        .uc-pill-red {
-            background-color:rgba(239,68,68,0.15);
-            color:#fecaca;
-            border-color:rgba(239,68,68,0.5);
-        }
-        .uc-pill-blue {
-            background-color:rgba(59,130,246,0.15);
-            color:#bfdbfe;
-            border-color:rgba(59,130,246,0.5);
-        }
-        .uc-link {
-            font-size:12px;
-            color:#6366f1;
-            text-decoration:none;
-        }
-        .uc-link:hover { color:#a5b4fc; }
-    </style>
-
     <x-slot name="header">
-        <div>
-            <h2 class="uc-header-title">Admin Dashboard</h2>
-            <p class="uc-header-subtitle">
-                Global overview of users, properties, and bookings.
-            </p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h2 class="text-xl font-bold tracking-tight text-slate-900">Admin Dashboard</h2>
+                <p class="text-xs text-slate-500">
+                    Global overview of users, properties, bookings, transport, and storage requests.
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center justify-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-500 transition shadow-sm">
+                    Manage Users
+                </a>
+                <a href="{{ route('admin.properties.index') }}" class="inline-flex items-center justify-center px-3 py-1.5 rounded-xl text-xs font-semibold bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition shadow-sm">
+                    Manage Properties
+                </a>
+            </div>
         </div>
     </x-slot>
 
-    <div class="uc-page">
-        <div class="uc-container">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            
             {{-- Stat cards --}}
-            <div class="uc-stats-grid">
-                <div class="uc-card">
-                    <div class="uc-card-row">
-                        <div class="uc-stat-icon-wrap uc-stat-icon-blue">👥</div>
-                        <div class="uc-stat-text">
-                            <p class="uc-stat-label">Total users</p>
-                            <p class="uc-stat-value">{{ $totalUsers }}</p>
-                        </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center text-lg shadow-sm">👥</div>
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Total users</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ $totalUsers }}</p>
                     </div>
                 </div>
 
-                <div class="uc-card">
-                    <div class="uc-card-row">
-                        <div class="uc-stat-icon-wrap uc-stat-icon-green">🏠</div>
-                        <div class="uc-stat-text">
-                            <p class="uc-stat-label">Total properties</p>
-                            <p class="uc-stat-value">{{ $totalProperties }}</p>
-                        </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center text-lg shadow-sm">🏠</div>
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Total properties</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ $totalProperties }}</p>
                     </div>
                 </div>
 
-                <div class="uc-card">
-                    <div class="uc-card-row">
-                        <div class="uc-stat-icon-wrap uc-stat-icon-purple">✅</div>
-                        <div class="uc-stat-text">
-                            <p class="uc-stat-label">Verified properties</p>
-                            <p class="uc-stat-value">{{ $verifiedProperties }}</p>
-                        </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 text-purple-600 flex items-center justify-center text-lg shadow-sm">✅</div>
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Verified properties</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ $verifiedProperties }}</p>
                     </div>
                 </div>
 
-                <div class="uc-card">
-                    <div class="uc-card-row">
-                        <div class="uc-stat-icon-wrap uc-stat-icon-amber">🧾</div>
-                        <div class="uc-stat-text">
-                            <p class="uc-stat-label">Total bookings</p>
-                            <p class="uc-stat-value">{{ $totalBookings }}</p>
-                        </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm flex items-center space-x-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 text-amber-600 flex items-center justify-center text-lg shadow-sm">🧾</div>
+                    <div>
+                        <p class="text-[11px] uppercase tracking-wider font-semibold text-slate-400">Total bookings</p>
+                        <p class="text-2xl font-bold text-slate-900 mt-0.5">{{ $totalBookings }}</p>
                     </div>
                 </div>
+
             </div>
 
             {{-- Recent users --}}
-            <div class="uc-card" style="margin-bottom:16px;">
-                <div class="uc-card-header">
-                    <h3 class="uc-card-title">Recent users</h3>
-                    <a href="{{ route('admin.users.index') }}" class="uc-link">Manage users</a>
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 class="text-base font-bold text-slate-900">Recent users</h3>
+                    <a href="{{ route('admin.users.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 transition">Manage users →</a>
                 </div>
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Category</th>
-                                <th>Status</th>
+                            <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <th class="py-3 px-4 font-semibold">Name</th>
+                                <th class="py-3 px-4 font-semibold">Email</th>
+                                <th class="py-3 px-4 font-semibold">Category</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                                <th class="py-3 px-4 font-semibold text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($recentUsers as $user)
-                            <tr>
-                                <td>{{ $user->name }}</td>
-                                <td>{{ $user->email }}</td>
-                                <td>{{ ucfirst($user->category ?? 'n/a') }}</td>
-                                <td>
-                                    <span class="uc-pill {{ ($user->status ?? 'active') === 'active' ? 'uc-pill-green' : 'uc-pill-red' }}">
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $user->name }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ $user->email }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ ucfirst($user->category ?? 'n/a') }}</td>
+                                <td class="py-3 px-4">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border {{ ($user->status ?? 'active') === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200' }}">
                                         {{ ucfirst($user->status ?? 'active') }}
                                     </span>
-                                
+                                </td>
+                                <td class="py-3 px-4 text-right">
                                     <form action="{{ route('admin.users.destroy', $user) }}"
                                         method="POST"
-                                        style="display:inline"
+                                        class="inline"
                                         onsubmit="return confirm('Delete this user? This action cannot be undone.');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit"
-                                                style="background:none;border:none;color:#fb7185;font-size:12px;cursor:pointer;">
+                                        <button type="submit" class="text-rose-600 hover:text-rose-800 font-medium transition text-xs">
                                             Delete
                                         </button>
                                     </form>
                                 </td>
-
                             </tr>
                         @empty
-                            <tr><td colspan="4">No users yet.</td></tr>
+                            <tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">No users yet.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -230,37 +109,37 @@
             </div>
 
             {{-- Recent properties --}}
-            <div class="uc-card" style="margin-bottom:16px;">
-                <div class="uc-card-header">
-                    <h3 class="uc-card-title">Recent properties</h3>
-                    <a href="{{ route('admin.properties.index') }}" class="uc-link">Manage properties</a>
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 class="text-base font-bold text-slate-900">Recent properties</h3>
+                    <a href="{{ route('admin.properties.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 transition">Manage properties →</a>
                 </div>
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Landlord</th>
-                                <th>Area</th>
-                                <th>Verified</th>
+                            <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <th class="py-3 px-4 font-semibold">Title</th>
+                                <th class="py-3 px-4 font-semibold">Landlord</th>
+                                <th class="py-3 px-4 font-semibold">Area</th>
+                                <th class="py-3 px-4 font-semibold">Verified</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($recentProperties as $property)
-                            <tr>
-                                <td>{{ $property->title }}</td>
-                                <td>{{ optional($property->landlord)->name ?? 'N/A' }}</td>
-                                <td>{{ ucfirst($property->area ?? 'n/a') }}</td>
-                                <td>
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="py-3 px-4 font-medium text-slate-900">{{ $property->title }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ optional($property->landlord)->name ?? 'N/A' }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ ucfirst($property->area ?? 'n/a') }}</td>
+                                <td class="py-3 px-4">
                                     @if($property->is_verified)
-                                        <span class="uc-pill uc-pill-green">Verified</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Verified</span>
                                     @else
-                                        <span class="uc-pill uc-pill-red">Not verified</span>
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Not verified</span>
                                     @endif
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4">No properties yet.</td></tr>
+                            <tr><td colspan="4" class="py-6 text-center text-slate-400 text-xs">No properties yet.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -268,79 +147,79 @@
             </div>
 
             {{-- Recent bookings --}}
-            <div class="uc-card">
-                <div class="uc-card-header">
-                    <h3 class="uc-card-title">Recent bookings</h3>
-                    <a href="{{ route('admin.bookings.index') }}" class="uc-link">Manage bookings</a>
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 class="text-base font-bold text-slate-900">Recent bookings</h3>
+                    <a href="{{ route('admin.bookings.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 transition">Manage bookings →</a>
                 </div>
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Student</th>
-                                <th>Property</th>
-                                <th>Status</th>
+                            <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <th class="py-3 px-4 font-semibold">ID</th>
+                                <th class="py-3 px-4 font-semibold">Student</th>
+                                <th class="py-3 px-4 font-semibold">Property</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($recentBookings as $booking)
-                            <tr>
-                                <td>#{{ $booking->id }}</td>
-                                <td>{{ optional($booking->student)->name ?? 'N/A' }}</td>
-                                <td>{{ optional($booking->property)->title ?? 'N/A' }}</td>
-                                <td>
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="py-3 px-4 font-medium text-slate-900">#{{ $booking->id }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ optional($booking->student)->name ?? 'N/A' }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ optional($booking->property)->title ?? 'N/A' }}</td>
+                                <td class="py-3 px-4">
                                     @php $s = $booking->status; @endphp
-                                    <span class="uc-pill
-                                        {{ $s === 'approved' ? 'uc-pill-green' : ($s === 'rejected' ? 'uc-pill-red' : 'uc-pill-blue') }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border
+                                        {{ $s === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($s === 'rejected' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-blue-50 text-blue-700 border-blue-200') }}">
                                         {{ ucfirst($s) }}
                                     </span>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4">No bookings yet.</td></tr>
+                            <tr><td colspan="4" class="py-6 text-center text-slate-400 text-xs">No bookings yet.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
+
             {{-- Recent transports --}}
-            <div class="uc-card" style="margin-top:16px;">
-                <div class="uc-card-header">
-                    <h3 class="uc-card-title">Recent transports</h3>
-                    <a href="{{ route('admin.transports.index') }}" class="uc-link">Manage transports</a>
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 class="text-base font-bold text-slate-900">Recent transports</h3>
+                    <a href="{{ route('admin.transports.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 transition">Manage transports →</a>
                 </div>
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Student</th>
-                                <th>Property</th>
-                                <th>Date</th>
-                                <th>Assigned slot</th>
-                                <th>Status</th>
+                            <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <th class="py-3 px-4 font-semibold">ID</th>
+                                <th class="py-3 px-4 font-semibold">Student</th>
+                                <th class="py-3 px-4 font-semibold">Property</th>
+                                <th class="py-3 px-4 font-semibold">Date</th>
+                                <th class="py-3 px-4 font-semibold">Assigned slot</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($recentTransports as $transport)
-                            <tr>
-                                <td>#{{ $transport->id }}</td>
-                                <td>{{ $transport->student_name }}</td>
-                                <td>{{ optional($transport->property)->title ?? optional($transport->property)->name ?? 'N/A' }}</td>
-                                <td>{{ optional($transport->requested_date)->format('d M Y') }}</td>
-                                <td>{{ optional($transport->assigned_at)->format('d M Y, H:i') }}</td>
-                                <td>
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="py-3 px-4 font-medium text-slate-900">#{{ $transport->id }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ $transport->student_name }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ optional($transport->property)->title ?? optional($transport->property)->name ?? 'N/A' }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ optional($transport->requested_date)->format('d M Y') }}</td>
+                                <td class="py-3 px-4 text-slate-600">{{ optional($transport->assigned_at)->format('d M Y, H:i') }}</td>
+                                <td class="py-3 px-4">
                                     @php $st = $transport->status; @endphp
-                                    <span class="uc-pill
-                                        {{ $st === 'completed' ? 'uc-pill-green'
-                                        : ($st === 'cancelled' ? 'uc-pill-red' : 'uc-pill-blue') }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border
+                                        {{ $st === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($st === 'cancelled' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-blue-50 text-blue-700 border-blue-200') }}">
                                         {{ ucfirst($st) }}
                                     </span>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6">No transport requests yet.</td></tr>
+                            <tr><td colspan="6" class="py-6 text-center text-slate-400 text-xs">No transport requests yet.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
@@ -348,62 +227,57 @@
             </div>
 
             {{-- STORAGE SUMMARY CARD --}}
-            <div class="uc-card" style="margin-top:16px;">
-                <div class="uc-card-header">
-                    <h3 class="uc-card-title">Store housing bookings</h3>
-                    <a href="{{ route('admin.storage.index') }}" class="uc-link">Manage store housing</a>
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <h3 class="text-base font-bold text-slate-900">Store housing bookings</h3>
+                    <a href="{{ route('admin.storage.index') }}" class="text-xs font-semibold text-indigo-600 hover:text-indigo-500 transition">Manage store housing →</a>
                 </div>
 
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Student</th>
-                            <th>Period</th>
-                            <th>Months</th>
-                            <th>Amount</th>
-                            <th>Status</th>
+                        <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                            <th class="py-3 px-4 font-semibold">ID</th>
+                            <th class="py-3 px-4 font-semibold">Student</th>
+                            <th class="py-3 px-4 font-semibold">Period</th>
+                            <th class="py-3 px-4 font-semibold">Months</th>
+                            <th class="py-3 px-4 font-semibold">Amount</th>
+                            <th class="py-3 px-4 font-semibold">Status</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($recentStorageBookings as $booking)
-                            <tr>
-                                <td>#{{ $booking->id }}</td>
-                                <td>
-                                    <div style="font-size:13px;font-weight:500;color:#f9fafb;">
+                            <tr class="hover:bg-slate-50/60 transition">
+                                <td class="py-3 px-4 font-medium text-slate-900">#{{ $booking->id }}</td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium text-slate-900">
                                         {{ optional($booking->user)->name ?? 'N/A' }}
                                     </div>
-                                    <div style="font-size:11px;color:#9ca3af;">
+                                    <div class="text-[11px] text-slate-400">
                                         {{ optional($booking->user)->email ?? '' }}
                                     </div>
                                 </td>
-                                <td>
-                                    <div style="font-size:12px;">
-                                        {{ $booking->start_date }} – {{ $booking->end_date }}
-                                    </div>
+                                <td class="py-3 px-4 text-slate-600">
+                                    {{ $booking->start_date }} – {{ $booking->end_date }}
                                 </td>
-                                <td>{{ $booking->months }}</td>
-                                <td>KES {{ number_format($booking->amount) }}</td>
-                                <td>
+                                <td class="py-3 px-4 text-slate-600">{{ $booking->months }}</td>
+                                <td class="py-3 px-4 font-semibold text-slate-900">KES {{ number_format($booking->amount) }}</td>
+                                <td class="py-3 px-4">
                                     @php $st = $booking->status; @endphp
-                                    <span class="uc-pill
-                                        {{ $st === 'paid' ? 'uc-pill-green'
-                                        : ($st === 'completed' ? 'uc-pill-blue' : 'uc-pill-red') }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border
+                                        {{ $st === 'paid' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($st === 'completed' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-rose-50 text-rose-700 border-rose-200') }}">
                                         {{ ucfirst($st) }}
                                     </span>
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6">No storage bookings yet.</td></tr>
+                            <tr><td colspan="6" class="py-6 text-center text-slate-400 text-xs">No storage bookings yet.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
             </div>
 
-
-            
         </div>
     </div>
 </x-app-layout>

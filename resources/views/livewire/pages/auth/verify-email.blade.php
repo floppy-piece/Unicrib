@@ -28,24 +28,29 @@ $logout = function (Logout $logout) {
 
 ?>
 
-<div>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
+<div class="w-full bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-slate-900">Verify your email address</h2>
+        <p class="text-xs text-slate-500 mt-1">Thanks for signing up! Please verify your email via the link we just sent.</p>
+    </div>
+
+    <div class="mb-4 text-xs text-slate-600 leading-relaxed">
+        {{ __('Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
     </div>
 
     @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600 dark:text-green-400">
+        <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-medium">
             {{ __('A new verification link has been sent to the email address you provided during registration.') }}
         </div>
     @endif
-<br>
-    <div class="mt-4 flex items-center justify-between">
+
+    <div class="pt-2 flex items-center justify-between">
         <x-primary-button wire:click="sendVerification">
             {{ __('Resend Verification Email') }}
-        </x-primary-button><br>
-
-        <x-primary-button wire:click="logout" type="submit">
-            {{ __('Log Out') }}
         </x-primary-button>
+
+        <button wire:click="logout" type="button" class="text-xs font-medium text-slate-600 hover:text-slate-900 underline transition">
+            {{ __('Log Out') }}
+        </button>
     </div>
 </div>

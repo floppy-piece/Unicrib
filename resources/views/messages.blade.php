@@ -1,309 +1,149 @@
+{{-- resources/views/landlord/tenants.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-msg-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding: 16px 0 24px;
-        }
-        .uc-msg-container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .uc-msg-card {
-            border-radius: 12px;
-            border: 1px solid #111827;
-            background-color: #020617;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-            overflow: hidden;
-        }
-        .uc-msg-inner {
-            padding: 18px 18px 20px;
-        }
-        .uc-msg-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .uc-msg-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #f9fafb;
-        }
-        .uc-msg-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .uc-msg-section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #e5e7eb;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #111827;
-            margin-bottom: 12px;
-        }
-
-        .uc-msg-item {
-            padding: 10px 0 12px;
-            border-bottom: 1px solid #111827;
-        }
-        .uc-msg-item:last-child {
-            border-bottom: none;
-        }
-        .uc-msg-meta {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: #6b7280;
-            margin-bottom: 4px;
-        }
-        .uc-msg-body {
-            font-size: 14px;
-            color: #e5e7eb;
-        }
-        .uc-msg-label {
-            font-weight: 500;
-            color: #9ca3af;
-        }
-
-        .uc-msg-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: 10px;
-            font-weight: 500;
-            border: 1px solid transparent;
-            margin-top: 4px;
-        }
-        .uc-msg-pill-pending {
-            background-color: rgba(245,158,11,0.15);
-            color: #fef3c7;
-            border-color: rgba(245,158,11,0.5);
-        }
-        .uc-msg-pill-approved {
-            background-color: rgba(16,185,129,0.15);
-            color: #6ee7b7;
-            border-color: rgba(16,185,129,0.5);
-        }
-        .uc-msg-pill-rejected {
-            background-color: rgba(239,68,68,0.15);
-            color: #fecaca;
-            border-color: rgba(239,68,68,0.5);
-        }
-
-        .uc-msg-actions {
-            margin-top: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .uc-msg-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 7px 14px;
-            border-radius: 999px;
-            border: 1px solid transparent;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background .15s ease, border-color .15s ease, color .15s ease;
-        }
-        .uc-msg-btn-primary {
-            background-color: #6366f1;
-            border-color: #4f46e5;
-            color: #ffffff;
-        }
-        .uc-msg-btn-primary:hover {
-            background-color: #4f46e5;
-        }
-        .uc-msg-btn-ghost {
-            background-color: #020617;
-            border-color: #1f2937;
-            color: #e5e7eb;
-        }
-        .uc-msg-btn-ghost:hover {
-            border-color: #6366f1;
-        }
-
-        .uc-msg-empty {
-            padding: 24px 0 6px;
-            text-align: center;
-        }
-        .uc-msg-empty-text {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .uc-btn-primary {
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid #4f46e5;
-            background-color: #6366f1;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.15s ease, border-color 0.15s ease;
-        }
-        .uc-btn-primary:hover {
-            background-color: #4f46e5;
-        }
-    </style>
-
     <x-slot name="header">
-        <h2 class="uc-header-title">
+        <h2 class="text-xl font-bold tracking-tight text-slate-900">
             {{ __('Tenants') }}
         </h2>
     </x-slot>
 
-    <div class="uc-msg-page">
-        <div class="uc-msg-container">
-            <div class="uc-msg-card">
-                <div class="uc-msg-inner">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-6 sm:p-8 space-y-6">
                     @php $user = auth()->user(); @endphp
 
-                    <div class="uc-msg-header">
+                    {{-- Page Header --}}
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-6 border-b border-slate-100">
                         <div>
-                            <div class="uc-msg-title">
+                            <h3 class="text-lg font-bold text-slate-900">
                                 {{ $user && $user->category === 'landlord' ? 'Booking Requests' : 'Booking Updates' }}
-                            </div>
-                            <div class="uc-msg-subtitle">
+                            </h3>
+                            <p class="text-xs text-slate-500 mt-0.5">
                                 {{ $user && $user->category === 'landlord'
                                     ? 'Review and manage student booking requests for your properties.'
                                     : 'Track confirmations and updates for your property bookings.' }}
-                            </div>
+                            </p>
                         </div>
                     </div>
 
-                    {{-- Landlord: booking requests --}}
+                    {{-- Landlord: Pending Requests --}}
                     @if($user && $user->category === 'landlord')
-                        <h3 class="uc-msg-section-title">Pending requests</h3>
+                        <div class="space-y-4">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Pending requests</h4>
 
-                        @forelse($pendingBookings as $booking)
-                            <div class="uc-msg-item">
-                                <div class="uc-msg-meta">
-                                    Request #{{ $booking->id }}
-                                </div>
-                                <div class="uc-msg-body">
-                                    <span class="uc-msg-label">Student:</span>
-                                    {{ $booking->student->name }}<br>
-                                    <span class="uc-msg-label">Property:</span>
-                                    {{ $booking->property->building_name }}<br>
-                                    <span class="uc-msg-label">Status:</span>
-                                   
+                            <div class="divide-y divide-slate-100">
+                                @forelse($pendingBookings as $booking)
+                                    <div class="py-4 first:pt-0 last:pb-0 space-y-3">
+                                        <div>
+                                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                                Request #{{ $booking->id }}
+                                            </div>
+                                            <div class="text-xs text-slate-700 space-y-1">
+                                                <div><span class="font-medium text-slate-400">Student:</span> {{ $booking->student->name }}</div>
+                                                <div><span class="font-medium text-slate-400">Property:</span> {{ $booking->property->building_name }}</div>
+                                                <div class="flex items-center gap-1.5 pt-1">
+                                                    <span class="font-medium text-slate-400">Status:</span>
+                                                    @if($booking->status === 'pending')
+                                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
+                                                    @elseif($booking->status === 'approved')
+                                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Approved</span>
+                                                    @else
+                                                        <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Rejected</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+
                                         @if($booking->status === 'pending')
-                                            <span class="uc-msg-pill uc-msg-pill-pending">Pending</span>
-                                        @elseif($booking->status === 'approved')
-                                            <span class="uc-msg-pill uc-msg-pill-approved">Approved</span>
-                                        @else
-                                            <span class="uc-msg-pill uc-msg-pill-rejected">Rejected</span>
+                                            <div class="flex flex-wrap gap-2 pt-1">
+                                                <form method="POST" action="{{ route('landlord.bookings.approve', $booking->id) }}">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">
+                                                        Approve
+                                                    </button>
+                                                </form>
+
+                                                <form method="POST" action="{{ route('landlord.bookings.reject', $booking->id) }}">
+                                                    @csrf
+                                                    <button type="submit" class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition">
+                                                        Reject
+                                                    </button>
+                                                </form>
+                                            </div>
                                         @endif
                                     </div>
-                                </div>
-
-                                @if($booking->status === 'pending')
-                                    <div class="uc-msg-actions">
-                                        <form method="POST"
-                                              action="{{ route('landlord.bookings.approve', $booking->id) }}">
-                                            @csrf
-                                            <button type="submit" class="uc-msg-btn uc-msg-btn-primary">
-                                                Approve
-                                            </button>
-                                        </form>
-
-                                        <form method="POST"
-                                              action="{{ route('landlord.bookings.reject', $booking->id) }}">
-                                            @csrf
-                                            <button type="submit" class="uc-msg-btn uc-msg-btn-ghost">
-                                                Reject
-                                            </button>
-                                        </form>
+                                @empty
+                                    <div class="text-center py-6">
+                                        <p class="text-xs text-slate-500">No pending booking requests at the moment.</p>
                                     </div>
-                                @endif
+                                @endforelse
                             </div>
-                        @empty
-                            <div class="uc-msg-empty">
-                                <p class="uc-msg-empty-text">
-                                    No pending booking requests at the moment.
-                                </p>
-                            </div>
-                        @endforelse
-                    @endif
+                        </div>
 
+                        {{-- Landlord: Current Tenants --}}
+                        <div class="space-y-4 pt-6 border-t border-slate-100">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Your tenants</h4>
 
-                    {{-- Landlord: current tenants --}}
-                    @if($user && $user->category === 'landlord')
-                        <h3 class="uc-msg-section-title" style="margin-top: 18px;">Your tenants</h3>
+                            <div class="divide-y divide-slate-100">
+                                @forelse($approvedBookings as $booking)
+                                    <div class="py-4 first:pt-0 last:pb-0 space-y-3">
+                                        <div>
+                                            <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-1">
+                                                Tenant #{{ $booking->student->id }} • Booking #{{ $booking->id }}
+                                            </div>
+                                            <div class="text-xs text-slate-700 space-y-1">
+                                                <div><span class="font-medium text-slate-400">Name:</span> {{ $booking->student->name }}</div>
 
-                       
-                        @forelse($approvedBookings as $booking)
-                            <div class="uc-msg-item">
-                                <div class="uc-msg-meta">
-                                    Tenant #{{ $booking->student->id }} • Booking #{{ $booking->id }}
-                                </div>
-                                <div class="uc-msg-body">
-                                    <span class="uc-msg-label">Name:</span>
-                                    {{ $booking->student->name }}<br>
+                                                @if(!empty($booking->student->email))
+                                                    <div><span class="font-medium text-slate-400">Email:</span> {{ $booking->student->email }}</div>
+                                                @endif
 
-                                    @if(!empty($booking->student->email))
-                                        <span class="uc-msg-label">Email:</span>
-                                        {{ $booking->student->email }}<br>
-                                    @endif
+                                                @if(!empty($booking->student->phone))
+                                                    <div>
+                                                        <span class="font-medium text-slate-400">Phone:</span>
+                                                        <a href="tel:{{ $booking->student->phone }}" class="underline font-bold text-slate-900">{{ $booking->student->phone }}</a>
+                                                    </div>
+                                                @endif
 
-                                    @if(!empty($booking->student->phone))
-                                        <span class="uc-msg-label">Phone:</span>
-                                        <a href="tel:{{ $booking->student->phone }}" style="text-decoration:underline;"><strong>{{ $booking->student->phone }}</strong></a><br>
-                                    @endif
+                                                <div><span class="font-medium text-slate-400">Property:</span> {{ $booking->property->building_name }}</div>
+                                                <div><span class="font-medium text-slate-400">Since:</span> {{ $booking->created_at->format('d M Y') }}</div>
 
-                                    <span class="uc-msg-label">Property:</span>
-                                    {{ $booking->property->building_name }}<br>
+                                                <div class="pt-1">
+                                                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                        Active tenant
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                    <span class="uc-msg-label">Since:</span>
-                                    {{ $booking->created_at->format('d M Y') }}
+                                        <div class="flex flex-wrap gap-2 pt-1">
+                                            <a href="{{ route('landlord.properties.show', $booking->property->id) }}"
+                                               class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition">
+                                                View property
+                                            </a>
 
-                                    <div class="uc-msg-pill uc-msg-pill-approved" style="margin-top: 8px;">
-                                        Active tenant
+                                            <a href="{{ route('landlord.bookings.show', $booking->id) }}"
+                                               class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">
+                                                View booking
+                                            </a>
+
+                                            <form action="{{ route('landlord.bookings.cancelStudent', ['booking' => $booking->id]) }}"
+                                                  method="POST" class="inline"
+                                                  onsubmit="return confirm('Are you sure you want to cancel this tenant?')">
+                                                @csrf
+                                                <button type="submit" class="inline-flex items-center justify-center px-3.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold transition shadow-sm">
+                                                    Cancel tenant
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="uc-msg-actions">
-                                    <a href="{{ route('landlord.properties.show', $booking->property->id) }}"
-                                       class="uc-msg-btn uc-msg-btn-ghost">
-                                        View property
-                                    </a>
-
-                                    <a href="{{ route('landlord.bookings.show', $booking->id) }}"
-                                       class="uc-msg-btn uc-msg-btn-primary">
-                                        View booking
-                                    </a>
-
-                                    <form action="{{ route('landlord.bookings.cancelStudent', ['booking' => $booking->id]) }}"
-                                        method="POST" style="display:inline;">
-                                        @csrf
-                                        <button type="submit" class="uc-btn-primary uc-msg-btn-danger" 
-                                                style="background-color:#b91c1c;border-color:#7f1d1d;">
-                                            Cancel tenant
-                                        </button>
-                                    </form>
-                                </div>
+                                @empty
+                                    <div class="text-center py-6">
+                                        <p class="text-xs text-slate-500">You have no active tenants yet. Approved bookings will appear here.</p>
+                                    </div>
+                                @endforelse
                             </div>
-                        @empty
-                            <div class="uc-msg-empty">
-                                <p class="uc-msg-empty-text">
-                                    You have no active tenants yet. Approved bookings will appear here.
-                                </p>
-                            </div>
-                        @endforelse
+                        </div>
                     @endif
                 </div>
             </div>

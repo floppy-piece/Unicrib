@@ -16,7 +16,7 @@ class TestSeeder extends Seeder
     {
         User::factory()->Create([
             'name' => 'Test User',
-            'email' => 'test@example.com',
+            'email' => 'test23@example.com',
             'password'=>'password',
             'category'=>'student',
         ]);

@@ -20,7 +20,7 @@ use App\Http\Controllers\Admin\StorageAdminController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\Landlord\LandlordController;
 
-Route::middleware('auth', 'verified')->group(function () {
+Route::middleware('auth'/*, 'verified'*/)->group(function () {
     // Properties
     Route::post('/properties/{property}/pay-and-book', [BookingController::class, 'payAndBook'])->name('properties.pay-and-book');
     
@@ -36,7 +36,7 @@ Route::middleware('auth', 'verified')->group(function () {
 
 
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'/*, 'verified'*/])->group(function () {
     Route::get('/pay', [PaymentController::class, 'showForm'])->name('pay.form');
     Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
     Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback'])

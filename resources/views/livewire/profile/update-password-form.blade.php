@@ -39,100 +39,63 @@ $updatePassword = function () {
 
 ?>
 
-<section>
-    <style>
-        .uc-pass-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            padding: 16px 18px 18px;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-            max-width: 640px;
-            margin-top: 16px;
-        }
-        .uc-pass-header-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin: 0;
-        }
-        .uc-pass-header-text {
-            margin-top: 4px;
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-pass-form {
-            margin-top: 16px;
-        }
-        .uc-pass-field {
-            margin-bottom: 16px;
-        }
-        .uc-pass-actions {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 8px;
-        }
-    </style>
+<section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl">
+    <header>
+        <h2 class="text-sm font-bold text-slate-900">
+            {{ __('Update Password') }}
+        </h2>
 
-    <div class="uc-pass-card">
-        <header>
-            <h2 class="uc-pass-header-title">
-                {{ __('Update Password') }}
-            </h2>
+        <p class="mt-1 text-xs text-slate-500 leading-relaxed">
+            {{ __('Ensure your account is using a long, random password to stay secure.') }}
+        </p>
+    </header>
 
-            <p class="uc-pass-header-text">
-                {{ __('Ensure your account is using a long, random password to stay secure.') }}
-            </p>
-        </header>
+    <form wire:submit="updatePassword" class="mt-6 space-y-4">
+        <div>
+            <x-input-label for="update_password_current_password" :value="__('Current Password')" />
+            <x-text-input
+                wire:model="current_password"
+                id="update_password_current_password"
+                name="current_password"
+                type="password"
+                class="mt-1 block w-full"
+                autocomplete="current-password"
+            />
+            <x-input-error :messages="$errors->get('current_password')" class="mt-1" />
+        </div>
 
-        <form wire:submit="updatePassword" class="uc-pass-form">
-            <div class="uc-pass-field">
-                <x-input-label for="update_password_current_password" :value="__('Current Password')" />
-                <x-text-input
-                    wire:model="current_password"
-                    id="update_password_current_password"
-                    name="current_password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    autocomplete="current-password"
-                />
-                <x-input-error :messages="$errors->get('current_password')" class="mt-2" />
-            </div>
+        <div>
+            <x-input-label for="update_password_password" :value="__('New Password')" />
+            <x-text-input
+                wire:model="password"
+                id="update_password_password"
+                name="password"
+                type="password"
+                class="mt-1 block w-full"
+                autocomplete="new-password"
+            />
+            <x-input-error :messages="$errors->get('password')" class="mt-1" />
+        </div>
 
-            <div class="uc-pass-field">
-                <x-input-label for="update_password_password" :value="__('New Password')" />
-                <x-text-input
-                    wire:model="password"
-                    id="update_password_password"
-                    name="password"
-                    type="password"
-                    class="mt-1 block w-full"
-                    autocomplete="new-password"
-                />
-                <x-input-error :messages="$errors->get('password')" class="mt-2" />
-            </div>
+        <div>
+            <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
+            <x-text-input
+                wire:model="password_confirmation"
+                id="update_password_password_confirmation"
+                name="password_confirmation"
+                type="password"
+                class="mt-1 block w-full"
+                autocomplete="new-password"
+            />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
+        </div>
 
-            <div class="uc-pass-field">
-                <x-input-label for="update_password_password_confirmation" :value="__('Confirm Password')" />
-                <x-text-input
-                    wire:model="password_confirmation"
-                    id="update_password_password_confirmation"
-                    name="password_confirmation"
-                    type="password"
-                    class="mt-1 block w-full"
-                    autocomplete="new-password"
-                />
-                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-            </div>
+        <div class="pt-2 flex items-center gap-4">
+            <x-primary-button>{{ __('Save') }}</x-primary-button>
 
-            <div class="uc-pass-actions">
-                <x-primary-button>{{ __('Save') }}</x-primary-button>
-
-                <x-action-message class="me-3" on="password-updated">
-                    {{ __('Saved.') }}
-                </x-action-message>
-            </div>
-        </form>
-    </div>
+            <x-action-message class="me-3 text-xs text-emerald-600 font-medium" on="password-updated">
+                {{ __('Saved.') }}
+            </x-action-message>
+        </div>
+    </form>
 </section>

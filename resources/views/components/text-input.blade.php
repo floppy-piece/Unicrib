@@ -1,12 +1,4 @@
+{{-- resources/views/components/text-input.blade.php --}}
 @props(['disabled' => false])
-<style>
-    input{
-        background-color:gray;
-        display: block;
-        border-radius:5px;
-        border:none;
-        height:30px;
-        width:100%;
-    }
-</style>
-<input @disabled($disabled) {{ $attributes->merge([]) }}>
+
+<input @disabled($disabled) {{ $attributes->merge(['class' => 'w-full h-8 px-3 text-xs bg-white text-slate-800 border border-slate-200 rounded-xl shadow-sm focus:border-indigo-500 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed transition']) }}>

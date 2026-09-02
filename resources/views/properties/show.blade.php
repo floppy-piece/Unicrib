@@ -1,423 +1,7 @@
 {{-- resources/views/properties/show.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding-top: 16px;
-            padding-bottom: 24px;
-        }
-/*
-    Modal transport form css
-*/
-
-.uc-modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 1050;
-}
-
-.uc-modal.show {
-    display: block;
-}
-
-/* Backdrop matches dark UniCrib background */
-.uc-modal-backdrop {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-    opacity: 0.92;
-}
-
-/* Dialog: similar to uc-card but centered and slightly lighter border */
-.uc-modal-dialog {
-    position: relative;
-    max-width: 520px;
-    margin: 5rem auto;
-    background-color: #020617;
-    border-radius: 12px;
-    border: 1px solid #1f2937;
-    box-shadow: 0 28px 80px rgba(15,23,42,0.9);
-    overflow: hidden;
-}
-
-/* Header: gradient accent like your primary buttons */
-.uc-modal-header {
-    padding: 10px 16px;
-    background: linear-gradient(135deg, #6366f1, #4f46e5);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: #f9fafb;
-}
-
-.uc-modal-title {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 600;
-}
-
-/* Close button */
-.uc-modal-close {
-    border: none;
-    background: transparent;
-    font-size: 20px;
-    line-height: 1;
-    cursor: pointer;
-    color: #e5e7eb;
-}
-.uc-modal-close:hover {
-    color: #ffffff;
-}
-
-/* Body uses same dark gradient vibe as uc-page */
-.uc-modal-body {
-    padding: 16px;
-    background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-}
-
-/* Inner form card, similar to uc-card */
-.uc-modal-form-card {
-    background-color: #020617;
-    border-radius: 10px;
-    border: 1px solid #1f2937;
-    box-shadow: 0 18px 50px rgba(15,23,42,0.75);
-    padding: 14px 16px;
-    text-align:left;
-}
-
-/* Labels and helper text */
-.uc-modal-form-card label {
-    display: block;
-    font-size: 12px;
-    color: #e5e7eb;
-    margin-bottom: 4px;
-}
-
-.uc-modal-form-card .form-text {
-    font-size: 11px;
-    color: #9ca3af;
-}
-
-/* Inputs styled for dark theme */
-.uc-modal-form-card .form-control {
-    background-color: #020617;
-    border: 1px solid #1f2937;
-    color: #e5e7eb;
-    border-radius: 8px;
-    padding: 7px 10px;
-    font-size: 13px;
-}
-.uc-modal-form-card .form-control::placeholder {
-    color: #6b7280;
-}
-.uc-modal-form-card .form-control:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 1px rgba(99,102,241,0.7);
-    background-color: #020617;
-}
-
-/* Space between fields */
-.uc-modal-form-card .mb-3 {
-    margin-bottom: 10px !important;
-}
-
-/* Footer with accent buttons */
-.uc-modal-footer {
-    padding: 10px 16px;
-    border-top: 1px solid #111827;
-    background-color: #020617;
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-/* Primary/secondary buttons in footer following uc-btn-primary style */
-.uc-modal-footer .btn-primary {
-    border-radius: 999px;
-    border: 1px solid #4f46e5;
-    background-color: #6366f1;
-    color: #ffffff;
-    font-size: 13px;
-    font-weight: 500;
-    padding: 6px 14px;
-}
-.uc-modal-footer .btn-primary:hover {
-    background-color: #4f46e5;
-}
-
-.uc-modal-footer .btn-secondary {
-    border-radius: 999px;
-    border: 1px solid #1f2937;
-    background-color: #020617;
-    color: #e5e7eb;
-    font-size: 13px;
-    padding: 6px 14px;
-}
-.uc-modal-footer .btn-secondary:hover {
-    background-color: #111827;
-}
-
-/* end of transport form*/
-
-        .uc-container {
-            max-width: 1040px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-        .uc-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-            padding: 18px 18px 20px;
-        }
-
-        .uc-header-top {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        @media (min-width: 768px) {
-            .uc-header-top {
-                flex-direction: row;
-                align-items: center;
-                justify-content: space-between;
-            }
-        }
-        .uc-title-main {
-            font-size: 20px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin: 0;
-        }
-        .uc-subline {
-            margin-top: 4px;
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-landmark {
-            margin-top: 2px;
-            font-size: 11px;
-            color: #6b7280;
-        }
-
-        .uc-price-box {
-            text-align: right;
-        }
-        .uc-price-main {
-            font-size: 18px;
-            font-weight: 600;
-            color: #93c5fd;
-        }
-        .uc-price-sub {
-            font-size: 12px;
-            color: #9ca3af;
-        }
-        .uc-btn-primary {
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid #4f46e5;
-            background-color: #6366f1;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.15s ease, border-color 0.15s ease;
-        }
-        .uc-btn-primary:hover {
-            background-color: #4f46e5;
-        }
-
-        /* Photos */
-        .uc-block-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #e5e7eb;
-            margin-bottom: 8px;
-        }
-        .uc-photos-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-        @media (min-width: 768px) {
-            .uc-photos-grid {
-                grid-template-columns: repeat(3, minmax(0, 1fr));
-            }
-        }
-        .uc-photo-wrap {
-            overflow: hidden;
-            border-radius: 10px;
-            border: 1px solid #1f2937;
-        }
-        .uc-photo-wrap img {
-            width: 100%;
-            height: 160px;
-            object-fit: cover;
-            display: block;
-        }
-
-        /* Description & layout */
-        .uc-main-grid {
-            display: grid;
-            grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
-            gap: 18px;
-            margin-top: 16px;
-        }
-        @media (max-width: 768px) {
-            .uc-main-grid {
-                grid-template-columns: minmax(0, 1fr);
-            }
-        }
-        .uc-text-block {
-            font-size: 13px;
-            color: #e5e7eb;
-        }
-        .uc-text-block p {
-            margin: 0;
-            white-space: pre-line;
-        }
-
-        .uc-detail-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0,1fr));
-            gap: 8px;
-            font-size: 13px;
-            color: #e5e7eb;
-            margin-top: 4px;
-        }
-        @media (min-width: 640px) {
-            .uc-detail-grid {
-                grid-template-columns: repeat(3, minmax(0,1fr));
-            }
-        }
-        .uc-detail-label {
-            font-weight: 500;
-        }
-
-        .uc-amenities {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 4px;
-        }
-        .uc-amenity-pill {
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            border: 1px solid #1d4ed8;
-            background-color: rgba(37,99,235,0.16);
-            color: #bfdbfe;
-        }
-
-        /* Map */
-        #propertyMap {
-            height: 320px;
-            width: 100%;
-            border-radius: 10px;
-            border: 1px solid #1f2937;
-            margin-top: 8px;
-            background-color: #020617;
-        }
-        #propertyMap,
-        #propertyMap .leaflet-container,
-        #propertyMap .leaflet-interactive,
-        #propertyMap .leaflet-marker-icon,
-        #propertyMap .leaflet-bar a,
-        #propertyMap .leaflet-control {
-            cursor: default !important;
-        }
-        .uc-map-note {
-            margin-top: 6px;
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        .path-display {
-            background-color: #022c22;
-            border: 1px solid #16a34a;
-            border-radius: 8px;
-            padding: 8px 10px;
-            margin-top: 8px;
-            font-size: 12px;
-            color: #dcfce7;
-        }
-        .path-display strong {
-            font-weight: 600;
-        }
-
-        .uc-coords {
-            font-size: 11px;
-            color: #9ca3af;
-        }
-        .uc-coords p {
-            margin: 2px 0;
-        }
-
-        /* Back link */
-        .uc-footer {
-            margin-top: 18px;
-            padding-top: 10px;
-            border-top: 1px solid #111827;
-        }
-        .uc-back-link {
-            font-size: 12px;
-            color: #9ca3af;
-            text-decoration: none;
-        }
-        .uc-back-link:hover {
-            text-decoration: underline;
-        }
-
-        /* Toast */
-        #toast {
-            position: fixed;
-            top: 1rem;
-            right: 1rem;
-            background:#020617;
-            color:#f9fafb;
-            padding:0.75rem 1rem;
-            border-radius:0.5rem;
-            border: 1px solid #1f2937;
-            opacity:0;
-            transition:opacity .2s;
-            z-index:9999;
-            font-size: 0.85rem;
-        }
-
-        .uc-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        .uc-pill-green {
-            background-color: #064e3b;
-            color: #a7f3d0;
-            border: 1px solid #059669;
-        }
-        .uc-pill-amber {
-            background-color: #78350f;
-            color: #fed7aa;
-            border: 1px solid #f59e0b;
-        }
-    </style>
-
     <x-slot name="header">
-        <h2 class="uc-header-title">
+        <h2 class="text-lg font-semibold text-slate-900">
             {{ $property->building_name }}
         </h2>
     </x-slot>
@@ -429,18 +13,19 @@
           crossorigin="" />
 
     {{-- Toast --}}
-    <div id="toast"></div>
+    <div id="toast" class="fixed top-4 right-4 bg-slate-900 text-white px-4 py-3 rounded-xl border border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg"></div>
 
-    <div class="uc-page">
-        <div class="uc-container">
-            <div class="uc-card">
+    <div class="py-6 bg-slate-50 min-h-screen">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                
                 {{-- Top section --}}
-                <div class="uc-header-top">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
                     <div>
-                        <h1 class="uc-title-main">
+                        <h1 class="text-xl font-bold text-slate-900">
                             {{ $property->building_name }}
                         </h1>
-                        <p class="uc-subline">
+                        <p class="text-xs font-medium text-slate-500 mt-1">
                             {{ ucfirst($property->property_type) }} • Area: {{ ucfirst($property->area) }}
                             @if($property->street)
                                 • {{ $property->street }}
@@ -450,34 +35,34 @@
                             @endif
                         </p>
                         @if($property->landmark)
-                            <p class="uc-landmark">
+                            <p class="text-[11px] text-slate-400 mt-0.5">
                                 Landmark: {{ $property->landmark }}
                             </p>
                         @endif
 
-                                 <br>                 
-                            <p class="uc-subline">
+                        <div class="mt-2">
+                            <p class="text-xs text-slate-600">
                                 Landlord phone:
-                                <a href="tel:{{ ($property->landlord)->phone }}" style="text-decoration:underline;"><strong>{{ ($property->landlord)->phone ?? 'No phone set' }}</strong></a>
+                                <a href="tel:{{ optional($property->landlord)->phone }}" class="text-slate-900 font-bold hover:text-indigo-600 underline">
+                                    {{ optional($property->landlord)->phone ?? 'No phone set' }}
+                                </a>
                             </p>
-                        
+                        </div>
                     </div>
-                    <div class="uc-price-box">
-                        <p class="uc-price-main">
+
+                    <div class="text-left md:text-right flex flex-col items-start md:items-end">
+                        <p class="text-xl font-bold text-indigo-600">
                             KES {{ number_format($property->price) }}
                         </p>
-                        <p class="uc-price-sub">
+                        <p class="text-xs text-slate-400">
                             per month
                         </p>
                        
-                        {{-- property info and map here, always visible --}}
-
                         @auth
                             @if(auth()->user()->category === 'student')
                                 @php
                                     $user = auth()->user();
 
-                                    // Active booking for THIS property
                                     $activeBooking = \App\Models\Booking::where('student_id', $user->id)
                                         ->where('property_id', $property->id)
                                         ->whereIn('status', ['pending', 'approved'])
@@ -486,141 +71,84 @@
 
                                     $hasActiveBooking = !is_null($activeBooking);
                                     
-                                    $unavailable=(int)($property->bookings()->where('status', 'approved')->count()+(int)($property->booked_count));
+                                    $unavailable = (int)($property->bookings()->where('status', 'approved')->count() + (int)($property->booked_count));
                                 
                                     $currentBooked = $unavailable;
                                     $capacity = (int) ($property->capacity ?? 0);
                                     $isFull = $capacity > 0 && $currentBooked >= $capacity;
-                                        
                                 @endphp
 
                                 @if($isFull && !$hasActiveBooking)
-                                    <p style="margin-top:8px;font-size:13px;color:#f97316;" class="uc-pill uc-pill-amber">
-                                        This property is fully booked. You can still view its details and map.
-                                    </p>
+                                    <div class="mt-3">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                            This property is fully booked. You can still view its details and map.
+                                        </span>
+                                    </div>
                                 @elseif($hasActiveBooking)
-                                    <p style="margin-top:8px;font-size:13px;color:#9ca3af;" class="uc-pill uc-amenity-pill">
-                                        You have an active booking for this property.To book another property contact the landlord of this Property and request for cancellation.
-                                    </p>
+                                    <div class="mt-3 space-y-2">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                            You have an active booking for this property. To book another property contact the landlord of this Property and request for cancellation.
+                                        </span>
 
-                                    {{-- Cancel booking button 
-                                    <form method="POST"
-                                        action="{{ route('student.bookings.cancel', $activeBooking->id) }}"
-                                        style="margin-top:8px;">
-                                        @csrf
-                                        <button type="submit"
-                                                class="uc-btn-primary"
-                                                style="background-color:#b91c1c;border-color:#7f1d1d;">
-                                            Cancel booking
-                                        </button>
-                                    </form> --}}
-
-                                    @if($user && $user->category === 'student' && $booking)
-                                            {{-- Transport status + countdown --}}
-                                            @if($activeTransport)
-                                                <div class="mt-2" style="font-size:12px;color:#9ca3af;">
-                                                    <div>
-                                                        Transport status:
-                                                        <span class="uc-pill
-                                                            {{ $activeTransport->status === 'completed' ? 'uc-pill-green'
-                                                                : ($activeTransport->status === 'cancelled' ? 'uc-pill-red' : 'uc-pill-blue') }}">
-                                                            {{ ucfirst($activeTransport->status) }}
-                                                        </span>
-                                                    </div>
-
-                                                    @if($activeTransport->assigned_at && $activeTransport->status !== 'completed')
-                                                        <div style="margin-top:4px;">
-                                                            Assigned time:
-                                                            <span style="color:#e5e7eb;">
-                                                                {{ $activeTransport->assigned_at->format('d M Y, H:i') }}
-                                                            </span>
-                                                        </div>
-                                                        <div style="margin-top:4px;">
-                                                            Time until transport:
-                                                            <span id="transport-countdown"
-                                                                data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}"
-                                                                style="color:#93c5fd;">
-                                                                calculating...
-                                                            </span>
-                                                        </div>
-                                                    @endif
+                                        @if($user && $user->category === 'student' && isset($activeTransport))
+                                            <div class="text-xs text-slate-500 space-y-1">
+                                                <div>
+                                                    Transport status:
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $activeTransport->status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ($activeTransport->status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-indigo-50 text-indigo-700 border border-indigo-200') }}">
+                                                        {{ ucfirst($activeTransport->status) }}
+                                                    </span>
                                                 </div>
-                                            @endif
-                                        @if($user && $user->category === 'student' && $booking)
-                                            {{-- Trigger button --}}
-                                            <button type="button"
-                                                    id="openTransportModalButton"
-                                                    class="uc-btn-primary">
+
+                                                @if($activeTransport->assigned_at && $activeTransport->status !== 'completed')
+                                                    <div>
+                                                        Assigned time: <span class="text-slate-700 font-medium">{{ $activeTransport->assigned_at->format('d M Y, H:i') }}</span>
+                                                    </div>
+                                                    <div>
+                                                        Time until transport: <span id="transport-countdown" data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}" class="text-indigo-600 font-bold">calculating...</span>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        @endif
+
+                                        @if($user && $user->category === 'student' && isset($booking))
+                                            <button type="button" id="openTransportModalButton" class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 transition">
                                                 Request transport
                                             </button>
 
-                                            {{-- Simple custom modal --}}
-                                            <div id="transportRequestModal"
-                                                class="uc-modal"
-                                                aria-hidden="true">
-                                                <div class="uc-modal-backdrop"></div>
-                                                <div class="uc-modal-dialog">
-                                                    <div class="uc-modal-header">
-                                                        <h5 class="uc-modal-title">
-                                                            Request transport to {{ $property->name }}
-                                                        </h5>
-                                                        <button type="button"
-                                                                class="uc-modal-close"
-                                                                id="closeTransportModalButton">
-                                                            ×
-                                                        </button>
+                                            {{-- Transport Modal --}}
+                                            <div id="transportRequestModal" class="fixed inset-0 z-50 hidden">
+                                                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm uc-modal-backdrop"></div>
+                                                <div class="relative max-w-lg mx-auto my-20 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
+                                                    <div class="px-6 py-4 bg-indigo-600 flex items-center justify-between text-white">
+                                                        <h5 class="text-sm font-bold">Request transport to {{ $property->building_name }}</h5>
+                                                        <button type="button" id="closeTransportModalButton" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
                                                     </div>
 
-                                                    <form action="{{ route('transport.request.store', $booking->id) }}" method="POST">
+                                                    <form action="{{ route('transport.request.store', $booking->id) }}" method="POST" class="p-6 space-y-4">
                                                         @csrf
-                                                        <div class="uc-modal-body">
-                                                            <div class="mb-3">
-                                                                <label for="student_name">Name</label>
-                                                                <input
-                                                                    type="text"
-                                                                    id="student_name"
-                                                                    name="student_name"
-                                                                    class="uc-modal-form-card "
-                                                                    value="{{ old('student_name', $user->name) }}"
-                                                                    required
-                                                                >
-                                                            </div>
-
-                                                            <div class="mb-3">
-                                                                <label for="student_phone">Phone number</label>
-                                                                <input
-                                                                    type="text"
-                                                                    id="student_phone"
-                                                                    name="student_phone"
-                                                                    class="uc-modal-form-card "
-                                                                    value="{{ old('student_phone', $user->phone) }}"
-                                                                    required
-                                                                >
-                                                            </div>
-
-                                                            <div class="mb-3">
-                                                                <label for="requested_date">Preferred transport date</label>
-                                                                <input
-                                                                    type="date"
-                                                                    id="requested_date"
-                                                                    name="requested_date"
-                                                                    class="uc-modal-form-card "
-                                                                    value="{{ old('requested_date') }}"
-                                                                    required
-                                                                ><br>
-                                                                <small class="form-text text-muted">
-                                                                    Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
-                                                                </small>
-                                                            </div>
+                                                        <div>
+                                                            <label for="student_name" class="block text-xs font-medium text-slate-700 mb-1">Name</label>
+                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_name', $user->name) }}" required>
                                                         </div>
 
-                                                        <div class="uc-modal-footer">
-                                                            <button type="button"
-                                                                    class="btn btn-secondary"
-                                                                    id="closeTransportModalButton2">
+                                                        <div>
+                                                            <label for="student_phone" class="block text-xs font-medium text-slate-700 mb-1">Phone number</label>
+                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_phone', $user->phone) }}" required>
+                                                        </div>
+
+                                                        <div>
+                                                            <label for="requested_date" class="block text-xs font-medium text-slate-700 mb-1">Preferred transport date</label>
+                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('requested_date') }}" required>
+                                                            <p class="text-[11px] text-slate-400 mt-1">
+                                                                Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
+                                                            </p>
+                                                        </div>
+
+                                                        <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" id="closeTransportModalButton2">
                                                                 Close
                                                             </button>
-                                                            <button type="submit" class="btn btn-primary">
+                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
                                                                 Send request
                                                             </button>
                                                         </div>
@@ -628,148 +156,85 @@
                                                 </div>
                                             </div>
                                         @endif
-
-                                    @endif
+                                    </div>
                                 @else
-                                    <p class="form-text text-muted" style="color:rgb(233,100,100); ">
-                                        Make sure to contact the owner of this property before booking.
-                                    </p>
-                                    {{-- <form method="POST" action="{{ route('student.bookings.store', $property->id) }}">
-                                        @csrf
-                                        <button type="submit" class="uc-btn-primary">
-                                            Book this property
+                                    <div class="mt-3 space-y-3">
+                                        <p class="text-xs text-rose-600 font-medium">
+                                            Make sure to contact the owner of this property before booking.
+                                        </p>
+                                        
+                                        <button onclick="openPaymentModal({{ $property->id }})" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700 transition">
+                                            <span>Pay & Book Now</span>
                                         </button>
-                                    </form> --}}
 
-
-                                    {{-- Replace your existing "Book" button --}}
-                                    <button onclick="openPaymentModal({{ $property->id }})" 
-                                            class="uc-btn-primary">
-                                        <span>Pay & Book Now</span>
-                                    </button>
-
-                                    {{-- Payment Modal --}}
-                                    <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-6">
-                                        <div class="uc-modal-backdrop"></div>
-                                        <div class="uc-modal-dialog">
-                                            <!-- Header with Property Details -->
-                                            <div class="">
-                                                <div class="uc-modal-header">
+                                        {{-- Payment Modal --}}
+                                        <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+                                            <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden">
+                                                <div class="px-6 py-4 bg-indigo-600 text-white flex items-center justify-between">
                                                     <div>
-                                                        <h2 class="uc-modal-title">Book & Pay Securely</h2>
-                                                        <p class="text-sm text-gray-600 mb-2">Complete payment to book this property</p>
-                                                        
-                                                            <span>
-                                                                {{ $property->building_name ?? 'Property' }}
-                                                            </span>
-                                                        
+                                                        <h2 class="text-sm font-bold">Book & Pay Securely</h2>
+                                                        <p class="text-[11px] text-indigo-100">Complete payment to book {{ $property->building_name ?? 'Property' }}</p>
                                                     </div>
-                                                    <button type="button" onclick="closeModal()" 
-                                                            class="text-gray-400 hover:text-gray-600 text-2xl font-bold p-2 -m-2 rounded-full hover:bg-gray-100 transition-all">
-                                                        ×
-                                                    </button>
+                                                    <button type="button" onclick="closeModal()" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
                                                 </div>
-                                            </div>
 
-                                            <!-- Form: Pay → Create Booking -->
-                                            <form  method="POST" action="{{ route('properties.pay-and-book', $property->id) }}" class="p-6 space-y-4">
-                                                @csrf            
-                                                <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
+                                                <form method="POST" action="{{ route('properties.pay-and-book', $property->id) }}" class="p-6 space-y-4">
+                                                    @csrf            
+                                                    <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
 
-                                                {{-- Check-in/out dates (if applicable) 
-                                                <div class="mb-3">
-                                                    <div>
-                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Check-in</label>
-                                                        <input type="date" 
-                                                            name="check_in_date" 
-                                                            required
-                                                            min="{{ now()->format('Y-m-d') }}"
-                                                            class="uc-modal-form-card">
-                                                    </div>
-                                                    <div>
-                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Check-out</label>
-                                                        <input type="date" 
-                                                            name="check_out_date" 
-                                                            required
-                                                            class="uc-modal-form-card">
-                                                    </div>
-                                                </div>
-                                                --}}
-                                                {{-- Payment Amount --}}
-                                                <div class="mb-3">
-                                                    <label for="amount">
-                                                        Total Amount (KES)
-                                                    </label>
-                                                    <div class="flex items-center justify-between">
+                                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                                                         <div>
-                                                            <p class="text-sm text-gray-600">Assuarance fee Required</p>
-                                                            <p class="text-2xl font-bold text-indigo-700">
+                                                            <p class="text-xs font-medium text-slate-500">Assurance fee Required (5%)</p>
+                                                            <p class="text-lg font-bold text-indigo-600 mt-0.5">
                                                                 KES {{ number_format(ceil(5/100 * ($property->price ?? 0))) }}
                                                             </p>
                                                         </div>
-                                                        <div class="text-xs text-gray-500 bg-white px-3 py-1 rounded-full">
-                                                            5% of {{ number_format($property->price ?? 0) }}
-                                                        </div>
+                                                        <span class="text-[11px] font-semibold text-slate-400 bg-white px-2.5 py-1 rounded-full border border-slate-200">
+                                                            of KES {{ number_format($property->price ?? 0) }}
+                                                        </span>
                                                     </div>
-                                                    @error('payment_amount')
-                                                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                                                    @enderror
-                                                </div>
 
-                                                {{-- Customer Email --}}
-                                                <div class="mb-3">
-                                                    <label for="email">Email</label>
-                                                    <input type="email" 
-                                                        name="email"
-                                                        value="{{ old('email', auth()->user()->email) }}"
-                                                        required
-                                                        class="uc-modal-form-card">
-                                                </div>
+                                                    <div>
+                                                        <label class="block text-xs font-medium text-slate-700 mb-1">Email</label>
+                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500">
+                                                    </div>
 
-                                                {{-- Terms --}}
-                                                <label for="terms_agreement">
-                                                    <input type="checkbox" name="terms_agreement" required 
-                                                        class="mt-1 h-5 w-5 text-indigo-600 focus:ring-indigo-500">
-                                                    <span class="text-sm text-gray-700 leading-relaxed">
-                                                        I agree to pay and book this property. Payment is non-refundable unless landlord rejects.
-                                                    </span>
-                                                </label>
+                                                    <div class="flex items-start gap-2">
+                                                        <input type="checkbox" name="terms_agreement" id="terms" required class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                                        <label for="terms" class="text-xs text-slate-600 leading-relaxed cursor-pointer">
+                                                            I agree to pay and book this property. Payment is non-refundable unless landlord rejects.
+                                                        </label>
+                                                    </div>
 
-                                                {{-- Buttons --}}
-                                                <div class="uc-modal-footer">
-                                                    <x-secondary-button type="button" onclick="closeModal()">
-                                                        Cancel
-                                                    </x-secondary-button>
-                                                    <x-primary-button type="submit">
-                                                        Pay & Book Now
-                                                    </x-primary-button>
-                                                </div>
-                                            </form>
+                                                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
+                                                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                                                            Cancel
+                                                        </button>
+                                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
+                                                            Pay & Book Now
+                                                        </button>
+                                                    </div>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
-
                                 @endif
                             @endif
                         @endauth
-
-
-
-
                     </div>
                 </div>
 
                 {{-- Images --}}
                 @if(is_array($property->images) && count($property->images))
-                    <div style="margin-top:18px;">
-                        <h3 class="uc-block-title">Photos</h3>
-                        <div class="uc-photos-grid">
+                    <div class="mt-6">
+                        <h3 class="text-sm font-bold text-slate-900 mb-3">Photos</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                             @foreach($property->images as $image)
                                 @php
                                     $path = preg_replace('/^public\//', '', $image);
                                 @endphp
-                                <div class="uc-photo-wrap">
-                                    <img src="{{ asset('storage/'.$path) }}"
-                                         alt="Property image">
+                                <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                                    <img src="{{ asset('storage/'.$path) }}" alt="Property image" class="w-full h-40 object-cover hover:scale-105 transition duration-300">
                                 </div>
                             @endforeach
                         </div>
@@ -777,43 +242,43 @@
                 @endif
 
                 {{-- Description & details --}}
-                <div class="uc-main-grid">
-                    <div class="space-y-4" style="margin-top:16px;">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div class="md:col-span-2 space-y-6">
                         <div>
-                            <h3 class="uc-block-title">Description</h3>
-                            <div class="uc-text-block">
-                                <p>{{ $property->description }}</p>
+                            <h3 class="text-sm font-bold text-slate-900 mb-2">Description</h3>
+                            <div class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                                {{ $property->description }}
                             </div>
                         </div>
 
                         <div>
-                            <h3 class="uc-block-title">Details</h3>
-                            <div class="uc-detail-grid">
+                            <h3 class="text-sm font-bold text-slate-900 mb-2">Details</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100">
                                 <div>
-                                    <span class="uc-detail-label">Bedrooms:</span>
-                                    <span>{{ $property->bedrooms }}</span>
+                                    <span class="font-medium text-slate-400 block text-[11px]">Bedrooms</span>
+                                    <span class="font-bold text-slate-800">{{ $property->bedrooms }}</span>
                                 </div>
                                 <div>
-                                    <span class="uc-detail-label">Bathrooms:</span>
-                                    <span>{{ $property->bathrooms }}</span>
+                                    <span class="font-medium text-slate-400 block text-[11px]">Bathrooms</span>
+                                    <span class="font-bold text-slate-800">{{ $property->bathrooms }}</span>
                                 </div>
                                 <div>
-                                    <span class="uc-detail-label">Size:</span>
-                                    <span>{{ $property->size }} sqm</span>
+                                    <span class="font-medium text-slate-400 block text-[11px]">Size</span>
+                                    <span class="font-bold text-slate-800">{{ $property->size }} sqm</span>
                                 </div>
-                                <div style="grid-column:1/-1;">
-                                    <span class="uc-detail-label">Address:</span>
-                                    <span>{{ $property->address }}</span>
+                                <div class="col-span-2 sm:col-span-3 pt-2 border-t border-slate-200">
+                                    <span class="font-medium text-slate-400 block text-[11px]">Address</span>
+                                    <span class="font-bold text-slate-800">{{ $property->address }}</span>
                                 </div>
                             </div>
                         </div>
 
                         @if(is_array($property->amenities) && count($property->amenities))
                             <div>
-                                <h3 class="uc-block-title">Amenities</h3>
-                                <div class="uc-amenities">
+                                <h3 class="text-sm font-bold text-slate-900 mb-2">Amenities</h3>
+                                <div class="flex flex-wrap gap-2">
                                     @foreach($property->amenities as $amenity)
-                                        <span class="uc-amenity-pill">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
                                             {{ ucfirst($amenity) }}
                                         </span>
                                     @endforeach
@@ -823,72 +288,58 @@
                     </div>
 
                     {{-- Map + route --}}
-                    <div style="margin-top:16px;">
+                    <div class="space-y-4">
                         <div>
-                            <h3 class="uc-block-title">Location & Route</h3>
-                            <div id="propertyMap"></div>
-                            <p class="uc-map-note">
+                            <h3 class="text-sm font-bold text-slate-900 mb-2">Location & Route</h3>
+                            <div id="propertyMap" class="h-80 w-full rounded-xl border border-slate-200 bg-slate-100"></div>
+                            <p class="text-[11px] text-slate-400 mt-1.5">
                                 🎓 University marker is fixed. 📍 shows this property location.
                             </p>
                         </div>
 
-                        {{-- <x-secondary-button id="myLocationBtn" class="btn btn-primary mt-2">
-                        ♟️ My Location
-                        </x-secondary-button> --}}
-
-                        <div class="uc-coords" style="margin-top:8px;">
-                            <p>
-                                <span class="uc-detail-label">Property Lat:</span>
-                                {{ $property->map_lat ?? $property->latitude ?? 'N/A' }}
-                            </p>
-                            <p>
-                                <span class="uc-detail-label">Property Lng:</span>
-                                {{ $property->map_lng ?? $property->longitude ?? 'N/A' }}
-                            </p>
+                        <div class="text-[11px] text-slate-500 space-y-0.5">
+                            <p><span class="font-medium text-slate-700">Property Lat:</span> {{ $property->map_lat ?? $property->latitude ?? 'N/A' }}</p>
+                            <p><span class="font-medium text-slate-700">Property Lng:</span> {{ $property->map_lng ?? $property->longitude ?? 'N/A' }}</p>
                         </div>
 
-                        <div class="path-display">
+                        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
                             <div>
-                                <strong>Route from University:</strong>
-                                <span id="pathDisplay">No route calculated yet.</span>
+                                <strong class="font-semibold">Route from University:</strong>
+                                <span id="pathDisplay" class="block text-emerald-700">No route calculated yet.</span>
                             </div>
-                            <div style="margin-top:4px;">
-                                <strong>Distance:</strong>
-                                <span id="distanceDisplay">–</span>
+                            <div>
+                                <strong class="font-semibold">Distance:</strong>
+                                <span id="distanceDisplay" class="font-bold text-emerald-800">–</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Back --}}
-                <div class="uc-footer">
-                    <a href="{{ route('student.dashboard') }}" class="uc-back-link">
-                        ← Back to properties
+                <div class="mt-8 pt-4 border-t border-slate-100">
+                    <a href="{{ route('student.dashboard') }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1">
+                        &larr; Back to properties
                     </a>
                 </div>
+
             </div>
         </div>
-    </div>
-    <div id="toaster"
-         style="position:fixed;top:1rem;left:1rem;z-index:9999;
-                background:#020617;color:#f9fafb;border:1px solid #1f2937;
-                padding:0.7rem 1rem;border-radius:0.6rem;
-                opacity:0;transition:opacity .2s ease;">
     </div>
 
     @if(session('booking_status'))
         <script>
             document.addEventListener('DOMContentLoaded', function () {
-                const toast = document.getElementById('toaster');
+                const toast = document.getElementById('toast');
                 if (!toast) return;
                 const data = @json(session('booking_status'));
                 toast.textContent = data.message;
                 toast.style.opacity = '1';
                 if (data.type === 'error') {
-                    toast.style.borderColor = '#b91c1c';
-                    toast.style.color = '#fecaca';
+                    toast.classList.remove('bg-slate-900', 'border-slate-700');
+                    toast.classList.add('bg-rose-900', 'border-rose-700');
                 } else {
-                    toast.style.borderColor = '#16a34a';
+                    toast.classList.remove('bg-slate-900', 'border-slate-700');
+                    toast.classList.add('bg-emerald-900', 'border-emerald-700');
                 }
                 setTimeout(() => {
                     toast.style.opacity = '0';
@@ -922,171 +373,52 @@
             }, duration);
         }
 
-        // Multiple landmarks around Kirinyaga University
         const landmarks = [
-            {
-                name: 'skymart Supermarket',
-                type: 'supermarket',
-                lat: -0.567700,
-                lng: 37.324526
-            },
-            {
-                name: 'cooperative Bank',
-                type: 'bank',
-                lat: -0.5667250,
-                lng: 37.324600
-            },
-            {
-                name: 'Rubis Station',
-                type: 'petrol',
-                lat: -0.5682000,
-                lng: 37.3209166
-            },
-            /*{
-                name: 'Shops Center',
-                type: 'shop',
-                lat: ,
-                lng: 
-            },*/
-            {
-                name: 'Holy Rosary Catholic Church',
-                type: 'church',
-                lat: -0.567122,
-                lng: 37.325788
-            },
-            {
-                name: 'Central Mosque',
-                type: 'mosque',
-                lat: -0.5630,
-                lng: 37.3235
-            },
-            {
-                name: 'Hostel Building A',
-                type: 'building',
-                lat: -0.5660,
-                lng: 37.3260
-            }
+            { name: 'skymart Supermarket', type: 'supermarket', lat: -0.567700, lng: 37.324526 },
+            { name: 'cooperative Bank', type: 'bank', lat: -0.5667250, lng: 37.324600 },
+            { name: 'Rubis Station', type: 'petrol', lat: -0.5682000, lng: 37.3209166 },
+            { name: 'Holy Rosary Catholic Church', type: 'church', lat: -0.567122, lng: 37.325788 },
+            { name: 'Central Mosque', type: 'mosque', lat: -0.5630, lng: 37.3235 },
+            { name: 'Hostel Building A', type: 'building', lat: -0.5660, lng: 37.3260 }
         ];
+
         function getLandmarkIcon(type) {
-            // simple mapping: choose emoji and color per type
             let emoji = '📍';
-            let bg = '#4b5563'; // default gray
-
+            let bg = '#4b5563';
             switch (type) {
-                case 'supermarket':
-                    emoji = '🛒';
-                    bg = '#22c55e';
-                    break;
-                case 'bank':
-                    emoji = '🏦';
-                    bg = '#0ea5e9';
-                    break;
-                case 'petrol':
-                    emoji = '⛽';
-                    bg = '#f97316';
-                    break;
-                case 'shop':
-                    emoji = '🏬';
-                    bg = '#6366f1';
-                    break;
-                case 'church':
-                    emoji = '⛪';
-                    bg = '#a855f7';
-                    break;
-                case 'mosque':
-                    emoji = '🕌';
-                    bg = '#10b981';
-                    break;
-                case 'building':
-                    emoji = '🏢';
-                    bg = '#facc15';
-                    break;
+                case 'supermarket': emoji = '🛒'; bg = '#22c55e'; break;
+                case 'bank': emoji = '🏦'; bg = '#0ea5e9'; break;
+                case 'petrol': emoji = '⛽'; bg = '#f97316'; break;
+                case 'shop': emoji = '🏬'; bg = '#6366f1'; break;
+                case 'church': emoji = '⛪'; bg = '#a855f7'; break;
+                case 'mosque': emoji = '🕌'; bg = '#10b981'; break;
+                case 'building': emoji = '🏢'; bg = '#facc15'; break;
             }
-
             return { emoji, bg };
         }
 
         function createExtraLandmarks() {
             if (!map) return;
-
             landmarks.forEach(l => {
                 const { emoji, bg } = getLandmarkIcon(l.type);
-
-                const marker = L.marker([l.lat, l.lng], {
+                L.marker([l.lat, l.lng], {
                     icon: L.divIcon({
                         className: 'custom-marker-extra-landmark',
-                        html: `
-                            <div style="
-                                background:${bg};
-                                color:black;
-                                max-width:30px;
-                                max-height:30px;
-                                padding:4px 8px;
-                                border-radius:9999px;
-                                border:2px solid white;
-                                display:flex;
-                                flex-direction:column;
-                                align-items:center;
-                                justify-content:center;
-                                font-weight:bold;
-                                gap:4px;
-                                text-align:center;
-                                font-size:10px;
-                                box-shadow:0 2px 5px rgba(0,0,0,0.3);
-                                white-space:nowrap;
-                            ">
-                                <span>${emoji}</span>
-                                <span style="font-size:8px;line-height:1;margin-top:2px;">
-                                    ${l.name}
-                                </span>
-                            </div>
-                        `,
+                        html: `<div style="background:${bg};color:black;max-width:30px;max-height:30px;padding:4px 8px;border-radius:9999px;border:2px solid white;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;gap:4px;text-align:center;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);white-space:nowrap;"><span>${emoji}</span><span style="font-size:8px;line-height:1;margin-top:2px;">${l.name}</span></div>`,
                         iconSize: [40, 24],
                         iconAnchor: [20, 24]
                     })
-                }).addTo(map);
-
-                // optional tooltip on hover
-                marker.bindTooltip(`${l.name} (${l.type})`, {
-                    permanent: false,
-                    direction: 'top'
-                });
+                }).addTo(map).bindTooltip(`${l.name} (${l.type})`, { permanent: false, direction: 'top' });
             });
         }
-
-
 
         function createLandmarkMarker() {
             if (!map) return;
             if (landmarkMarker) map.removeLayer(landmarkMarker);
-
             landmarkMarker = L.marker([landmarkLat, landmarkLng], {
                 icon: L.divIcon({
                     className: 'custom-marker-landmark',
-                    html: `
-                        <div style="
-                            background:#1d4ed8;
-                            color:white;
-                            min-width:40px;
-                            min-height:40px;
-                            padding:4px 8px;
-                            border-radius:9999px;
-                            border:3px solid white;
-                            display:flex;
-                            flex-direction:column;
-                            align-items:center;
-                            justify-content:center;
-                            font-weight:bold;
-                            font-size:10px;
-                            box-shadow:0 2px 5px rgba(0,0,0,0.3);
-                            text-align:center;
-                        ">
-                            🎓
-                            <span style="font-size:8px;line-height:1;margin-top:2px;">
-                                UNIVERSITY
-                            </span>
-                        </div>
-                    `,
+                    html: `<div style="background:#1d4ed8;color:white;min-width:40px;min-height:40px;padding:4px 8px;border-radius:9999px;border:3px solid white;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);text-align:center;">🎓<span style="font-size:8px;line-height:1;margin-top:2px;">UNIVERSITY</span></div>`,
                     iconSize: [40, 40],
                     iconAnchor: [20, 40]
                 })
@@ -1096,27 +428,10 @@
         function updatePropertyMarker(lat, lng) {
             if (!map) return;
             if (propertyMarker) map.removeLayer(propertyMarker);
-
             propertyMarker = L.marker([lat, lng], {
                 icon: L.divIcon({
                     className: 'custom-marker-property',
-                    html: `
-                        <div style="
-                            background:#ef4444;
-                            color:white;
-                            width:35px;
-                            height:35px;
-                            border-radius:50%;
-                            border:3px solid white;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            font-weight:bold;
-                            box-shadow:0 2px 5px rgba(0,0,0,0.3);
-                        ">
-                            📍
-                        </div>
-                    `,
+                    html: `<div style="background:#ef4444;color:white;width:35px;height:35px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 2px 5px rgba(0,0,0,0.3);">📍</div>`,
                     iconSize: [35, 35],
                     iconAnchor: [17.5, 35]
                 })
@@ -1132,34 +447,26 @@
 
                 if (!GEOAPIFY_API_KEY) throw new Error('Geoapify key missing');
 
-                const url = `https://api.geoapify.com/v1/routing?` +
-                    `waypoints=${landmarkLat},${landmarkLng}|${destLat},${destLng}` +
-                    `&mode=drive&details=route_details&apiKey=${encodeURIComponent(GEOAPIFY_API_KEY)}`;
+                const url = `https://api.geoapify.com/v1/routing?waypoints=${landmarkLat},${landmarkLng}|${destLat},${destLng}&mode=drive&details=route_details&apiKey=${encodeURIComponent(GEOAPIFY_API_KEY)}`;
 
                 const res = await fetch(url);
-                if (!res.ok) throw new Error('Routing request failed with status ' + res.status);
+                if (!res.ok) throw new Error('Routing request failed');
                 const data = await res.json();
 
                 if (!data.features || !data.features.length) throw new Error('No route found');
 
                 const feature = data.features[0];
                 const coords = feature.geometry.coordinates[0];
-                const distanceMeters = feature.properties.distance;
-                const distanceKm = (distanceMeters / 1000).toFixed(2);
+                const distanceKm = (feature.properties.distance / 1000).toFixed(2);
 
                 if (routeLine) map.removeLayer(routeLine);
 
                 const latLngs = coords.map(c => [c[1], c[0]]);
-                routeLine = L.polyline(latLngs, {
-                    color: '#10b981',
-                    weight: 4,
-                    opacity: 0.8
-                }).addTo(map);
+                routeLine = L.polyline(latLngs, { color: '#10b981', weight: 4, opacity: 0.8 }).addTo(map);
 
                 map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
 
-                if (pathDisplay) pathDisplay.textContent =
-                    'Walking route from university to this property.';
+                if (pathDisplay) pathDisplay.textContent = 'Walking route from university to this property.';
                 if (distanceDisplay) distanceDisplay.textContent = `${distanceKm} km`;
             } catch (err) {
                 console.error('Error fetching route:', err);
@@ -1169,94 +476,6 @@
                 if (distanceDisplay) distanceDisplay.textContent = '–';
             }
         }
-
-        function getUserLocation() {
-            
-            let userMarker;
-            
-            // User location
-            map.locate({setView: true, maxZoom: 16,enableHighAccuracy: true });
-            
-            map.on('locationfound', function(e) {
-                const lat = e.latlng.lat;
-                const lng = e.latlng.lng;
-                const accuracy = e.accuracy; // meters
-                
-                console.log(`📍 EXACT LOCATION: ${lat.toFixed(6)}, ${lng.toFixed(6)}`);
-                console.log(`📏 Accuracy: ${accuracy.toFixed(0)}m`);
-                
-                // Remove old marker
-                if (userMarker) map.removeLayer(userMarker);
-                
-                // Add user location marker + accuracy circle
-                userMarker = L.marker(e.latlng)
-                    .addTo(map)
-                    .bindPopup(`
-                        <b>YOUR EXACT LOCATION</b><br>
-                        Lat: ${lat.toFixed(6)}<br>
-                        Lng: ${lng.toFixed(6)}<br>
-                        Accuracy: ${accuracy.toFixed(0)}m
-                    `).openPopup();
-                    
-                // Accuracy circle (blue ring)
-                L.circle(e.latlng, {
-                    radius: accuracy,
-                    color: '#3887be',
-                    fill: false,
-                    weight: 2
-                }).addTo(map);
-            });
-
-            // Location error
-            map.on('locationerror', function(e) {
-                alert('Location access denied or unavailable');
-                console.error('Geolocation error:', e.message);
-            });
-
-            // Method 2: Button click to re-locate
-            document.getElementById('myLocationBtn').onclick = function() {
-                map.locate({ 
-                    setView: true, 
-                    maxZoom: 18,
-                    enableHighAccuracy: true,
-                    timeout: 10000
-                });
-            };
-
-            function startLiveTracking() {
-            let watchId = null;
-            if (watchId) return;
-            
-            watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    
-                    if (userMarker) map.removeLayer(userMarker);
-                    
-                    userMarker = L.circleMarker([lat, lng], {
-                        radius: 8,
-                        fillColor: "#3887be",
-                        color: "#fff",
-                        weight: 3,
-                        opacity: 1,
-                        fillOpacity: 0.8
-                    }).addTo(map);
-                    
-                    map.panTo([lat, lng], { animate: true });
-                },
-                (error) => console.error('Live tracking error:', error),
-                {
-                    enableHighAccuracy: true,
-                    timeout: 5000,
-                    maximumAge: 30000
-                }
-            );
-        }
-        };
-
-        
-      
 
         document.addEventListener('DOMContentLoaded', function () {
             const lat = @json($property->map_lat ?? $property->latitude);
@@ -1277,137 +496,81 @@
                     updatePropertyMarker(lat, lng);
                     fetchRouteFromLandmark(lat, lng);
                 });
-
             } else {
-                document.getElementById('propertyMap').innerHTML =
-                    '<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:#6b7280;">Location not provided</div>';
+                document.getElementById('propertyMap').innerHTML = '<div class="flex items-center justify-center h-full text-xs text-slate-400">Location not provided</div>';
             }
         });
     </script>
     <script>
-        //script for transport window
-    document.addEventListener('DOMContentLoaded', function () {
-        const openBtn  = document.getElementById('openTransportModalButton');
-        const modal    = document.getElementById('transportRequestModal');
-        const closeBtn = document.getElementById('closeTransportModalButton');
-        const closeBtn2= document.getElementById('closeTransportModalButton2');
-        const backdrop = modal ? modal.querySelector('.uc-modal-backdrop') : null;
+        document.addEventListener('DOMContentLoaded', function () {
+            const openBtn  = document.getElementById('openTransportModalButton');
+            const modal    = document.getElementById('transportRequestModal');
+            const closeBtn = document.getElementById('closeTransportModalButton');
+            const closeBtn2= document.getElementById('closeTransportModalButton2');
 
-        if (!modal || !openBtn) {
-            return;
-        }
+            if (modal && openBtn) {
+                function openModal() {
+                    modal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+                function closeModal() {
+                    modal.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }
 
-        function openModal() {
-            modal.classList.add('show');
-            modal.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
+                openBtn.addEventListener('click', openModal);
+                if (closeBtn)  closeBtn.addEventListener('click', closeModal);
+                if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+            }
+
+            const countdownEl = document.getElementById('transport-countdown');
+            if (!countdownEl) return;
+
+            const deadlineStr = countdownEl.getAttribute('data-deadline');
+            if (!deadlineStr) return;
+
+            const deadline = new Date(deadlineStr).getTime();
+
+            function updateCountdown() {
+                const now    = new Date().getTime();
+                const diff   = deadline - now;
+
+                if (diff <= 0) {
+                    countdownEl.textContent = 'Transport time reached';
+                    clearInterval(timer);
+                    return;
+                }
+
+                const second = 1000;
+                const minute = 60 * second;
+                const hour   = 60 * minute;
+
+                const hours   = Math.floor(diff / hour);
+                const minutes = Math.floor((diff % hour) / minute);
+                const seconds = Math.floor((diff % minute) / second);
+
+                let parts = [];
+                if (hours > 0)   parts.push(hours + 'h');
+                if (minutes >= 0) parts.push(minutes + 'm');
+                parts.push(seconds + 's');
+
+                countdownEl.textContent = parts.join(' ');
+            }
+
+            updateCountdown();
+            const timer = setInterval(updateCountdown, 1000);
+        });
+
+        function openPaymentModal(propertyId) {
+            document.getElementById('payment-modal').classList.remove('hidden');
         }
 
         function closeModal() {
-            modal.classList.remove('show');
-            modal.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
+            document.getElementById('payment-modal').classList.add('hidden');
         }
 
-        openBtn.addEventListener('click', openModal);
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeModal);
-        }
-        if (closeBtn2) {
-            closeBtn2.addEventListener('click', closeModal);
-        }
-        if (backdrop) {
-            backdrop.addEventListener('click', closeModal);
-        }
-    });
-</script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Modal JS from earlier (open/close) ...
-        const openBtn  = document.getElementById('openTransportModalButton');
-        const modal    = document.getElementById('transportRequestModal');
-        const closeBtn = document.getElementById('closeTransportModalButton');
-        const closeBtn2= document.getElementById('closeTransportModalButton2');
-        const backdrop = modal ? modal.querySelector('.uc-modal-backdrop') : null;
-
-        if (modal && openBtn) {
-            function openModal() {
-                modal.classList.add('show');
-                modal.setAttribute('aria-hidden', 'false');
-                document.body.style.overflow = 'hidden';
-            }
-            function closeModal() {
-                modal.classList.remove('show');
-                modal.setAttribute('aria-hidden', 'true');
-                document.body.style.overflow = '';
-            }
-
-            openBtn.addEventListener('click', openModal);
-            if (closeBtn)  closeBtn.addEventListener('click', closeModal);
-            if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
-            if (backdrop)  backdrop.addEventListener('click', closeModal);
-        }
-
-        // Countdown logic
-        const countdownEl = document.getElementById('transport-countdown');
-        if (!countdownEl) return;
-
-        const deadlineStr = countdownEl.getAttribute('data-deadline');
-        if (!deadlineStr) return;
-
-        const deadline = new Date(deadlineStr).getTime();
-
-        function updateCountdown() {
-            const now    = new Date().getTime();
-            const diff   = deadline - now;
-
-            if (diff <= 0) {
-                countdownEl.textContent = 'Transport time reached';
-                clearInterval(timer);
-                return;
-            }
-
-            const second = 1000;
-            const minute = 60 * second;
-            const hour   = 60 * minute;
-
-            const hours   = Math.floor(diff / hour);
-            const minutes = Math.floor((diff % hour) / minute);
-            const seconds = Math.floor((diff % minute) / second);
-
-            let parts = [];
-            if (hours > 0)   parts.push(hours + 'h');
-            if (minutes >= 0) parts.push(minutes + 'm');
-            parts.push(seconds + 's');
-
-            countdownEl.textContent = parts.join(' ');
-        }
-
-        updateCountdown();
-        const timer = setInterval(updateCountdown, 1000);
-    });
-</script>
-<script>
-function openPaymentModal(propertyId) {
-    document.getElementById('payment-modal').classList.remove('hidden');
-}
-
-function closeModal() {
-    document.getElementById('payment-modal').classList.add('hidden');
-}
-
-// Backdrop + ESC
-document.getElementById('payment-modal').addEventListener('click', e => {
-    if (e.target === this) closeModal();
-});
-document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeModal();
-});
-</script>
-
-
-
-    
-
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
+    </script>
 </x-app-layout>

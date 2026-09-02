@@ -1,182 +1,54 @@
+{{-- resources/views/payments/student-pay.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-student-pay-page {
-            background: radial-gradient(circle at top, #111827 0, #020617 55%);
-            min-height: 100vh;
-            padding: 16px 0 24px;
-        }
-        .uc-student-pay-container {
-            max-width: 720px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .uc-student-pay-card {
-            border-radius: 12px;
-            border: 1px solid #111827;
-            background-color: #020617;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-            overflow: hidden;
-        }
-        .uc-student-pay-inner {
-            padding: 18px 18px 20px;
-        }
-        .uc-student-pay-header {
-            margin-bottom: 10px;
-        }
-        .uc-student-pay-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #f9fafb;
-        }
-        .uc-student-pay-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .uc-student-pay-section-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #e5e7eb;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #111827;
-            margin-bottom: 10px;
-        }
-        .uc-student-pay-text {
-            font-size: 13px;
-            color: #9ca3af;
-            margin-bottom: 14px;
-        }
-
-        .uc-student-pay-error {
-            margin-bottom: 12px;
-            background-color: #220b0f;
-            border: 1px solid #7f1d1d;
-            color: #fecaca;
-            padding: 10px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-        }
-
-        .uc-student-pay-info {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #6b7280;
-        }
-
-        .uc-pay-btn-row {
-            display: flex;
-            justify-content: flex-start;
-            margin-top: 8px;
-        }
-        .uc-pay-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 9px 22px;
-            border-radius: 999px;
-            border: 1px solid #4f46e5;
-            background: linear-gradient(90deg, #6366f1 0%, #4f46e5 50%, #8b5cf6 100%);
-            color: #f9fafb;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: .02em;
-            cursor: pointer;
-            box-shadow: 0 18px 40px rgba(79,70,229,0.55);
-            transition:
-                background-color .18s ease,
-                box-shadow .18s ease,
-                transform .12s ease,
-                border-color .18s ease;
-        }
-        .uc-pay-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 22px 50px rgba(79,70,229,0.7);
-            border-color: #818cf8;
-        }
-        .uc-pay-btn:active {
-            transform: translateY(0);
-            box-shadow: 0 14px 30px rgba(15,23,42,0.8);
-            background: linear-gradient(90deg, #4f46e5 0%, #4338ca 50%, #7c3aed 100%);
-        }
-        .error-text {
-            font-size: 0.78rem;
-            color: #fecaca;
-            margin-top: 0.15rem;
-        }
-        .error-border {
-            border-color: #b91c1c !important;
-        }
-        .input,
-        .textarea,
-        .select {
-            width: 100%;
-            border-radius: 0.65rem;
-            border: 1px solid #111827;
-            background: #020617;
-            color: var(--text-main);
-            padding: 0.6rem 0.75rem;
-            font-size: 0.9rem;
-            transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
-        }
-        .input:focus,
-        .textarea:focus,
-        .select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 1px rgba(99,102,241,0.7);
-            background: #020617;
-        }
-    </style>
-
     <x-slot name="header">
-        <h2 class="uc-header-title">
+        <h2 class="text-lg font-semibold text-slate-900">
             {{ __('Student Access Payment') }}
         </h2>
     </x-slot>
 
-    <div class="uc-student-pay-page">
-        <div class="uc-student-pay-container">
-            <div class="uc-student-pay-card">
-                <div class="uc-student-pay-inner">
-                    <div class="uc-student-pay-header">
-                        <div class="uc-student-pay-title">Unlock full property details</div>
-                        <div class="uc-student-pay-subtitle">
+    <div class="py-6 bg-slate-50 min-h-screen">
+        <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="p-6 space-y-6">
+                    
+                    <div>
+                        <h1 class="text-xl font-bold text-slate-900">Unlock full property details</h1>
+                        <p class="text-xs font-medium text-slate-500 mt-1">
                             One-time access fee that covers all properties for 6 hours.
-                        </div>
+                        </p>
                     </div>
 
-                    <h3 class="uc-student-pay-section-title">Pay KES 50 to view property details</h3>
-                    <p class="uc-student-pay-text">
-                        This payment unlocks full property details, landlord contacts, and maps for 6 hours on your account.
-                    </p>
-                    <p class="uc-student-pay-info">
-                        You will be redirected back to dashboard after payment to continue browsing.
-                    </p>
+                    <div class="p-4 rounded-xl bg-indigo-50/50 border border-indigo-100 space-y-2">
+                        <h3 class="text-sm font-bold text-slate-900">Pay KES 50 to view property details</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            This payment unlocks full property details, landlord contacts, and maps for 6 hours on your account.
+                        </p>
+                        <p class="text-[11px] text-slate-400">
+                            You will be redirected back to dashboard after payment to continue browsing.
+                        </p>
+                    </div>
 
                     @if(session('error'))
-                        <div class="uc-student-pay-error">{{ session('error') }}</div>
+                        <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-700 font-medium">
+                            {{ session('error') }}
+                        </div>
                     @endif
 
-                    {{-- <form method="POST" action="{{ route('payments.student.pay') }}">
+                    <form method="POST" action="{{ route('pay') }}" class="space-y-4">
                         @csrf
-                        <div class="uc-pay-btn-row">
-                        <div class="mb-3">
-                            <label for="phone">M-Pesa phone number</label>
-                            <input type="text" 
-                            name="phone" 
-                            id="phone" 
-                            class="input @error('name') error-border @enderror"
-                             required placeholder="07XXXXXXXX">
+                        <div>
+                            <label for="amount" class="block text-xs font-medium text-slate-700 mb-1">Amount (KES)</label>
+                            <input type="number" name="amount" id="amount" class="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500 @error('amount') border-rose-500 @enderror" placeholder="Amount (e.g. 50)" min="50" required>
+                            @error('amount')
+                                <p class="text-[11px] text-rose-600 mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
-                            <button type="submit" class="uc-pay-btn">
-                                Pay KES 50 now
+
+                        <div class="pt-2 flex items-center justify-end">
+                            <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700 transition">
+                                Pay & Verify
                             </button>
                         </div>
-                    </form> --}}
-                    <form method="POST" action="{{ route('pay') }}">
-                        @csrf
-                        <input type="number" name="amount" class="input @error('name') error-border @enderror" placeholder="Amount (e.g. 100)" min=50 required>
-                        <button class="uc-pay-btn" type="submit">Pay & Verify</button>
                     </form>
 
                 </div>
