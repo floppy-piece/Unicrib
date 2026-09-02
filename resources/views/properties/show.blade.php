@@ -1,7 +1,7 @@
 {{-- resources/views/properties/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-lg font-semibold text-slate-900">
+        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
             {{ $property->building_name }}
         </h2>
     </x-slot>
@@ -13,19 +13,19 @@
           crossorigin="" />
 
     {{-- Toast --}}
-    <div id="toast" class="fixed top-4 right-4 bg-slate-900 text-white px-4 py-3 rounded-xl border border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg"></div>
+    <div id="toast" class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg"></div>
 
-    <div class="py-6 bg-slate-50 min-h-screen">
+    <div class="py-6 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 transition-colors duration-200">
                 
                 {{-- Top section --}}
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900">
+                        <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">
                             {{ $property->building_name }}
                         </h1>
-                        <p class="text-xs font-medium text-slate-500 mt-1">
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
                             {{ ucfirst($property->property_type) }} • Area: {{ ucfirst($property->area) }}
                             @if($property->street)
                                 • {{ $property->street }}
@@ -35,15 +35,15 @@
                             @endif
                         </p>
                         @if($property->landmark)
-                            <p class="text-[11px] text-slate-400 mt-0.5">
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                                 Landmark: {{ $property->landmark }}
                             </p>
                         @endif
 
                         <div class="mt-2">
-                            <p class="text-xs text-slate-600">
+                            <p class="text-xs text-slate-600 dark:text-slate-300">
                                 Landlord phone:
-                                <a href="tel:{{ optional($property->landlord)->phone }}" class="text-slate-900 font-bold hover:text-indigo-600 underline">
+                                <a href="tel:{{ optional($property->landlord)->phone }}" class="text-slate-900 dark:text-slate-100 font-bold hover:text-indigo-600 dark:hover:text-indigo-400 underline">
                                     {{ optional($property->landlord)->phone ?? 'No phone set' }}
                                 </a>
                             </p>
@@ -51,10 +51,10 @@
                     </div>
 
                     <div class="text-left md:text-right flex flex-col items-start md:items-end">
-                        <p class="text-xl font-bold text-indigo-600">
+                        <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">
                             KES {{ number_format($property->price) }}
                         </p>
-                        <p class="text-xs text-slate-400">
+                        <p class="text-xs text-slate-400 dark:text-slate-500">
                             per month
                         </p>
                        
@@ -80,46 +80,46 @@
 
                                 @if($isFull && !$hasActiveBooking)
                                     <div class="mt-3">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50">
                                             This property is fully booked. You can still view its details and map.
                                         </span>
                                     </div>
                                 @elseif($hasActiveBooking)
                                     <div class="mt-3 space-y-2">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                             You have an active booking for this property. To book another property contact the landlord of this Property and request for cancellation.
                                         </span>
 
                                         @if($user && $user->category === 'student' && isset($activeTransport))
-                                            <div class="text-xs text-slate-500 space-y-1">
+                                            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-1">
                                                 <div>
                                                     Transport status:
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $activeTransport->status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : ($activeTransport->status === 'cancelled' ? 'bg-rose-50 text-rose-700 border border-rose-200' : 'bg-indigo-50 text-indigo-700 border border-indigo-200') }}">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $activeTransport->status === 'completed' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50' : ($activeTransport->status === 'cancelled' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50' : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/50') }}">
                                                         {{ ucfirst($activeTransport->status) }}
                                                     </span>
                                                 </div>
 
                                                 @if($activeTransport->assigned_at && $activeTransport->status !== 'completed')
                                                     <div>
-                                                        Assigned time: <span class="text-slate-700 font-medium">{{ $activeTransport->assigned_at->format('d M Y, H:i') }}</span>
+                                                        Assigned time: <span class="text-slate-700 dark:text-slate-300 font-medium">{{ $activeTransport->assigned_at->format('d M Y, H:i') }}</span>
                                                     </div>
                                                     <div>
-                                                        Time until transport: <span id="transport-countdown" data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}" class="text-indigo-600 font-bold">calculating...</span>
+                                                        Time until transport: <span id="transport-countdown" data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}" class="text-indigo-600 dark:text-indigo-400 font-bold">calculating...</span>
                                                     </div>
                                                 @endif
                                             </div>
                                         @endif
 
                                         @if($user && $user->category === 'student' && isset($booking))
-                                            <button type="button" id="openTransportModalButton" class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 transition">
+                                            <button type="button" id="openTransportModalButton" class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
                                                 Request transport
                                             </button>
 
                                             {{-- Transport Modal --}}
                                             <div id="transportRequestModal" class="fixed inset-0 z-50 hidden">
-                                                <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm uc-modal-backdrop"></div>
-                                                <div class="relative max-w-lg mx-auto my-20 bg-white rounded-2xl border border-slate-200 shadow-2xl overflow-hidden">
-                                                    <div class="px-6 py-4 bg-indigo-600 flex items-center justify-between text-white">
+                                                <div class="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm uc-modal-backdrop"></div>
+                                                <div class="relative max-w-lg mx-auto my-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+                                                    <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 flex items-center justify-between text-white">
                                                         <h5 class="text-sm font-bold">Request transport to {{ $property->building_name }}</h5>
                                                         <button type="button" id="closeTransportModalButton" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
                                                     </div>
@@ -127,28 +127,28 @@
                                                     <form action="{{ route('transport.request.store', $booking->id) }}" method="POST" class="p-6 space-y-4">
                                                         @csrf
                                                         <div>
-                                                            <label for="student_name" class="block text-xs font-medium text-slate-700 mb-1">Name</label>
-                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_name', $user->name) }}" required>
+                                                            <label for="student_name" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
+                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" value="{{ old('student_name', $user->name) }}" required>
                                                         </div>
 
                                                         <div>
-                                                            <label for="student_phone" class="block text-xs font-medium text-slate-700 mb-1">Phone number</label>
-                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_phone', $user->phone) }}" required>
+                                                            <label for="student_phone" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Phone number</label>
+                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" value="{{ old('student_phone', $user->phone) }}" required>
                                                         </div>
 
                                                         <div>
-                                                            <label for="requested_date" class="block text-xs font-medium text-slate-700 mb-1">Preferred transport date</label>
-                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('requested_date') }}" required>
-                                                            <p class="text-[11px] text-slate-400 mt-1">
+                                                            <label for="requested_date" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Preferred transport date</label>
+                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" value="{{ old('requested_date') }}" required>
+                                                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                                                                 Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
                                                             </p>
                                                         </div>
 
-                                                        <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
-                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition" id="closeTransportModalButton2">
+                                                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" id="closeTransportModalButton2">
                                                                 Close
                                                             </button>
-                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
+                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
                                                                 Send request
                                                             </button>
                                                         </div>
@@ -159,18 +159,18 @@
                                     </div>
                                 @else
                                     <div class="mt-3 space-y-3">
-                                        <p class="text-xs text-rose-600 font-medium">
+                                        <p class="text-xs text-rose-600 dark:text-rose-400 font-medium">
                                             Make sure to contact the owner of this property before booking.
                                         </p>
                                         
-                                        <button onclick="openPaymentModal({{ $property->id }})" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 hover:bg-indigo-700 transition">
+                                        <button onclick="openPaymentModal({{ $property->id }})" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
                                             <span>Pay & Book Now</span>
                                         </button>
 
                                         {{-- Payment Modal --}}
-                                        <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-                                            <div class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-lg w-full overflow-hidden">
-                                                <div class="px-6 py-4 bg-indigo-600 text-white flex items-center justify-between">
+                                        <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+                                            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden">
+                                                <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex items-center justify-between">
                                                     <div>
                                                         <h2 class="text-sm font-bold">Book & Pay Securely</h2>
                                                         <p class="text-[11px] text-indigo-100">Complete payment to book {{ $property->building_name ?? 'Property' }}</p>
@@ -182,35 +182,35 @@
                                                     @csrf            
                                                     <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
 
-                                                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
+                                                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/80 flex items-center justify-between">
                                                         <div>
-                                                            <p class="text-xs font-medium text-slate-500">Assurance fee Required (5%)</p>
-                                                            <p class="text-lg font-bold text-indigo-600 mt-0.5">
+                                                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Assurance fee Required (5%)</p>
+                                                            <p class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
                                                                 KES {{ number_format(ceil(5/100 * ($property->price ?? 0))) }}
                                                             </p>
                                                         </div>
-                                                        <span class="text-[11px] font-semibold text-slate-400 bg-white px-2.5 py-1 rounded-full border border-slate-200">
+                                                        <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
                                                             of KES {{ number_format($property->price ?? 0) }}
                                                         </span>
                                                     </div>
 
                                                     <div>
-                                                        <label class="block text-xs font-medium text-slate-700 mb-1">Email</label>
-                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required class="w-full rounded-xl border border-slate-200 px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500">
+                                                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
+                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400">
                                                     </div>
 
                                                     <div class="flex items-start gap-2">
-                                                        <input type="checkbox" name="terms_agreement" id="terms" required class="mt-0.5 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                                                        <label for="terms" class="text-xs text-slate-600 leading-relaxed cursor-pointer">
+                                                        <input type="checkbox" name="terms_agreement" id="terms" required class="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-800">
+                                                        <label for="terms" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed cursor-pointer">
                                                             I agree to pay and book this property. Payment is non-refundable unless landlord rejects.
                                                         </label>
                                                     </div>
 
-                                                    <div class="pt-4 border-t border-slate-100 flex justify-end gap-2">
-                                                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition">
+                                                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
+                                                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
                                                             Cancel
                                                         </button>
-                                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
+                                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
                                                             Pay & Book Now
                                                         </button>
                                                     </div>
@@ -227,13 +227,13 @@
                 {{-- Images --}}
                 @if(is_array($property->images) && count($property->images))
                     <div class="mt-6">
-                        <h3 class="text-sm font-bold text-slate-900 mb-3">Photos</h3>
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3">Photos</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                             @foreach($property->images as $image)
                                 @php
                                     $path = preg_replace('/^public\//', '', $image);
                                 @endphp
-                                <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-100">
+                                <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
                                     <img src="{{ asset('storage/'.$path) }}" alt="Property image" class="w-full h-40 object-cover hover:scale-105 transition duration-300">
                                 </div>
                             @endforeach
@@ -245,40 +245,40 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div class="md:col-span-2 space-y-6">
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 mb-2">Description</h3>
-                            <div class="text-xs text-slate-600 leading-relaxed whitespace-pre-line">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Description</h3>
+                            <div class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
                                 {{ $property->description }}
                             </div>
                         </div>
 
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 mb-2">Details</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-700 bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Details</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/80">
                                 <div>
-                                    <span class="font-medium text-slate-400 block text-[11px]">Bedrooms</span>
-                                    <span class="font-bold text-slate-800">{{ $property->bedrooms }}</span>
+                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Bedrooms</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->bedrooms }}</span>
                                 </div>
                                 <div>
-                                    <span class="font-medium text-slate-400 block text-[11px]">Bathrooms</span>
-                                    <span class="font-bold text-slate-800">{{ $property->bathrooms }}</span>
+                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Bathrooms</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->bathrooms }}</span>
                                 </div>
                                 <div>
-                                    <span class="font-medium text-slate-400 block text-[11px]">Size</span>
-                                    <span class="font-bold text-slate-800">{{ $property->size }} sqm</span>
+                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Size</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->size }} sqm</span>
                                 </div>
-                                <div class="col-span-2 sm:col-span-3 pt-2 border-t border-slate-200">
-                                    <span class="font-medium text-slate-400 block text-[11px]">Address</span>
-                                    <span class="font-bold text-slate-800">{{ $property->address }}</span>
+                                <div class="col-span-2 sm:col-span-3 pt-2 border-t border-slate-200 dark:border-slate-700">
+                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Address</span>
+                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->address }}</span>
                                 </div>
                             </div>
                         </div>
 
                         @if(is_array($property->amenities) && count($property->amenities))
                             <div>
-                                <h3 class="text-sm font-bold text-slate-900 mb-2">Amenities</h3>
+                                <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Amenities</h3>
                                 <div class="flex flex-wrap gap-2">
                                     @foreach($property->amenities as $amenity)
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
                                             {{ ucfirst($amenity) }}
                                         </span>
                                     @endforeach
@@ -290,34 +290,34 @@
                     {{-- Map + route --}}
                     <div class="space-y-4">
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 mb-2">Location & Route</h3>
-                            <div id="propertyMap" class="h-80 w-full rounded-xl border border-slate-200 bg-slate-100"></div>
-                            <p class="text-[11px] text-slate-400 mt-1.5">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Location & Route</h3>
+                            <div id="propertyMap" class="h-80 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"></div>
+                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
                                 🎓 University marker is fixed. 📍 shows this property location.
                             </p>
                         </div>
 
-                        <div class="text-[11px] text-slate-500 space-y-0.5">
-                            <p><span class="font-medium text-slate-700">Property Lat:</span> {{ $property->map_lat ?? $property->latitude ?? 'N/A' }}</p>
-                            <p><span class="font-medium text-slate-700">Property Lng:</span> {{ $property->map_lng ?? $property->longitude ?? 'N/A' }}</p>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-0.5">
+                            <p><span class="font-medium text-slate-700 dark:text-slate-300">Property Lat:</span> {{ $property->map_lat ?? $property->latitude ?? 'N/A' }}</p>
+                            <p><span class="font-medium text-slate-700 dark:text-slate-300">Property Lng:</span> {{ $property->map_lng ?? $property->longitude ?? 'N/A' }}</p>
                         </div>
 
-                        <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 space-y-1">
+                        <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-xs text-emerald-900 dark:text-emerald-300 space-y-1">
                             <div>
                                 <strong class="font-semibold">Route from University:</strong>
-                                <span id="pathDisplay" class="block text-emerald-700">No route calculated yet.</span>
+                                <span id="pathDisplay" class="block text-emerald-700 dark:text-emerald-400">No route calculated yet.</span>
                             </div>
                             <div>
                                 <strong class="font-semibold">Distance:</strong>
-                                <span id="distanceDisplay" class="font-bold text-emerald-800">–</span>
+                                <span id="distanceDisplay" class="font-bold text-emerald-800 dark:text-emerald-200">–</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {{-- Back --}}
-                <div class="mt-8 pt-4 border-t border-slate-100">
-                    <a href="{{ route('student.dashboard') }}" class="text-xs font-medium text-indigo-600 hover:text-indigo-800 transition flex items-center gap-1">
+                <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
+                    <a href="{{ route('student.dashboard') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition flex items-center gap-1">
                         &larr; Back to properties
                     </a>
                 </div>
@@ -334,12 +334,11 @@
                 const data = @json(session('booking_status'));
                 toast.textContent = data.message;
                 toast.style.opacity = '1';
+                const isDark = document.documentElement.classList.contains('dark');
                 if (data.type === 'error') {
-                    toast.classList.remove('bg-slate-900', 'border-slate-700');
-                    toast.classList.add('bg-rose-900', 'border-rose-700');
+                    toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isDark ? 'bg-rose-950 text-rose-200 border-rose-800' : 'bg-rose-900 text-white border-rose-700'}`;
                 } else {
-                    toast.classList.remove('bg-slate-900', 'border-slate-700');
-                    toast.classList.add('bg-emerald-900', 'border-emerald-700');
+                    toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isDark ? 'bg-emerald-950 text-emerald-200 border-emerald-800' : 'bg-emerald-900 text-white border-emerald-700'}`;
                 }
                 setTimeout(() => {
                     toast.style.opacity = '0';
@@ -366,6 +365,8 @@
         function showToast(message, duration = 3000) {
             const toast = document.getElementById('toast');
             if (!toast) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isDark ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-900 text-white border-slate-700'}`;
             toast.textContent = message;
             toast.style.opacity = '1';
             setTimeout(() => {
@@ -399,12 +400,16 @@
 
         function createExtraLandmarks() {
             if (!map) return;
+            const isDark = document.documentElement.classList.contains('dark');
+            const borderColor = isDark ? '#334155' : 'white';
+            const textColor = isDark ? '#f8fafc' : 'black';
+            
             landmarks.forEach(l => {
                 const { emoji, bg } = getLandmarkIcon(l.type);
                 L.marker([l.lat, l.lng], {
                     icon: L.divIcon({
                         className: 'custom-marker-extra-landmark',
-                        html: `<div style="background:${bg};color:black;max-width:30px;max-height:30px;padding:4px 8px;border-radius:9999px;border:2px solid white;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;gap:4px;text-align:center;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);white-space:nowrap;"><span>${emoji}</span><span style="font-size:8px;line-height:1;margin-top:2px;">${l.name}</span></div>`,
+                        html: `<div style="background:${bg};color:${textColor};max-width:30px;max-height:30px;padding:4px 8px;border-radius:9999px;border:2px solid ${borderColor};display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;gap:4px;text-align:center;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);white-space:nowrap;"><span>${emoji}</span><span style="font-size:8px;line-height:1;margin-top:2px;">${l.name}</span></div>`,
                         iconSize: [40, 24],
                         iconAnchor: [20, 24]
                     })
@@ -415,10 +420,13 @@
         function createLandmarkMarker() {
             if (!map) return;
             if (landmarkMarker) map.removeLayer(landmarkMarker);
+            const isDark = document.documentElement.classList.contains('dark');
+            const borderColor = isDark ? '#334155' : 'white';
+
             landmarkMarker = L.marker([landmarkLat, landmarkLng], {
                 icon: L.divIcon({
                     className: 'custom-marker-landmark',
-                    html: `<div style="background:#1d4ed8;color:white;min-width:40px;min-height:40px;padding:4px 8px;border-radius:9999px;border:3px solid white;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);text-align:center;">🎓<span style="font-size:8px;line-height:1;margin-top:2px;">UNIVERSITY</span></div>`,
+                    html: `<div style="background:#1d4ed8;color:white;min-width:40px;min-height:40px;padding:4px 8px;border-radius:9999px;border:3px solid ${borderColor};display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);text-align:center;">🎓<span style="font-size:8px;line-height:1;margin-top:2px;">UNIVERSITY</span></div>`,
                     iconSize: [40, 40],
                     iconAnchor: [20, 40]
                 })
@@ -428,10 +436,13 @@
         function updatePropertyMarker(lat, lng) {
             if (!map) return;
             if (propertyMarker) map.removeLayer(propertyMarker);
+            const isDark = document.documentElement.classList.contains('dark');
+            const borderColor = isDark ? '#334155' : 'white';
+
             propertyMarker = L.marker([lat, lng], {
                 icon: L.divIcon({
                     className: 'custom-marker-property',
-                    html: `<div style="background:#ef4444;color:white;width:35px;height:35px;border-radius:50%;border:3px solid white;display:flex;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 2px 5px rgba(0,0,0,0.3);">📍</div>`,
+                    html: `<div style="background:#ef4444;color:white;width:35px;height:35px;border-radius:50%;border:3px solid ${borderColor};display:flex;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 2px 5px rgba(0,0,0,0.3);">📍</div>`,
                     iconSize: [35, 35],
                     iconAnchor: [17.5, 35]
                 })

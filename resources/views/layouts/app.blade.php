@@ -1,6 +1,6 @@
 {{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,29 +16,43 @@
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
         <script src="https://cdn.tailwindcss.com"></script>
 
+        <script>
+            // Configure Tailwind to support class-based dark mode
+            tailwind.config = {
+                darkMode: 'class',
+            }
+            
+            // Check and apply saved theme on initial load to prevent flashing
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        </script>
+
         <style>
             body {
                 font-family: 'Plus Jakarta Sans', sans-serif;
             }
         </style>
     </head>
-    <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white">
+    <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white transition-colors duration-200">
         
         {{-- Navigation (Livewire component) --}}
         <livewire:layout.navigation />
 
         {{-- Page Heading --}}
         @if (isset($header))
-            <header class="bg-white border-b border-slate-200 shadow-sm">
+            <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-200">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                    <div class="text-xl font-bold text-slate-900 tracking-tight">
+                    <div class="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
                         {{ $header }}
                     </div>
                     @auth
-                        <div class="flex items-center space-x-2 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl w-fit">
+                        <div class="flex items-center space-x-2 text-sm text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl w-fit border border-slate-200/60 dark:border-slate-700/60">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span class="font-medium text-slate-700">Signed in as</span>
-                            <span class="font-semibold text-slate-900">{{ Auth()->user()->name }}</span>
+                            <span class="font-medium text-slate-700 dark:text-slate-300">Signed in as</span>
+                            <span class="font-semibold text-slate-900 dark:text-slate-100">{{ Auth()->user()->name }}</span>
                         </div>
                     @endauth
                 </div>
@@ -51,13 +65,13 @@
         </main>
 
         {{-- Footer --}}
-        <footer class="bg-white border-t border-slate-200 py-6 text-xs text-slate-500 mt-auto">
+        <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 mt-auto transition-colors duration-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <p>&copy; {{ date('Y') }} {{ config('app.name', 'CampusNest') }}. Built for student housing.</p>
                 <div class="flex space-x-6">
-                    <span class="hover:text-indigo-600 transition cursor-pointer">Support</span>
-                    <span class="hover:text-indigo-600 transition cursor-pointer">Privacy</span>
-                    <span class="hover:text-indigo-600 transition cursor-pointer">Terms</span>
+                    <span class="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer">Support</span>
+                    <span class="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer">Privacy</span>
+                    <span class="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer">Terms</span>
                 </div>
             </div>
         </footer>
