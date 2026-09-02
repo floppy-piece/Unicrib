@@ -4,81 +4,62 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <title>{{ config('app.name', 'Laravel') }}</title>
 
         <x-icon/>
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link
-            href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap"
-            rel="stylesheet"
-        />
-
-        
+        <!-- Fonts & Tailwind CSS -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <script src="https://cdn.tailwindcss.com"></script>
 
         <style>
             body {
-                margin: 0;
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Figtree", sans-serif;
-                background-color: #020617;
-                color: #e5e7eb;
-            }
-            .uc-layout-wrapper {
-                min-height: 100vh;
-                background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-                display: flex;
-                flex-direction: column;
-            }
-            .uc-header {
-                background-color: #020617;
-                border-bottom: 1px solid #111827;
-            }
-            .uc-header-inner {
-                max-width: 1120px;
-                margin: 0 auto;
-                padding: 10px 16px;
-                display: flex;
-                align-items: center;
-                color: #e5e7eb;
-            }
-            .uc-header-inner h5 {
-                margin: 0;
-                margin-left: 8px;
-                font-size: 12px;
-                font-weight: 400;
-                color: #9ca3af;
-            }
-            main {
-                flex: 1;
+                font-family: 'Plus Jakarta Sans', sans-serif;
             }
         </style>
     </head>
-    <body>
-        <div class="uc-layout-wrapper">
-            {{-- Navigation (Livewire component that contains your nav code below) --}}
-            <livewire:layout.navigation />
+    <body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white">
+        
+        {{-- Navigation (Livewire component) --}}
+        <livewire:layout.navigation />
 
-            {{-- Page Heading --}}
-            @if (isset($header))
-                <header class="uc-header">
-                    <div class="uc-header-inner">
+        {{-- Page Heading --}}
+        @if (isset($header))
+            <header class="bg-white border-b border-slate-200 shadow-sm">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                    <div class="text-xl font-bold text-slate-900 tracking-tight">
                         {{ $header }}
-                        <h5>- {{ Auth()->user()->name }}</h5>
-                        <div>
-                        
-
-                        </div>
                     </div>
-                </header>
-            @endif
+                    @auth
+                        <div class="flex items-center space-x-2 text-sm text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl w-fit">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="font-medium text-slate-700">Signed in as</span>
+                            <span class="font-semibold text-slate-900">{{ Auth()->user()->name }}</span>
+                        </div>
+                    @endauth
+                </div>
+            </header>
+        @endif
 
-            {{-- Page Content --}}
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
+        {{-- Page Content --}}
+        <main class="flex-grow">
+            {{ $slot }}
+        </main>
+
+        {{-- Footer --}}
+        <footer class="bg-white border-t border-slate-200 py-6 text-xs text-slate-500 mt-auto">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'CampusNest') }}. Built for student housing.</p>
+                <div class="flex space-x-6">
+                    <span class="hover:text-indigo-600 transition cursor-pointer">Support</span>
+                    <span class="hover:text-indigo-600 transition cursor-pointer">Privacy</span>
+                    <span class="hover:text-indigo-600 transition cursor-pointer">Terms</span>
+                </div>
+            </div>
+        </footer>
     </body>
 </html>

@@ -1,269 +1,104 @@
 {{-- resources/views/student/notifications.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-msg-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding: 16px 0 24px;
-        }
-        .uc-msg-container {
-            max-width: 960px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .uc-msg-card {
-            border-radius: 12px;
-            border: 1px solid #111827;
-            background-color: #020617;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-            overflow: hidden;
-        }
-        .uc-msg-inner {
-            padding: 18px 18px 20px;
-        }
-        .uc-msg-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-        .uc-msg-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #f9fafb;
-        }
-        .uc-msg-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
+    <x-slot name="header">
+        <div>
+            <h2 class="text-lg font-semibold text-slate-900">
+                {{ __('Booking Updates') }}
+            </h2>
+            <p class="mt-0.5 text-xs font-medium text-slate-500">
+                Track the status of your housing requests and booking confirmations.
+            </p>
+        </div>
+    </x-slot>
 
-        .uc-msg-section-title {
-            font-size: 14px;
-            font-weight: 600;
-            color: #e5e7eb;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #111827;
-            margin-bottom: 12px;
-        }
+    <div class="py-6 bg-slate-50 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6">
+                
+                @if($user && $user->category === 'student')
+                    <div class="border-b border-slate-200 pb-4 mb-6">
+                        <h3 class="text-sm font-bold text-slate-900 tracking-tight">Booking updates</h3>
+                    </div>
 
-        .uc-msg-item {
-            padding: 10px 0 12px;
-            border-bottom: 1px solid #111827;
-        }
-        .uc-msg-item:last-child {
-            border-bottom: none;
-        }
-        .uc-msg-meta {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: #6b7280;
-            margin-bottom: 4px;
-        }
-        .uc-msg-body {
-            font-size: 14px;
-            color: #e5e7eb;
-        }
-        .uc-msg-label {
-            font-weight: 500;
-            color: #9ca3af;
-        }
-
-        .uc-msg-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 2px 8px;
-            border-radius: 999px;
-            font-size: 10px;
-            font-weight: 500;
-            border: 1px solid transparent;
-            margin-top: 4px;
-        }
-        .uc-msg-pill-pending {
-            background-color: rgba(245,158,11,0.15);
-            color: #fef3c7;
-            border-color: rgba(245,158,11,0.5);
-        }
-        .uc-msg-pill-approved {
-            background-color: rgba(16,185,129,0.15);
-            color: #6ee7b7;
-            border-color: rgba(16,185,129,0.5);
-        }
-        .uc-msg-pill-rejected {
-            background-color: rgba(239,68,68,0.15);
-            color: #fecaca;
-            border-color: rgba(239,68,68,0.5);
-        }
-
-        .uc-msg-actions {
-            margin-top: 8px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .uc-msg-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 7px 14px;
-            border-radius: 999px;
-            border: 1px solid transparent;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background .15s ease, border-color .15s ease, color .15s ease;
-        }
-        .uc-msg-btn-primary {
-            background-color: #6366f1;
-            border-color: #4f46e5;
-            color: #ffffff;
-        }
-        .uc-msg-btn-primary:hover {
-            background-color: #4f46e5;
-        }
-        .uc-msg-btn-ghost {
-            background-color: #020617;
-            border-color: #1f2937;
-            color: #e5e7eb;
-        }
-        .uc-msg-btn-ghost:hover {
-            border-color: #6366f1;
-        }
-
-        .uc-msg-empty {
-            padding: 24px 0 6px;
-            text-align: center;
-        }
-        .uc-msg-empty-text {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .uc-btn-primary {
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid #4f46e5;
-            background-color: #6366f1;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.15s ease, border-color 0.15s ease;
-        }
-        .uc-btn-primary:hover {
-            background-color: #4f46e5;
-        }
-        .uc-table-thumb {
-            width: 120px;
-            height: 100%;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 1px solid #1f2937;
-        }
-        .uc-table-thumb-placeholder {
-            width: 40px;
-            height: 40px;
-            border-radius: 8px;
-            background-color: #020617;
-            border: 1px solid #1f2937;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-    </style>
-    {{-- Student: booking confirmations --}}
-    <div class="uc-msg-page">
-            <div class="uc-msg-container">
-                <div class="uc-msg-card">
-                    <div class="uc-msg-inner">
-                        @if($user && $user->category === 'student')
-                           
-
-                            <h3 class="uc-msg-section-title">Booking updates</h3>
-
-                            @forelse($notifications as $notification)
-                            <div style="display:flex;">
-                                <div class="uc-table-property">
+                    <div class="space-y-6">
+                        @forelse($notifications as $notification)
+                            <div class="flex flex-col sm:flex-row gap-4 p-4 border border-slate-200 rounded-2xl bg-white hover:border-indigo-500/50 hover:shadow-md transition-all">
+                                
+                                {{-- Property Thumbnail --}}
+                                <div class="flex-shrink-0">
                                     @if(($notification->property)->images && count(($notification->property)->images) > 0)
-                                        <img class="uc-table-thumb"
-                                                src="{{ asset('storage/' . ($notification->property)->images[0]) }}"
-                                                alt="{{ ($notification->property)->building_name }}">
+                                        <img class="w-full sm:w-32 h-28 rounded-xl object-cover border border-slate-100"
+                                             src="{{ asset('storage/' . ($notification->property)->images[0]) }}"
+                                             alt="{{ ($notification->property)->building_name }}">
                                     @else
-                                        <div class="uc-table-thumb-placeholder">
-                                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                                        <div class="w-full sm:w-32 h-28 rounded-xl bg-slate-100 border border-slate-100 flex items-center justify-center text-slate-400">
+                                            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                                             </svg>
                                         </div>
                                     @endif
                                 </div>
-                                <div class="uc-msg-item">
 
-                                        • {{ optional($notification->property)->building_name }}
-                                    <p class="uc-price-main">
-                                    KES {{ optional($notification->property)->price }}
-                                    </p>
-                                    <p class="uc-msg-body">
-                                        phone: <a href="tel:{{ optional($notification->landlord)->phone }}" style="text-decoration:underline;"><strong>{{ optional($notification->landlord)->phone ?? 'phone not set' }}</strong></a>
+                                {{-- Notification Details --}}
+                                <div class="flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                                            <h4 class="text-sm font-bold text-slate-900">
+                                                {{ optional($notification->property)->building_name }}
+                                            </h4>
+                                            <span class="text-xs font-bold text-indigo-600">
+                                                KES {{ number_format(optional($notification->property)->price) }}
+                                            </span>
+                                        </div>
 
-                                    </p>
-                                                                    
-                                        
-                
-                                    <div class="uc-msg-meta">
-                                        Request Date &rarr; {{ $notification->created_at->format('d M Y, H:i') }}
-                                    </div>
-                                    <div class="uc-msg-meta">
-                                        {{ $notification->status }} On &rarr; {{ $notification->updated_at->format('d M Y, H:i') }}
-                                    </div>
-
-                                    <div class="uc-msg-body">
-                                        {{ $notification->data['message'] ?? 'Update on your booking ' }} &rarr;
-                                    
-                                        @if($notification->status === 'pending')
-                                            <span class="uc-msg-pill uc-msg-pill-pending">Pending</span>
-                                        @elseif($notification->status === 'approved')
-                                            <span class="uc-msg-pill uc-msg-pill-approved">Approved, you can move in.</span>
-                                        @else
-                                            <span class="uc-msg-pill uc-msg-pill-rejected">Rejected, Proceed searching for another.</span>
-                                        @endif
-                                    </div>
-                                    <hr style="height:1px;border:none;background-color:white;opacity:0.5;">
-                                    {{-- 
-                                         
-                                    
-                                    <p class="uc-subline">
-                                    {{ ucfirst($notification->notification_type) }} • Area: {{ ucfirst($notification->area) }}
-                                    @if($notification->street)
-                                        • {{ $notification->street }}
-                                    @endif
-                                    @if($notification->building_name)
-                                        
-                                    @endif
-                                    </p>
-                                    @if($notification->landmark)
-                                        <p class="uc-landmark">
-                                            Landmark: {{ $notification->landmark }}
+                                        <p class="text-xs text-slate-500 mt-1">
+                                            Landlord Phone: 
+                                            <a href="tel:{{ optional($notification->landlord)->phone }}" class="text-slate-700 font-semibold hover:text-indigo-600 underline">
+                                                {{ optional($notification->landlord)->phone ?? 'Phone not set' }}
+                                            </a>
                                         </p>
-                                    @endif --}}
-                                </div> 
-                            </div>
-                            @empty
-                                <div class="uc-msg-empty">
-                                    <p class="uc-msg-empty-text">
-                                        You have no booking updates yet.
-                                    </p>
+
+                                        <p class="text-xs text-slate-600 mt-2">
+                                            {{ $notification->data['message'] ?? 'Update on your booking' }}
+                                        </p>
+                                    </div>
+
+                                    <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+                                        <div class="text-[11px] font-medium text-slate-400 space-x-2">
+                                            <span>Requested: {{ $notification->created_at->format('d M Y, H:i') }}</span>
+                                        </div>
+
+                                        {{-- Status Badges --}}
+                                        <div>
+                                            @if($notification->status === 'pending')
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    Pending
+                                                </span>
+                                            @elseif($notification->status === 'approved')
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                                    Approved, you can move in.
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                                                    Rejected, Proceed searching for another.
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+
                                 </div>
-                            @endforelse
-                        @endif
+                            </div>
+                        @empty
+                            <div class="text-center py-12">
+                                <p class="text-xs font-semibold text-slate-500">
+                                    You have no booking updates yet.
+                                </p>
+                            </div>
+                        @endforelse
                     </div>
-                </div>
+                @endif
+
             </div>
+        </div>
     </div>
 </x-app-layout>

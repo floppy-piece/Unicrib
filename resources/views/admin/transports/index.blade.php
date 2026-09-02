@@ -1,216 +1,114 @@
+{{-- resources/views/admin/transports/index.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding: 16px 0 24px;
-        }
-        .uc-container {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .uc-header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 4px;
-        }
-        .uc-header-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            padding: 16px;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-        }
-        .uc-table-wrap { overflow-x:auto; margin-top:10px; }
-        .uc-table {
-            width:100%;
-            border-collapse:collapse;
-            font-size:12px;
-        }
-        .uc-table th, .uc-table td {
-            padding:8px 10px;
-            border-bottom:1px solid #111827;
-            text-align:left;
-        }
-        .uc-table th {
-            font-size:10px;
-            text-transform:uppercase;
-            letter-spacing:0.08em;
-            color:#9ca3af;
-        }
-        .uc-table td { color:#e5e7eb; }
-        .uc-pill {
-            display:inline-flex;
-            align-items:center;
-            padding:2px 8px;
-            border-radius:999px;
-            font-size:10px;
-            font-weight:500;
-            border:1px solid transparent;
-        }
-        .uc-pill-green {
-            background-color:rgba(16,185,129,0.15);
-            color:#6ee7b7;
-            border-color:rgba(16,185,129,0.5);
-        }
-        .uc-pill-red {
-            background-color:rgba(239,68,68,0.15);
-            color:#fecaca;
-            border-color:rgba(239,68,68,0.5);
-        }
-        .uc-pill-blue {
-            background-color:rgba(59,130,246,0.15);
-            color:#bfdbfe;
-            border-color:rgba(59,130,246,0.5);
-        }
-        .uc-select {
-            background:#020617;
-            border:1px solid #374151;
-            border-radius:999px;
-            color:#e5e7eb;
-            font-size:11px;
-            padding:3px 8px;
-        }
-        .uc-btn-small {
-            font-size:11px;
-            padding:4px 10px;
-            border-radius:999px;
-            border:1px solid #4f46e5;
-            background-color:#6366f1;
-            color:#ffffff;
-            cursor:pointer;
-        }
-        .uc-btn-small:hover { background-color:#4f46e5; }
-        .uc-filter-links {
-            font-size:12px;
-            margin-bottom:6px;
-            color:#9ca3af;
-        }
-        .uc-filter-links a {
-            margin-right:8px;
-            text-decoration:none;
-            color:#9ca3af;
-        }
-        .uc-filter-links a.active {
-            color:#f9fafb;
-        }
-    </style>
-
     <x-slot name="header">
-        <div>
-            <h2 class="uc-header-title">Admin • Transports</h2>
-            <p class="uc-header-subtitle">
-                Manage student transport requests, time slots, and completion status.
-            </p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h2 class="text-xl font-bold tracking-tight text-slate-900">Admin • Transports</h2>
+                <p class="text-xs text-slate-500">
+                    Manage student transport requests, time slots, and completion status.
+                </p>
+            </div>
         </div>
     </x-slot>
 
-    <div class="uc-page">
-        <div class="uc-container">
-            <div class="uc-card">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-6">
+                
                 @if(session('success'))
-                    <p style="font-size:12px;color:#6ee7b7;margin-bottom:8px;">
+                    <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-xs font-semibold text-emerald-700">
                         {{ session('success') }}
-                    </p>
+                    </div>
                 @endif
                 @if(session('error'))
-                    <p style="font-size:12px;color:#fecaca;margin-bottom:8px;">
+                    <div class="p-4 rounded-xl bg-rose-50 border border-rose-100 text-xs font-semibold text-rose-700">
                         {{ session('error') }}
-                    </p>
+                    </div>
                 @endif
 
-                <h3 style="font-size:15px;font-weight:600;color:#e5e7eb;margin-bottom:6px;">
-                    Transport requests
-                </h3>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
+                    <h3 class="text-base font-bold text-slate-900">Transport requests</h3>
 
-                {{-- Status filter links --}}
-                <div class="uc-filter-links">
-                    <a href="{{ route('admin.transports.index') }}"
-                       class="{{ !$status ? 'active' : '' }}">
-                        All ({{ array_sum($statusCounts) }})
-                    </a>
-                    @foreach (['pending','confirmed','completed','cancelled'] as $st)
-                        <a href="{{ route('admin.transports.index', ['status' => $st]) }}"
-                           class="{{ $status === $st ? 'active' : '' }}">
-                            {{ ucfirst($st) }} ({{ $statusCounts[$st] }})
+                    {{-- Status filter links --}}
+                    <div class="flex items-center gap-1.5 flex-wrap text-xs">
+                        <a href="{{ route('admin.transports.index') }}"
+                           class="px-3 py-1 rounded-lg font-semibold transition {{ !$status ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                            All ({{ array_sum($statusCounts) }})
                         </a>
-                    @endforeach
+                        @foreach (['pending','confirmed','completed','cancelled'] as $st)
+                            <a href="{{ route('admin.transports.index', ['status' => $st]) }}"
+                               class="px-3 py-1 rounded-lg font-semibold transition {{ $status === $st ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                                {{ ucfirst($st) }} ({{ $statusCounts[$st] ?? 0 }})
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
 
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Student</th>
-                            <th>Property</th>
-                            <th>Requested date</th>
-                            <th>Assigned slot</th>
-                            <th>Status</th>
-                            <th>Update</th>
-                        </tr>
+                            <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <th class="py-3 px-4 font-semibold">ID</th>
+                                <th class="py-3 px-4 font-semibold">Student</th>
+                                <th class="py-3 px-4 font-semibold">Property</th>
+                                <th class="py-3 px-4 font-semibold">Requested date</th>
+                                <th class="py-3 px-4 font-semibold">Assigned slot</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                                <th class="py-3 px-4 font-semibold text-right">Update</th>
+                            </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($transports as $transport)
-                            <tr>
-                                <td>#{{ $transport->id }}</td>
-                                <td>
-                                    <div style="font-size:13px;font-weight:500;color:#f9fafb;">
+                            <tr class="hover:bg-slate-50/60 transition align-middle">
+                                <td class="py-3 px-4 font-medium text-slate-900">#{{ $transport->id }}</td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium text-slate-900">
                                         {{ $transport->student_name }}
                                     </div>
-                                    <div style="font-size:11px;color:#9ca3af;">
+                                    <div class="text-[11px] text-slate-400">
                                         {{ $transport->student_phone }}
                                     </div>
                                 </td>
-                                <td>
-                                    <div style="font-size:13px;font-weight:500;color:#f9fafb;">
+                                <td class="py-3 px-4">
+                                    <div class="font-medium text-slate-900">
                                         {{ optional($transport->property)->title ?? optional($transport->property)->name ?? 'N/A' }}
                                     </div>
-                                    <div style="font-size:11px;color:#9ca3af;">
+                                    <div class="text-[11px] text-slate-400">
                                         Booking #{{ $transport->booking_id }}
                                     </div>
                                 </td>
-                                <td>{{ optional($transport->requested_date)->format('d M Y') }}</td>
-                                <td>
+                                <td class="py-3 px-4 text-slate-600 font-medium">
+                                    {{ optional($transport->requested_date)->format('d M Y') }}
+                                </td>
+                                <td class="py-3 px-4">
                                     @if($transport->assigned_at)
-                                        <div>
+                                        <div class="text-slate-900 font-medium">
                                             {{ $transport->assigned_at->format('d M Y, H:i') }}
                                         </div>
                                         @if($transport->status !== 'completed' && $transport->status !== 'cancelled')
-                                            <div style="font-size:11px;color:#9ca3af;">
-                                                In:
-                                                <span class="transport-countdown"
-                                                    data-deadline="{{ $transport->assigned_at->toIso8601String() }}">
-                                                    calculating...
-                                                </span>
+                                            <div class="text-[11px] text-indigo-600 font-semibold mt-0.5">
+                                                In: <span class="transport-countdown" data-deadline="{{ $transport->assigned_at->toIso8601String() }}">calculating...</span>
                                             </div>
                                         @endif
                                     @else
-                                        N/A
+                                        <span class="text-slate-400">N/A</span>
                                     @endif
                                 </td>
-
-                                <td>
+                                <td class="py-3 px-4">
                                     @php $st = $transport->status; @endphp
-                                    <span class="uc-pill
-                                        {{ $st === 'completed' ? 'uc-pill-green'
-                                           : ($st === 'cancelled' ? 'uc-pill-red' : 'uc-pill-blue') }}">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border
+                                        {{ $st === 'completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ($st === 'cancelled' ? 'bg-rose-50 text-rose-700 border-rose-200' : 'bg-blue-50 text-blue-700 border-blue-200') }}">
                                         {{ ucfirst($st) }}
                                     </span>
                                 </td>
-                                <td>
+                                <td class="py-3 px-4 text-right">
                                     <form action="{{ route('admin.transports.update', $transport->id) }}"
                                           method="POST"
-                                          style="display:inline-flex;align-items:center;gap:4px;">
+                                          class="inline-flex items-center justify-end">
                                         @csrf
                                         @method('PATCH')
-                                        <select name="status" class="uc-select" onchange="this.form.submit()">
+                                        <select name="status" onchange="this.form.submit()" class="rounded-xl border-slate-200 text-slate-700 text-xs py-1 px-3 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">
                                             @foreach (['pending','confirmed','completed','cancelled'] as $st)
                                                 <option value="{{ $st }}" {{ $transport->status === $st ? 'selected' : '' }}>
                                                     {{ ucfirst($st) }}
@@ -221,18 +119,20 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="7">No transport requests found.</td></tr>
+                            <tr><td colspan="7" class="py-8 text-center text-slate-400 text-xs">No transport requests found.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
 
-                <div style="margin-top:10px;">
+                <div class="pt-4 border-t border-slate-100">
                     {{ $transports->links() }}
                 </div>
             </div>
+
         </div>
     </div>
+
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         const countdownEls = document.querySelectorAll('.transport-countdown');
@@ -273,6 +173,5 @@
         updateAllCountdowns();
         setInterval(updateAllCountdowns, 1000);
     });
-</script>
-
+    </script>
 </x-app-layout>

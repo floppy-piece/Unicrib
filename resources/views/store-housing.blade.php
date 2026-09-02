@@ -1,219 +1,48 @@
+{{-- resources/views/store-housing.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding-top: 16px;
-            padding-bottom: 24px;
-        }
-        .uc-container {
-            max-width: 1120px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-        .uc-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-            padding: 18px 18px 20px;
-        }
-
-        .uc-btn-primary {
-            margin-top: 8px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 8px 16px;
-            border-radius: 999px;
-            border: 1px solid #4f46e5;
-            background-color: #6366f1;
-            color: #ffffff;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background 0.15s ease, border-color 0.15s ease;
-        }
-        .uc-btn-primary:hover {
-            background-color: #4f46e5;
-        }
-
-        .uc-grid {
-            display: grid;
-            grid-template-columns: minmax(0,1fr);
-            gap: 16px;
-        }
-        @media (min-width: 768px) {
-            .uc-grid {
-                grid-template-columns: repeat(2, minmax(0,1fr));
-            }
-        }
-        @media (min-width: 1024px) {
-            .uc-grid {
-                grid-template-columns: repeat(3, minmax(0,1fr));
-            }
-        }
-
-        .uc-prop-card {
-            border-radius: 10px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            padding: 12px 13px;
-            transition: border-color 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
-        }
-        .uc-prop-card:hover {
-            border-color: #6366f1;
-            transform: translateY(-2px);
-            box-shadow: 0 18px 40px rgba(15,23,42,0.8);
-        }
-
-        .uc-prop-title {
-            font-size: 15px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin: 0;
-        }
-        .uc-prop-line {
-            margin-top: 4px;
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-prop-desc {
-            margin-top: 6px;
-            font-size: 12px;
-            color: #6b7280;
-            max-height: 3.2em;
-            overflow: hidden;
-        }
-
-        .uc-empty-text {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .uc-header-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #f9fafb;
-        }
-        .uc-header-sub {
-            margin-top: 2px;
-            font-size: 13px;
-            color: #9ca3af;
-        }
-
-        .uc-pill {
-            display: inline-flex;
-            align-items: center;
-            padding: 4px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-        .uc-pill-green {
-            background-color: #064e3b;
-            color: #a7f3d0;
-            border: 1px solid #059669;
-        }
-        .uc-pill-amber {
-            background-color: #78350f;
-            color: #fed7aa;
-            border: 1px solid #f59e0b;
-        }
-
-        .uc-form-label {
-            display: block;
-            font-size: 13px;
-            color: #e5e7eb;
-            margin-bottom: 4px;
-        }
-        .uc-form-input {
-            width: 100%;
-            padding: 8px 10px;
-            border-radius: 8px;
-            border: 1px solid #374151;
-            background-color: #020617;
-            color: #f9fafb;
-            font-size: 13px;
-        }
-        .uc-form-input:focus {
-            outline: none;
-            border-color: #6366f1;
-        }
-        .uc-form-help {
-            margin-top: 4px;
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        .uc-alert-success {
-            background:#16a34a33;
-            color:#bbf7d0;
-            border:1px solid #16a34a;
-            padding:0.75rem 1rem;
-            border-radius:0.5rem;
-            font-size:13px;
-            margin-bottom:1rem;
-        }
-        .uc-alert-error {
-            background:#7f1d1d33;
-            color:#fecaca;
-            border:1px solid #b91c1c;
-            padding:0.75rem 1rem;
-            border-radius:0.5rem;
-            font-size:13px;
-            margin-bottom:1rem;
-        }
-        .uc-alert-error ul {
-            padding-left:1.2rem;
-            margin:0;
-        }
-
-        .uc-tag {
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 999px;
-            background-color: #111827;
-            color: #e5e7eb;
-        }
-    </style>
-
     <x-slot name="header">
-        <div>
-            <h2 class="uc-header-title">
-                {{ __('Store Housing') }}
-            </h2>
-            <p class="uc-header-sub">
-                Book secure storage for your belongings during holidays at our store house for KSh {{ $monthlyPrice }} per month.
-            </p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h2 class="text-xl font-bold tracking-tight text-slate-900">
+                    {{ __('Store Housing') }}
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    Book secure storage for your belongings during holidays at our store house for KSh {{ $monthlyPrice }} per month.
+                </p>
+            </div>
         </div>
     </x-slot>
 
-    <div class="uc-page">
-        <div class="uc-container">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            
+            {{-- Verification Status Pill --}}
             @if(auth()->user()->category === 'student')
-                @if(auth()->user()->hasValidStudentAccess())
-                    <span class="uc-pill uc-pill-green">Your student account is verified. You can book storage.</span>
-                @else
-                    <span class="uc-pill uc-pill-amber">Your account is not fully verified. Some services may be limited.</span>
-                @endif
+                <div>
+                    @if(auth()->user()->hasValidStudentAccess())
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                            Your student account is verified. You can book storage.
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            Your account is not fully verified. Some services may be limited.
+                        </span>
+                    @endif
+                </div>
             @endif
 
-            <div class="uc-card" style="margin-bottom:16px;">
+            {{-- Booking Form Card --}}
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-6">
                 {{-- Messages --}}
                 @if(session('success'))
-                    <div class="uc-alert-success">
+                    <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-medium">
                         {{ session('success') }}
                     </div>
                 @endif
 
                 @if($errors->any())
-                    <div class="uc-alert-error">
-                        <ul>
+                    <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 font-medium">
+                        <ul class="list-disc pl-4 space-y-1">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -221,35 +50,36 @@
                     </div>
                 @endif
 
-                {{-- Booking form --}}
-                <h3 class="uc-prop-title">
-                    Book storage space
-                </h3>
-                <p class="uc-prop-line">
-                    Choose your start date and the number of months. You will be charged KSh {{ $monthlyPrice }} per month.
-                </p>
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">
+                        Book storage space
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Choose your start date and the number of months. You will be charged KSh {{ $monthlyPrice }} per month.
+                    </p>
+                </div>
 
-                <form action="{{ route('storage.store') }}" method="POST" style="margin-top:12px;">
+                <form action="{{ route('storage.store') }}" method="POST" class="space-y-4">
                     @csrf
 
-                    <div class="uc-grid" style="grid-template-columns: repeat(2,minmax(0,1fr));">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label for="start_date" class="uc-form-label">Start date</label>
+                            <label for="start_date" class="block text-xs font-semibold text-slate-700 mb-1">Start date</label>
                             <input
                                 type="date"
                                 id="start_date"
                                 name="start_date"
                                 value="{{ old('start_date') }}"
-                                class="uc-form-input"
+                                class="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-3.5 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 required
                             >
-                            <p class="uc-form-help">
+                            <p class="text-[11px] text-slate-400 mt-1">
                                 The day you drop your belongings at the storage facility.
                             </p>
                         </div>
 
                         <div>
-                            <label for="months" class="uc-form-label">Months (1–12)</label>
+                            <label for="months" class="block text-xs font-semibold text-slate-700 mb-1">Months (1–12)</label>
                             <input
                                 type="number"
                                 id="months"
@@ -257,68 +87,69 @@
                                 min="1"
                                 max="12"
                                 value="{{ old('months', 1) }}"
-                                class="uc-form-input"
+                                class="w-full rounded-xl border border-slate-200 bg-white text-slate-900 px-3.5 py-2 text-xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                 required
                             >
-                            <p class="uc-form-help">
+                            <p class="text-[11px] text-slate-400 mt-1">
                                 Storage duration. Total cost is months × KSh {{ $monthlyPrice }}.
                             </p>
                         </div>
                     </div>
 
-                    <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;font-size:13px;">
-                        <span>Estimated total:</span>
-                        <span id="storageTotal" style="font-weight:600;">KSh {{ $monthlyPrice }}</span>
+                    <div class="flex items-center justify-between pt-2 pb-1 border-t border-slate-100 text-xs">
+                        <span class="text-slate-600 font-medium">Estimated total:</span>
+                        <span id="storageTotal" class="font-bold text-slate-900 text-sm">KSh {{ $monthlyPrice }}</span>
                     </div>
 
-                    <button type="submit" class="uc-btn-primary" style="width:100%;justify-content:center;margin-top:12px;">
+                    <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">
                         Proceed to payment
                     </button>
                 </form>
             </div>
 
-            {{-- Existing storage bookings --}}
-            <div class="uc-card">
-                <h3 class="uc-prop-title">
-                    Your storage bookings
-                </h3>
-                <p class="uc-prop-line">
-                    Track active and past storage periods linked to your {{ config('app.name') }} account.
-                </p>
+            {{-- Existing Storage Bookings Card --}}
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4">
+                <div>
+                    <h3 class="text-base font-bold text-slate-900">
+                        Your storage bookings
+                    </h3>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        Track active and past storage periods linked to your {{ config('app.name') }} account.
+                    </p>
+                </div>
 
                 @if($bookings->isEmpty())
-                    <p class="uc-empty-text" style="margin-top:10px;">
+                    <p class="text-xs text-slate-500 py-4 text-center">
                         You have not booked any storage yet. Use the form above to create your first booking.
                     </p>
                 @else
-                    <div class="uc-grid" style="margin-top:12px;">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                         @foreach($bookings as $booking)
-                            <div class="uc-prop-card">
-                                <h4 class="uc-prop-title">
+                            <div class="border border-slate-200 rounded-xl p-4 bg-slate-50/50 space-y-2 hover:border-indigo-300 transition shadow-xs">
+                                <h4 class="text-xs font-bold text-slate-900">
                                     Storage #{{ $booking->id }}
                                 </h4>
-                                <p class="uc-prop-line">
-                                    {{ $booking->start_date }} – {{ $booking->end_date }}
-                                </p>
-                                <p class="uc-prop-line">
-                                    Duration: {{ $booking->months }} month(s)
-                                </p>
-                                <p class="uc-prop-line">
-                                    Total: KSh {{ number_format($booking->amount) }}
-                                </p>
-                                <p class="uc-prop-line">
-                                    <span class="uc-tag">Status: {{ ucfirst($booking->status) }}</span>
+                                <div class="text-xs text-slate-600 space-y-1">
+                                    <p>{{ $booking->start_date }} – {{ $booking->end_date }}</p>
+                                    <p>Duration: <span class="font-medium text-slate-900">{{ $booking->months }} month(s)</span></p>
+                                    <p>Total: <span class="font-bold text-emerald-600">KSh {{ number_format($booking->amount) }}</span></p>
+                                </div>
+                                <div class="pt-2 flex items-center justify-between border-t border-slate-200/60 text-[11px]">
+                                    <span class="inline-flex px-2 py-0.5 rounded-full font-semibold bg-slate-200 text-slate-700">
+                                        {{ ucfirst($booking->status) }}
+                                    </span>
                                     @if($booking->reference)
-                                        <span style="margin-left:6px;font-size:11px;color:#9ca3af;">
+                                        <span class="text-slate-400 truncate max-w-[140px]" title="{{ $booking->reference }}">
                                             Ref: {{ $booking->reference }}
                                         </span>
                                     @endif
-                                </p>
+                                </div>
                             </div>
                         @endforeach
                     </div>
                 @endif
             </div>
+
         </div>
     </div>
 

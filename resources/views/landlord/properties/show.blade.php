@@ -1,127 +1,79 @@
 {{-- resources/views/properties/show.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding-top: 16px;
-            padding-bottom: 24px;
-        }
-        .uc-container {
-            max-width: 1120px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 16px;
-            padding-right: 16px;
-        }
-        .uc-header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 4px;
-        }
-        .uc-header-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            padding: 18px 18px;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-        }
-        .uc-property-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 6px;
-        }
-        .uc-property-desc {
-            font-size: 14px;
-            color: #e5e7eb;
-            margin-bottom: 12px;
-        }
-        .uc-property-meta {
-            font-size: 13px;
-            color: #9ca3af;
-            margin-bottom: 4px;
-        }
-        .uc-property-meta strong {
-            color: #e5e7eb;
-        }
-        .uc-gallery {
-            margin-top: 16px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-        }
-        .uc-gallery img {
-            width: 100%;
-            border-radius: 10px;
-            border: 1px solid #1f2937;
-            object-fit: cover;
-        }
-        .uc-back-link {
-            display: inline-flex;
-            align-items: center;
-            margin-top: 18px;
-            font-size: 13px;
-            color: #6366f1;
-            text-decoration: none;
-        }
-        .uc-back-link:hover {
-            color: #a5b4fc;
-        }
-    </style>
-
     <x-slot name="header">
-        <div>
-            <h2 class="uc-header-title">
-                {{ $property->title }}
-            </h2>
-            <p class="uc-header-subtitle">
-                Property details and booking information.
-            </p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h2 class="text-xl font-bold tracking-tight text-slate-900">
+                    {{ $property->title }}
+                </h2>
+                <p class="text-xs text-slate-500">
+                    Property details and booking information.
+                </p>
+            </div>
         </div>
     </x-slot>
 
-    <div class="uc-page">
-        <div class="uc-container">
-            <div class="uc-card">
-                <h3 class="uc-property-title">
-                    {{ $property->title }}
-                </h3>
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
+                
+                {{-- Title & Description --}}
+                <div class="space-y-2 border-b border-slate-100 pb-4">
+                    <h3 class="text-lg font-bold text-slate-900">
+                        {{ $property->title }}
+                    </h3>
+                    <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                        {{ $property->description }}
+                    </p>
+                </div>
 
-                <p class="uc-property-desc">
-                    {{ $property->description }}
-                </p>
+                {{-- Property Meta Info Grid --}}
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-1">
+                        <span class="text-[10px] uppercase font-semibold text-slate-400 block">Price</span>
+                        <span class="text-emerald-600 font-bold text-sm">KES {{ number_format($property->price) }} <span class="text-[10px] text-slate-500 font-normal">/ mo</span></span>
+                    </div>
 
-                <p class="uc-property-meta">
-                    <strong>Price:</strong> KES {{ number_format($property->price) }} / month
-                </p>
-                <p class="uc-property-meta">
-                    <strong>Area:</strong> {{ ucfirst($property->area) }}
-                </p>
-                <p class="uc-property-meta">
-                    <strong>Type:</strong> {{ ucfirst($property->property_type) }}
-                </p>
-                <p class="uc-property-meta">
-                    <strong>Capacity:</strong> {{ (int)($property->capacity ?? 0) }} rooms
-                </p>
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-1">
+                        <span class="text-[10px] uppercase font-semibold text-slate-400 block">Area</span>
+                        <span class="text-slate-900 font-semibold text-sm">{{ ucfirst($property->area ?? 'N/A') }}</span>
+                    </div>
 
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-1">
+                        <span class="text-[10px] uppercase font-semibold text-slate-400 block">Type</span>
+                        <span class="text-slate-900 font-semibold text-sm">{{ ucfirst($property->property_type ?? 'N/A') }}</span>
+                    </div>
+
+                    <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-3.5 space-y-1">
+                        <span class="text-[10px] uppercase font-semibold text-slate-400 block">Capacity</span>
+                        <span class="text-slate-900 font-semibold text-sm">{{ (int)($property->capacity ?? 0) }} rooms</span>
+                    </div>
+                </div>
+
+                {{-- Gallery Grid --}}
                 @if(!empty($property->images))
-                    <div class="uc-gallery">
-                        @foreach($property->images as $img)
-                            <img src="{{ asset('storage/'.$img) }}" alt="{{ $property->title }}">
-                        @endforeach
+                    <div class="space-y-3 pt-2">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Property Photos</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            @foreach($property->images as $img)
+                                <div class="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 aspect-video">
+                                    <img src="{{ asset('storage/'.$img) }}" alt="{{ $property->title }}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 @endif
 
-                <a href="{{ url()->previous() }}" class="uc-back-link">
-                    ← Back
-                </a>
+                {{-- Back Navigation --}}
+                <div class="pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <a href="{{ url()->previous() }}" class="inline-flex items-center text-xs font-semibold text-indigo-600 hover:text-indigo-800 transition gap-1">
+                        &larr; Back
+                    </a>
+                </div>
+
             </div>
+
         </div>
     </div>
 </x-app-layout>

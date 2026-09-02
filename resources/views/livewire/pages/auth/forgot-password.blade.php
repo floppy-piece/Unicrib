@@ -36,23 +36,32 @@ $sendPasswordResetLink = function () {
 
 ?>
 
-<div>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
+<div class="w-full bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+    <div class="mb-6">
+        <h2 class="text-xl font-bold text-slate-900">Forgot your password?</h2>
+        <p class="text-xs text-slate-500 mt-1">No problem. Enter your email address to receive a reset link.</p>
+    </div>
+
+    <div class="mb-4 text-xs text-slate-600 leading-relaxed">
         {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
     </div>
 
     <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+    @if (session('status'))
+        <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-medium">
+            {{ session('status') }}
+        </div>
+    @endif
 
-    <form wire:submit="sendPasswordResetLink">
+    <form wire:submit="sendPasswordResetLink" class="space-y-4">
         <!-- Email Address -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" placeholder="name@example.com" />
+            <x-input-error :messages="$errors->get('email')" class="mt-1" />
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="pt-2 flex items-center justify-end">
             <x-primary-button>
                 {{ __('Email Password Reset Link') }}
             </x-primary-button>

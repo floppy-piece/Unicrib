@@ -1,15 +1,16 @@
-<nav class="-mx-3 flex flex-1 justify-end">
+{{-- resources/views/components/nav.blade.php (or your navigation partial) --}}
+<nav class="-mx-3 flex flex-1 justify-end items-center gap-4">
     @auth
         <a
             href="{{ url('/dashboard') }}"
-            class="rounded-md px-3 py-2 text-gray-400 ring-1 ring-transparent transition hover:text-black/70 focus:outline-none focus-visible:ring-[#FF2D20] dark:text-white dark:hover:text-white/80 dark:focus-visible:ring-white"
+            class="rounded-xl px-3.5 py-2 text-xs font-semibold text-slate-600 hover:text-indigo-600 hover:bg-slate-50 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
         >
             Dashboard
         </a>
     @else
         <a
             href="{{ route('login') }}"
-            style="color:rgb(244,244,244);margin-right:20px;" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'"
+            class="text-xs font-semibold text-slate-300 hover:text-purple-400 transition"
         >
             Log in
         </a>
@@ -17,7 +18,7 @@
         {{-- @if (Route::has('register'))
             <a
                 href="{{ route('register') }}"
-                style="color:rgb(244,244,244);" onmouseover="this.style.color='purple'" onmouseout="this.style.color='rgb(244,244,244)'"
+                class="text-xs font-semibold text-slate-300 hover:text-purple-400 transition"
             >
                 Register
             </a>

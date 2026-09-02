@@ -1,249 +1,149 @@
 {{-- resources/views/admin/users/index.blade.php --}}
 <x-app-layout>
-    <style>
-        .uc-page {
-            background: radial-gradient(circle at top, #1f2937 0, #020617 55%);
-            min-height: 100vh;
-            padding: 16px 0 24px;
-        }
-        .uc-container {
-            max-width: 1120px;
-            margin: 0 auto;
-            padding: 0 16px;
-        }
-        .uc-header-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 4px;
-        }
-        .uc-header-subtitle {
-            font-size: 13px;
-            color: #9ca3af;
-        }
-        .uc-card {
-            border-radius: 12px;
-            border: 1px solid #1f2937;
-            background-color: #020617;
-            padding: 16px;
-            box-shadow: 0 24px 60px rgba(15,23,42,0.7);
-        }
-        .uc-table-wrap { overflow-x:auto; margin-top:10px; }
-        .uc-table {
-            width:100%;
-            border-collapse:collapse;
-            font-size:12px;
-        }
-        .uc-table th, .uc-table td {
-            padding:8px 10px;
-            border-bottom:1px solid #111827;
-            text-align:left;
-        }
-        .uc-table th {
-            font-size:10px;
-            text-transform:uppercase;
-            letter-spacing:0.08em;
-            color:#9ca3af;
-        }
-        .uc-table td { color:#e5e7eb; }
-        .uc-pill {
-            display:inline-flex;
-            align-items:center;
-            padding:2px 8px;
-            border-radius:999px;
-            font-size:10px;
-            font-weight:500;
-            border:1px solid transparent;
-        }
-        .uc-pill-green {
-            background-color:rgba(16,185,129,0.15);
-            color:#6ee7b7;
-            border-color:rgba(16,185,129,0.5);
-        }
-        .uc-pill-red {
-            background-color:rgba(239,68,68,0.15);
-            color:#fecaca;
-            border-color:rgba(239,68,68,0.5);
-        }
-        .uc-pill-blue {
-            background-color:rgba(59,130,246,0.15);
-            color:#bfdbfe;
-            border-color:rgba(59,130,246,0.5);
-        }
-        .uc-select {
-            background:#020617;
-            border:1px solid #374151;
-            border-radius:999px;
-            color:#e5e7eb;
-            font-size:11px;
-            padding:3px 8px;
-        }
-        .uc-btn-small {
-            font-size:11px;
-            padding:4px 10px;
-            border-radius:999px;
-            border:1px solid #4f46e5;
-            background-color:#6366f1;
-            color:#ffffff;
-            cursor:pointer;
-        }
-        .uc-btn-small:hover { background-color:#4f46e5; }
-        .uc-link-danger {
-            color:#fb7185;
-            font-size:11px;
-            text-decoration:none;
-        }
-        .uc-link-danger:hover { color:#fecaca; }
-
-        .uc-filter-links a {
-            margin-right:8px;
-            text-decoration:none;
-            color:#9ca3af;
-        }
-        .uc-filter-links a.active {
-            color:#f9fafb;
-        }
-    </style>
-
     <x-slot name="header">
-        <div>
-            <h2 class="uc-header-title">Admin • Users</h2>
-            <p class="uc-header-subtitle">Manage all UniCrib users, roles, and statuses.</p>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h2 class="text-xl font-bold tracking-tight text-slate-900">Admin • Users</h2>
+                <p class="text-xs text-slate-500">Manage all UniCrib users, roles, and statuses.</p>
+            </div>
         </div>
     </x-slot>
 
-    <div class="uc-page">
-        <div class="uc-container">
-            <div class="uc-card">
+    <div class="py-8 bg-slate-50 min-h-screen">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+            
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-6">
+                
                 @if(session('success'))
-                    <p style="font-size:12px;color:#6ee7b7;margin-bottom:8px;">
+                    <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-100 text-xs font-semibold text-emerald-700">
                         {{ session('success') }}
-                    </p>
+                    </div>
                 @endif
                 @if(session('error'))
-                    <p style="font-size:12px;color:#fecaca;margin-bottom:8px;">
+                    <div class="p-4 rounded-xl bg-rose-50 border border-rose-100 text-xs font-semibold text-rose-700">
                         {{ session('error') }}
-                    </p>
+                    </div>
                 @endif
 
-                <h3 style="font-size:15px;font-weight:600;color:#e5e7eb;margin-bottom:6px;">
-                    Unicrib Users
-                </h3>
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 gap-4">
+                    <h3 class="text-base font-bold text-slate-900">Unicrib Users</h3>
 
-                {{-- Status filter links --}}
-                <div class="uc-filter-links">
-                    <a href="{{ route('admin.users.index') }}"
-                       class="{{ !$category ? 'active' : '' }}">
-                        All ({{ array_sum($categoryCounts) }})
-                    </a>
-                    @foreach (['student','landlord','admin'] as $st)
-                        <a href="{{ route('admin.users.index', ['category' => $st]) }}"
-                           class="{{ $category === $st ? 'active' : '' }}">
-                            {{ ucfirst($st) }} ({{ $categoryCounts[$st] }})
+                    {{-- Status filter links --}}
+                    <div class="flex items-center gap-1.5 flex-wrap text-xs">
+                        <a href="{{ route('admin.users.index') }}"
+                           class="px-3 py-1 rounded-lg font-semibold transition {{ !$category ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                            All ({{ array_sum($categoryCounts) }})
                         </a>
-                    @endforeach
+                        @foreach (['student','landlord','admin'] as $st)
+                            <a href="{{ route('admin.users.index', ['category' => $st]) }}"
+                               class="px-3 py-1 rounded-lg font-semibold transition {{ $category === $st ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200' }}">
+                                {{ ucfirst($st) }} ({{ $categoryCounts[$st] ?? 0 }})
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
 
-                <div class="uc-table-wrap">
-                    <table class="uc-table">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name & email</th>
-                            <th>Category</th>
-                            <th>Status</th>
-                            <th>Updated at</th>
-                            <th>Expires at</th>
-                            <th>Actions</th>
-                        </tr>
+                            <tr class="border-b border-slate-100 text-slate-400 uppercase tracking-wider text-[10px]">
+                                <th class="py-3 px-4 font-semibold">ID</th>
+                                <th class="py-3 px-4 font-semibold">Name &amp; email</th>
+                                <th class="py-3 px-4 font-semibold">Category</th>
+                                <th class="py-3 px-4 font-semibold">Status</th>
+                                <th class="py-3 px-4 font-semibold">Updated at</th>
+                                <th class="py-3 px-4 font-semibold">Expires at</th>
+                                <th class="py-3 px-4 font-semibold text-right">Actions</th>
+                            </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-slate-100">
                         @forelse($users as $user)
-                            <tr>
-                                <td>#{{ $user->id }}</td>
-                                <td>
-                                    <div style="font-size:13px;font-weight:500;color:#f9fafb;">
+                            <tr class="hover:bg-slate-50/60 transition align-middle">
+                                <td class="py-3 px-4 font-medium text-slate-900">#{{ $user->id }}</td>
+                                <td class="py-3 px-4">
+                                    <div class="font-medium text-slate-900">
                                         {{ $user->name }}
                                     </div>
-                                    <div style="font-size:11px;color:#9ca3af;">
+                                    <div class="text-[11px] text-slate-400">
                                         {{ $user->email }}
                                     </div>
                                 </td>
 
-                                <td>                        
+                                <td class="py-3 px-4">                        
                                     @php $st = $user->category; @endphp
-                                    <span class="uc-pill uc-pill-blue">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                                         {{ ucfirst($st) }}
                                     </span>
                                 </td>
 
-                                <td>
-
+                                <td class="py-3 px-4">
                                     {{-- show verification for all users based on boolean is_verified --}}
                                     @if($user->category === 'student')
                                         @if($user->hasValidStudentAccess())
-                                            <span class="uc-pill uc-pill-green">Verified</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Verified</span>
                                         @else
-                                            <span class="uc-pill uc-pill-red">Unverified</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Unverified</span>
                                         @endif
                                     @else
                                         @if ($user->status === 'verified')
-                                            <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Verified</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $user->is_verified ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200' }}">Verified</span>
                                         @else
-                                            <span class="uc-pill {{ $user->is_verified ? 'uc-pill-green' : 'uc-pill-red' }}">Unverified</span>
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $user->is_verified ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200' }}">Unverified</span>
                                         @endif
                                     @endif
-                                    
-                                </td>
-                                <td>
-                                    <span class="uc-pill"> {{ $user->updated_at }} </span>
-                                </td>
-                                <td>
-                                    <span class="uc-pill"> {{ $user->access_expires_at }} </span>
                                 </td>
 
-                                <td>
-                                    {{-- Toggle is_verified --}}
-                                    <form action="{{ route('admin.users.updateStatus', $user) }}"
-                                        method="POST"
-                                        style="display:inline-flex;align-items:center;gap:4px;margin-right:6px;">
-                                        @csrf
-                                        <select name="is_verified" class="uc-select">
-                                            <option value="1" {{ $user->is_verified ? 'selected' : '' }}>Verified</option>
-                                            <option value="0" {{ !$user->is_verified ? 'selected' : '' }}>Unverified</option>
-                                        </select>
-                                        <button type="submit" class="uc-btn-small">
-                                            Save
-                                        </button>
-                                    </form>
-
-                                    {{-- Delete --}}
-                                    <form action="{{ route('admin.users.destroy', $user) }}"
-                                        method="POST"
-                                        style="display:inline;"
-                                        onsubmit="return confirm('Delete this user? This cannot be undone.');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="uc-link-danger"
-                                                style="background:none;border:none;padding:0;">
-                                            Delete
-                                        </button>
-                                    </form>
+                                <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                                    {{ $user->updated_at }}
+                                </td>
+                                
+                                <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">
+                                    {{ $user->access_expires_at ?? '—' }}
                                 </td>
 
+                                <td class="py-3 px-4 text-right">
+                                    <div class="inline-flex items-center justify-end gap-2">
+                                        {{-- Toggle is_verified --}}
+                                        <form action="{{ route('admin.users.updateStatus', $user) }}"
+                                              method="POST"
+                                              class="inline-flex items-center gap-1">
+                                            @csrf
+                                            <select name="is_verified" class="rounded-xl border-slate-200 text-slate-700 text-xs py-1 px-2 focus:border-indigo-500 focus:ring-indigo-500 shadow-sm">
+                                                <option value="1" {{ $user->is_verified ? 'selected' : '' }}>Verified</option>
+                                                <option value="0" {{ !$user->is_verified ? 'selected' : '' }}>Unverified</option>
+                                            </select>
+                                            <button type="submit" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white text-[11px] font-semibold px-2.5 py-1 rounded-lg transition shadow-sm">
+                                                Save
+                                            </button>
+                                        </form>
+
+                                        {{-- Delete --}}
+                                        <form action="{{ route('admin.users.destroy', $user) }}"
+                                              method="POST"
+                                              class="inline"
+                                              onsubmit="return confirm('Delete this user? This cannot be undone.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                    class="text-rose-600 hover:text-rose-800 font-medium text-xs bg-transparent border-none p-0 cursor-pointer">
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5">No users found.</td></tr>
+                            <tr><td colspan="7" class="py-8 text-center text-slate-400 text-xs">No users found.</td></tr>
                         @endforelse
                         </tbody>
                     </table>
                 </div>
 
-                <div style="margin-top:10px;">
+                <div class="pt-4 border-t border-slate-100">
                     {{ $users->links() }}
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>
