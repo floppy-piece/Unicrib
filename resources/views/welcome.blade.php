@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
+      x-data="{ darkMode: localStorage.getItem('dark') === 'true' }" 
+      :class="{ 'dark': darkMode }"
+      x-init="$watch('darkMode', val => localStorage.setItem('dark', val))">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +15,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    {{-- Prevent flash of light mode --}}
+    <script>
+        if (localStorage.getItem('dark') === 'true' || (!('dark' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         body {
@@ -20,17 +37,17 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-600 selection:text-white min-h-screen flex flex-col">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-600 selection:text-white min-h-screen flex flex-col transition-colors duration-200">
 
     {{-- HEADER --}}
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-3">
-                    <div class="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden shadow-sm">
+                    <div class="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center overflow-hidden shadow-sm">
                         <x-application-logo class="h-full w-full object-cover" />
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-slate-900">UniCrib</span>
+                    <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">UniCrib</span>
                 </div>
 
                 <div class="flex items-center space-x-4">
@@ -115,54 +132,54 @@
     </section>
 
     {{-- FEATURES --}}
-    <section class="py-20 bg-slate-50 border-b border-slate-200">
+    <section class="py-20 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-                <span class="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Why UniCrib</span>
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900">A simpler way to secure student housing</h2>
-                <p class="text-slate-500 text-sm sm:text-base">UniCrib removes the noise from the search process. You get relevant options, clear information, and support from enquiry to move‑in.</p>
+                <span class="text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Why UniCrib</span>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">A simpler way to secure student housing</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm sm:text-base">UniCrib removes the noise from the search process. You get relevant options, clear information, and support from enquiry to move‑in.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
-                    <div class="inline-block bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">Curated selection</div>
-                    <p class="text-sm text-slate-600">Every listing is reviewed for quality, location, and suitability for student life.</p>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
+                    <div class="inline-block bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Curated selection</div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300">Every listing is reviewed for quality, location, and suitability for student life.</p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
-                    <div class="inline-block bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">Time‑saving</div>
-                    <p class="text-sm text-slate-600">Filter by budget, distance, and preferences. Shortlist in minutes instead of weeks.</p>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
+                    <div class="inline-block bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Time‑saving</div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300">Filter by budget, distance, and preferences. Shortlist in minutes instead of weeks.</p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
-                    <div class="inline-block bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">Student community</div>
-                    <p class="text-sm text-slate-600">Discover shared housing, connect with roommates, and build your campus network.</p>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
+                    <div class="inline-block bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Student community</div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300">Discover shared housing, connect with roommates, and build your campus network.</p>
                 </div>
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
-                    <div class="inline-block bg-indigo-50 text-indigo-600 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">24/7 support</div>
-                    <p class="text-sm text-slate-600">Our team is available around the clock to help with viewings, questions, and issues.</p>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm hover:shadow-md transition space-y-3">
+                    <div class="inline-block bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">24/7 support</div>
+                    <p class="text-sm text-slate-600 dark:text-slate-300">Our team is available around the clock to help with viewings, questions, and issues.</p>
                 </div>
             </div>
         </div>
     </section>
 
     {{-- FEATURED PROPERTIES --}}
-    <section class="py-20 bg-white">
+    <section class="py-20 bg-white dark:bg-slate-900 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-                <span class="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Featured properties</span>
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900">A closer look at our accommodations</h2>
-                <p class="text-slate-500 text-sm sm:text-base">A taste of the verified student homes available near major universities.</p>
+                <span class="text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Featured properties</span>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">A closer look at our accommodations</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm sm:text-base">A taste of the verified student homes available near major universities.</p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 @foreach($properties as $property)
-                <div class="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
-                    <div class="relative bg-slate-200 p-6 text-center">
+                <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
+                    <div class="relative bg-slate-200 dark:bg-slate-800 p-6 text-center">
                         @if($property->images && count($property->images) > 0)
                             <img class="w-full max-h-56 object-cover rounded-xl shadow-inner mx-auto"
                                  src="{{ asset('storage/' . $property->images[0]) }}"
                                  alt="{{ $property->title }}">
                         @else
-                            <div class="w-full h-56 flex items-center justify-center bg-slate-200 rounded-xl text-slate-400">
+                            <div class="w-full h-56 flex items-center justify-center bg-slate-200 dark:bg-slate-800 rounded-xl text-slate-400 dark:text-slate-500">
                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                                 </svg>
@@ -172,15 +189,15 @@
                     </div>
 
                     <div class="p-6 flex flex-col flex-grow space-y-3">
-                        <h3 class="text-lg font-bold text-slate-900">{{ $property->building_name }}</h3>                        
-                        <p class="text-xs text-slate-500">Walking distance to campus</p>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ $property->building_name }}</h3>                        
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Walking distance to campus</p>
 
-                        <div class="flex justify-between items-center text-xs text-slate-600 pt-2 border-t border-slate-200">
+                        <div class="flex justify-between items-center text-xs text-slate-600 dark:text-slate-300 pt-2 border-t border-slate-200 dark:border-slate-700/80">
                             <span class="font-medium">• {{ $property->property_type }}</span>
-                            <span class="bg-indigo-50 text-indigo-700 font-semibold px-2.5 py-1 rounded-full text-[11px]">{{ $property->title }}</span>
+                            <span class="bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 font-semibold px-2.5 py-1 rounded-full text-[11px] border border-indigo-100 dark:border-indigo-900/50">{{ $property->title }}</span>
                         </div>                     
                 
-                        <a href="{{ route('properties.show', $property) }}" class="mt-auto bg-slate-900 hover:bg-indigo-600 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition text-center">
+                        <a href="{{ route('properties.show', $property) }}" class="mt-auto bg-slate-900 hover:bg-indigo-600 dark:bg-slate-800 dark:hover:bg-indigo-600 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition text-center shadow-sm">
                             View details
                         </a>
                     </div>
@@ -220,50 +237,50 @@
     </section>
 
     {{-- TESTIMONIALS --}}
-    <section class="py-20 bg-slate-50">
+    <section class="py-20 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-                <span class="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Student feedback</span>
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900">Students share their UniCrib experience</h2>
-                <p class="text-slate-500 text-sm sm:text-base">Real stories from students who secured housing quickly and confidently using UniCrib.</p>
+                <span class="text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Student feedback</span>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Students share their UniCrib experience</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm sm:text-base">Real stories from students who secured housing quickly and confidently using UniCrib.</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">BO</div>
+                        <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">BO</div>
                         <div>
-                            <div class="font-semibold text-sm text-slate-900">Benson Okwemba</div>
-                            <div class="text-xs text-slate-500">Kirinyaga University</div>
+                            <div class="font-semibold text-sm text-slate-900 dark:text-slate-100">Benson Okwemba</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Kirinyaga University</div>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-600 italic">
+                    <p class="text-sm text-slate-600 dark:text-slate-300 italic">
                         “UniCrib saved me weeks of searching. I found a great settlement within walking distance of campus in just one day at an affordable price.”
                     </p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">DO</div>
+                        <div class="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">DO</div>
                         <div>
-                            <div class="font-semibold text-sm text-slate-900">Daivine Oluoch</div>
-                            <div class="text-xs text-slate-500">Kirinyaga University</div>
+                            <div class="font-semibold text-sm text-slate-900 dark:text-slate-100">Daivine Oluoch</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Kirinyaga University</div>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-600 italic">
+                    <p class="text-sm text-slate-600 dark:text-slate-300 italic">
                         “As a student, verified listings and support made the move feel safe. I could focus on classes instead of worrying about housing.”
                     </p>
                 </div>
 
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 shadow-sm space-y-4">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-indigo-800 text-white flex items-center justify-center font-bold text-sm">RM</div>
+                        <div class="w-10 h-10 rounded-full bg-indigo-800 text-white flex items-center justify-center font-bold text-sm shadow-sm">RM</div>
                         <div>
-                            <div class="font-semibold text-sm text-slate-900">Raymond Mwenda</div>
-                            <div class="text-xs text-slate-500">Kirinyaga University</div>
+                            <div class="font-semibold text-sm text-slate-900 dark:text-slate-100">Raymond Mwenda</div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400">Kirinyaga University</div>
                         </div>
                     </div>
-                    <p class="text-sm text-slate-600 italic">
+                    <p class="text-sm text-slate-600 dark:text-slate-300 italic">
                         “Money refund on booking rejection is a very good feature which has boost my trust towards unicrib on my money.”
                     </p>
                 </div>
@@ -290,52 +307,52 @@
     </section>
 
     {{-- FOOTER --}}
-    <footer class="bg-white border-t border-slate-200 py-12 text-sm text-slate-500">
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 text-sm text-slate-500 dark:text-slate-400 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
             <div class="text-center max-w-lg mx-auto space-y-2">
-                <div class="text-lg font-bold text-slate-900">UniCrib</div>
-                <p class="text-xs text-slate-500">
+                <div class="text-lg font-bold text-slate-900 dark:text-slate-100">UniCrib</div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
                     Premium student accommodations with clear information and responsive support. UniCrib is committed to improving the housing experience for students and landlords.
                 </p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div>
-                    <h3 class="font-semibold text-slate-900 text-xs tracking-wider uppercase mb-3">Platform</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Platform</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 transition">Properties</a></li>
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 transition">Universities</a></li>
-                        <li><a href="{{ url('/services') }}" class="hover:text-indigo-600 transition">Services</a></li>
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 transition">Dashboard</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Properties</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Universities</a></li>
+                        <li><a href="{{ url('/services') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Services</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Dashboard</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-slate-900 text-xs tracking-wider uppercase mb-3">Company</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Company</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="#" class="hover:text-indigo-600 transition">About us</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 transition">Careers</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 transition">Blog</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 transition">Press</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">About us</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Careers</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Press</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-slate-900 text-xs tracking-wider uppercase mb-3">Contact</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Contact</h3>
                     <ul class="space-y-2 text-xs">
                         <li>Kutus – Kirinyaga</li>
-                        <li><a href="tel:+254704969006" class="text-indigo-600 font-medium hover:underline">+254 704 969 006</a></li>
-                        <li><a href="mailto:unicrib@gmail.com?subject=UniCrib%20Enquiry" class="text-indigo-600 font-medium hover:underline">unicrib@gmail.com</a></li>
+                        <li><a href="tel:+254704969006" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">+254 704 969 006</a></li>
+                        <li><a href="mailto:unicrib@gmail.com?subject=UniCrib%20Enquiry" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">unicrib@gmail.com</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-slate-200 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 gap-4">
+            <div class="border-t border-slate-200 dark:border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 dark:text-slate-500 gap-4">
                 <p>© {{ date('Y') }} UniCrib. All rights reserved.</p>
                 <div class="flex space-x-6">
-                    <a href="#" class="hover:text-slate-600 transition">Privacy policy</a>
-                    <a href="#" class="hover:text-slate-600 transition">Terms of service</a>
-                    <a href="#" class="hover:text-slate-600 transition">Cookie policy</a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Privacy policy</a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Terms of service</a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Cookie policy</a>
                 </div>
             </div>
         </div>

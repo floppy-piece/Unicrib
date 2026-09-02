@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
+      x-data="{ darkMode: localStorage.getItem('dark') === 'true' }" 
+      :class="{ 'dark': darkMode }"
+      x-init="$watch('darkMode', val => localStorage.setItem('dark', val))">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -12,6 +15,20 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    {{-- Prevent flash of light mode --}}
+    <script>
+        if (localStorage.getItem('dark') === 'true' || (!('dark' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
         body {
@@ -20,17 +37,17 @@
     </style>
 </head>
 
-<body class="bg-slate-50 text-slate-800 antialiased selection:bg-indigo-600 selection:text-white min-h-screen flex flex-col">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-600 selection:text-white min-h-screen flex flex-col transition-colors duration-200">
 
     {{-- HEADER --}}
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center space-x-3">
-                    <div class="h-10 w-10 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center overflow-hidden shadow-sm">
+                    <div class="h-10 w-10 rounded-full bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center overflow-hidden shadow-sm">
                         <x-application-logo class="h-full w-full object-cover" />
                     </div>
-                    <span class="text-xl font-bold tracking-tight text-slate-900">UniCrib</span>
+                    <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">UniCrib</span>
                 </div>
 
                 <div class="flex items-center space-x-4">
@@ -108,12 +125,12 @@
     </section>
 
     {{-- CORE SERVICES GRID --}}
-    <section class="py-20 bg-slate-50 border-b border-slate-200">
+    <section class="py-20 bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-2xl mx-auto mb-16 space-y-3">
-                <span class="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Core services</span>
-                <h2 class="text-3xl font-bold tracking-tight text-slate-900">Built for the full housing journey</h2>
-                <p class="text-slate-500 text-sm sm:text-base">
+                <span class="text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Core services</span>
+                <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Built for the full housing journey</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm sm:text-base">
                     From the moment a student starts searching to the day they move out, UniCrib is the operating
                     system behind every step.
                 </p>
@@ -122,16 +139,16 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 
                 {{-- Service 1 --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between transition-colors duration-200">
                     <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg shadow-sm">🏠</div>
-                        <h3 class="text-base font-bold text-slate-900">Student housing marketplace</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-lg shadow-sm">🏠</div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Student housing marketplace</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             A curated catalogue of student‑ready homes with real photos, amenities, and distance‑to‑campus
                             details instead of vague descriptions.
                         </p>
                     </div>
-                    <ul class="space-y-1.5 text-[11px] text-slate-500 border-t border-slate-100 pt-4 list-disc list-inside">
+                    <ul class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 list-disc list-inside">
                         <li>Verified listings and landlord profiles</li>
                         <li>Filters for budget, distance, and property type</li>
                         <li>Shortlists to compare options with parents/friends</li>
@@ -139,16 +156,16 @@
                 </div>
 
                 {{-- Service 2 --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between transition-colors duration-200">
                     <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg shadow-sm">📊</div>
-                        <h3 class="text-base font-bold text-slate-900">Landlord tools &amp; dashboards</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-lg shadow-sm">📊</div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Landlord tools &amp; dashboards</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             A modern control centre for landlords to manage units, availability, and communication with
                             student tenants from any device.
                         </p>
                     </div>
-                    <ul class="space-y-1.5 text-[11px] text-slate-500 border-t border-slate-100 pt-4 list-disc list-inside">
+                    <ul class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 list-disc list-inside">
                         <li>Create and edit listings in minutes</li>
                         <li>Track availability, verification, and status</li>
                         <li>View enquiries and respond inside UniCrib</li>
@@ -156,15 +173,15 @@
                 </div>
 
                 {{-- Service 3 --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between transition-colors duration-200">
                     <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg shadow-sm">🚚</div>
-                        <h3 class="text-base font-bold text-slate-900">Move‑in &amp; move‑out logistics</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-lg shadow-sm">🚚</div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Move‑in &amp; move‑out logistics</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             Designed for student realities: small loads, tight timelines, and the chaos of new‑semester weekends.
                         </p>
                     </div>
-                    <ul class="space-y-1.5 text-[11px] text-slate-500 border-t border-slate-100 pt-4 list-disc list-inside">
+                    <ul class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 list-disc list-inside">
                         <li>Scheduled and on‑demand moves</li>
                         <li>Coordinated pick‑ups from campus or previous housing</li>
                         <li>Clear pricing before move day</li>
@@ -172,16 +189,16 @@
                 </div>
 
                 {{-- Service 4 --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between transition-colors duration-200">
                     <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg shadow-sm">📦</div>
-                        <h3 class="text-base font-bold text-slate-900">Short‑term storage for breaks</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-lg shadow-sm">📦</div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Short‑term storage for breaks</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             Students can store belongings securely during holidays, internships, or campus transfers instead
                             of re‑starting from scratch.
                         </p>
                     </div>
-                    <ul class="space-y-1.5 text-[11px] text-slate-500 border-t border-slate-100 pt-4 list-disc list-inside">
+                    <ul class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 list-disc list-inside">
                         <li>Storage plans matched to academic calendars</li>
                         <li>Pickup, storage, and drop‑off options</li>
                         <li>Digital inventory and reminders</li>
@@ -189,16 +206,16 @@
                 </div>
 
                 {{-- Service 5 --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between transition-colors duration-200">
                     <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg shadow-sm">🤝</div>
-                        <h3 class="text-base font-bold text-slate-900">Campus &amp; enterprise solutions</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-lg shadow-sm">🤝</div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Campus &amp; enterprise solutions</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             University‑level views of off‑campus housing, safety standards, and student flows without building
                             and maintaining custom software.
                         </p>
                     </div>
-                    <ul class="space-y-1.5 text-[11px] text-slate-500 border-t border-slate-100 pt-4 list-disc list-inside">
+                    <ul class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 list-disc list-inside">
                         <li>University‑branded UniCrib experiences</li>
                         <li>Curated pools of approved properties</li>
                         <li>Reports on demand trends and pricing</li>
@@ -206,16 +223,16 @@
                 </div>
 
                 {{-- Service 6 --}}
-                <div class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 flex flex-col justify-between transition-colors duration-200">
                     <div class="space-y-3">
-                        <div class="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-lg shadow-sm">💳</div>
-                        <h3 class="text-base font-bold text-slate-900">Trust, payments &amp; records</h3>
-                        <p class="text-xs text-slate-600 leading-relaxed">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center text-lg shadow-sm">💳</div>
+                        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">Trust, payments &amp; records</h3>
+                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
                             A safer way to handle rent, deposits, and documentation so that students, parents, and landlords
                             have a single source of truth.
                         </p>
                     </div>
-                    <ul class="space-y-1.5 text-[11px] text-slate-500 border-t border-slate-100 pt-4 list-disc list-inside">
+                    <ul class="space-y-1.5 text-[11px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-4 list-disc list-inside">
                         <li>Digitised rent and deposit flows</li>
                         <li>Receipts and timelines for every transaction</li>
                         <li>Foundation for future credit and loyalty products</li>
@@ -227,16 +244,16 @@
     </section>
 
     {{-- SCALE & IMPACT SPLIT SECTION --}}
-    <section class="py-20 bg-white border-b border-slate-200">
+    <section class="py-20 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 
                 <div class="lg:col-span-6 space-y-4">
-                    <span class="text-xs font-bold tracking-widest text-indigo-600 uppercase bg-indigo-50 px-3 py-1 rounded-full border border-indigo-100">Scale &amp; impact</span>
-                    <h2 class="text-3xl font-bold tracking-tight text-slate-900">
+                    <span class="text-xs font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase bg-indigo-50 dark:bg-indigo-950/50 px-3 py-1 rounded-full border border-indigo-100 dark:border-indigo-900/50">Scale &amp; impact</span>
+                    <h2 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
                         Designed for thousands today, millions tomorrow.
                     </h2>
-                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                    <p class="text-slate-600 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
                         UniCrib’s services are architected to support a single campus launch and then scale to handle
                         entire countries of students and landlords without losing trust or performance.
                     </p>
@@ -263,11 +280,11 @@
     </section>
 
     {{-- FOOTER --}}
-    <footer class="bg-white border-t border-slate-200 py-12 text-sm text-slate-500 mt-auto">
+    <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-12 text-sm text-slate-500 dark:text-slate-400 mt-auto transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
             <div class="text-center max-w-lg mx-auto space-y-2">
-                <div class="text-lg font-bold text-slate-900">UniCrib</div>
-                <p class="text-xs text-slate-500">
+                <div class="text-lg font-bold text-slate-900 dark:text-slate-100">UniCrib</div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
                     Premium student accommodations and services, operated with the focus and ambition of a billion‑dollar
                     infrastructure company.
                 </p>
@@ -275,41 +292,41 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                 <div>
-                    <h3 class="font-semibold text-slate-900 text-xs tracking-wider uppercase mb-3">Platform</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Platform</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 transition">Properties</a></li>
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 transition">Universities</a></li>
-                        <li><a href="{{ url('/services') }}" class="hover:text-indigo-600 transition">Services</a></li>
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 transition">Dashboard</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Properties</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Universities</a></li>
+                        <li><a href="{{ url('/services') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Services</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Dashboard</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-slate-900 text-xs tracking-wider uppercase mb-3">Company</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Company</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="{{ url('/about') }}" class="hover:text-indigo-600 transition">About us</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 transition">Careers</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 transition">Blog</a></li>
-                        <li><a href="#" class="hover:text-indigo-600 transition">Press</a></li>
+                        <li><a href="{{ url('/about') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">About us</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Careers</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Press</a></li>
                     </ul>
                 </div>
 
                 <div>
-                    <h3 class="font-semibold text-slate-900 text-xs tracking-wider uppercase mb-3">Contact</h3>
+                    <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Contact</h3>
                     <ul class="space-y-2 text-xs">
                         <li>Kutus – Kirinyaga</li>
-                        <li><a href="tel:+254704969006" class="text-indigo-600 font-medium hover:underline">+254 704 969 006</a></li>
-                        <li><a href="mailto:unicrib@gmail.com?subject=UniCrib%20Enquiry" class="text-indigo-600 font-medium hover:underline">unicrib@gmail.com</a></li>
+                        <li><a href="tel:+254704969006" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">+254 704 969 006</a></li>
+                        <li><a href="mailto:unicrib@gmail.com?subject=UniCrib%20Enquiry" class="text-indigo-600 dark:text-indigo-400 font-medium hover:underline">unicrib@gmail.com</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="border-t border-slate-200 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 gap-4">
+            <div class="border-t border-slate-200 dark:border-slate-800 pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-slate-400 dark:text-slate-500 gap-4">
                 <p>© {{ date('Y') }} UniCrib. All rights reserved.</p>
                 <div class="flex space-x-6">
-                    <a href="#" class="hover:text-slate-600 transition">Privacy policy</a>
-                    <a href="#" class="hover:text-slate-600 transition">Terms of service</a>
-                    <a href="#" class="hover:text-slate-600 transition">Cookie policy</a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Privacy policy</a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Terms of service</a>
+                    <a href="#" class="hover:text-slate-600 dark:hover:text-slate-300 transition">Cookie policy</a>
                 </div>
             </div>
         </div>
