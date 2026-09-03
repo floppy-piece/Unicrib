@@ -23,8 +23,13 @@ class PropertyController extends Controller
         ->get();
 
     $totalProperties = Property::count() ?? 0;
-    $totalStudents = User::where('category', 'student')->count() ?? 0;
-
+   try {
+        $totalStudents = \Illuminate\Support\Facades\Schema::hasColumn('users', 'category') 
+            ? User::where('category', 'student')->count() 
+            : User::count(); // Fallback to total users if category column isn't there yet
+    } catch (\Exception $e) {
+        $totalStudents = 0;
+    }
     return view('welcome', compact('properties', 'totalProperties', 'totalStudents'));
 }
     /**
