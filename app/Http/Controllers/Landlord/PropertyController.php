@@ -13,14 +13,20 @@ use App\Models\Transport;
 class PropertyController extends Controller
 {
     //for welcome landing page
-    public function welcome()
-    {
-        $properties = Property::latest()->where('is_verified', true)->where('is_available', true)->take(6)->get();
-        $totalProperties = Property::count();
-        $totalStudents      = User::where('category', 'student')->count();
+   public function welcome()
+{
+    // Use safe fallbacks so it never fails even if tables are completely empty
+    $properties = Property::where('is_verified', true)
+        ->where('is_available', true)
+        ->latest()
+        ->take(6)
+        ->get();
 
-        return view('welcome', compact('properties','totalProperties','totalStudents'));
-    }
+    $totalProperties = Property::count() ?? 0;
+    $totalStudents = User::where('category', 'student')->count() ?? 0;
+
+    return view('welcome', compact('properties', 'totalProperties', 'totalStudents'));
+}
     /**
      * Display a listing of the landlord's properties.
      */
