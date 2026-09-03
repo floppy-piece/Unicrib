@@ -7,14 +7,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 ENV COMPOSER_ALLOW_SUPERUSER 1
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Explicitly create and lock down storage/cache directories as root
-RUN mkdir -p /var/www/html/storage/framework/sessions \
-    && mkdir -p /var/www/html/storage/framework/views \
-    && mkdir -p /var/www/html/storage/framework/cache \
-    && mkdir -p /var/www/html/storage/logs \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
-
 # Image config
 ENV SKIP_COMPOSER 1
 ENV WEBROOT /var/www/html/public
@@ -28,4 +20,10 @@ ENV APP_ENV production
 ENV APP_DEBUG false
 ENV LOG_CHANNEL stderr
 
-CMD ["/start.sh"]
+# Override or hook into container startup to fix permissions dynamically for www-data
+RUN echo '#!/bin/sh\n\
+    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache\n\
+    exec /start.sh' > /entrypoint.sh && chmod +x /entrypoint.sh
+
+CMD ["/entrypoint.sh"]
