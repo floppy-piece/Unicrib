@@ -20,11 +20,18 @@ ENV APP_ENV production
 ENV APP_DEBUG false
 ENV LOG_CHANNEL stderr
 
-# Write a robust entrypoint script with proper line endings (LF)
+# Write a robust entrypoint script that fixes permissions, clears stale caches, and runs migrations
 RUN printf '#!/bin/sh\n\
     echo "Fixing storage permissions..."\n\
     chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
     chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache\n\
+    \n\
+    echo "Clearing stale application caches..."\n\
+    php artisan optimize:clear\n\
+    \n\
+    echo "Running database migrations..."\n\
+    php artisan migrate --force\n\
+    \n\
     exec /start.sh\n' > /entrypoint.sh \
     && chmod +x /entrypoint.sh
 
