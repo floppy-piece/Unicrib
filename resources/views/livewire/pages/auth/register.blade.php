@@ -38,7 +38,7 @@ $register = function () {
 
     Auth::login($user);
 
-    $this->redirect(route('verify-email', absolute: false), navigate: true);
+    $this->redirect(route('verification.notice', absolute: false), navigate: true);
 };
 
 ?>
