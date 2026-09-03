@@ -1,6 +1,8 @@
 FROM richarvey/nginx-php-fpm:3.1.6
 
 COPY . .
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Image config
 ENV SKIP_COMPOSER 1
