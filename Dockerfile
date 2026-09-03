@@ -18,9 +18,9 @@ ENV PHP_MEMORY_LIMIT 512M
 # Laravel config
 ENV APP_ENV production
 ENV APP_DEBUG false
-ENV LOG_CHANNEL stderr
+LOG_CHANNEL stderr
 
-# Write a robust entrypoint script that fixes permissions, clears stale caches, and runs migrations
+# Write the robust entrypoint script
 RUN printf '#!/bin/sh\n\
     echo "Fixing storage permissions..."\n\
     chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
@@ -28,6 +28,9 @@ RUN printf '#!/bin/sh\n\
     \n\
     echo "Clearing stale application caches..."\n\
     php artisan optimize:clear\n\
+    \n\
+    echo "Publishing Livewire assets..."\n\
+    php artisan livewire:publish --assets --ansi\n\
     \n\
     echo "Running database migrations..."\n\
     php artisan migrate --force\n\
