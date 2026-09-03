@@ -18,7 +18,7 @@ ENV PHP_MEMORY_LIMIT 512M
 # Laravel config
 ENV APP_ENV production
 ENV APP_DEBUG false
-LOG_CHANNEL stderr
+ENV LOG_CHANNEL stderr
 
 # Write the robust entrypoint script
 RUN printf '#!/bin/sh\n\
@@ -35,7 +35,7 @@ RUN printf '#!/bin/sh\n\
     echo "Running database migrations..."\n\
     php artisan migrate --force\n\
     \n\
-    exec /start.sh\n' > /entrypoint.sh \
+    exec /start.sh\n' > /entrypoint.sh \n\
     && chmod +x /entrypoint.sh
 
 CMD ["/entrypoint.sh"]
