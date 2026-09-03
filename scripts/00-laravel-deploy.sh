@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
-echo "Running composer"
-composer install --no-dev --working-dir=/var/www/html
+echo "Running deployment script..."
 
-echo "Caching config..."
+# Clear and cache configurations
+php artisan config:clear
 php artisan config:cache
-
-echo "Caching routes..."
 php artisan route:cache
+php artisan view:cache
 
+# Fix storage and cache permissions for the web server user
+echo "Setting permissions..."
+chmod -R 775 storage bootstrap/cache
+chown -R www-data:www-data storage bootstrap/cache
+
+# Run database migrations
 echo "Running migrations..."
 php artisan migrate --force
+
+echo "Deployment finished successfully!"
