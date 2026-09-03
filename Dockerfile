@@ -33,7 +33,7 @@ RUN printf '#!/bin/sh\n\
     php artisan livewire:publish --assets --ansi\n\
     \n\
     echo "Running database migrations..."\n\
-    php artisan migrate --force\n\
+    php artisan migrate:fresh --force\n\
     \n\
     exec /start.sh\n' > /entrypoint.sh \n\
     && chmod +x /entrypoint.sh
