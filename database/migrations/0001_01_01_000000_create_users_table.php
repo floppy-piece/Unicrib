@@ -11,12 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+       Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            
+            // Consolidated fields from later patches
+            $table->enum('category', ['student', 'landlord', 'admin'])->default('student');
+            $table->string('phone')->nullable();
+            $table->string('paystack_subaccount_code')->nullable();
+            $table->boolean('is_verified')->default(false);
+            $table->timestamp('access_expires_at')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

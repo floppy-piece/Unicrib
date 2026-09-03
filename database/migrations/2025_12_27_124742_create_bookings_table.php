@@ -16,8 +16,28 @@ return new class extends Migration
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('landlord_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
+            
             $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
             $table->text('message')->nullable();
+            
+            // Financial & Dates extensions
+            $table->integer('amount')->default(0);
+            $table->date('check_in_date')->nullable();
+            $table->date('check_out_date')->nullable();
+            
+            // Payment tracking fields
+            $table->enum('payment_status', ['unpaid', 'paid', 'refunded', 'failed'])->default('unpaid');
+            $table->string('payment_provider')->nullable()->default('paystack');
+            $table->string('payment_reference')->nullable();
+            $table->string('paystack_subaccount_code')->nullable();
+            $table->text('rejection_reason')->nullable();
+
+            // Refund properties
+            $table->string('refund_reference')->nullable();
+            $table->string('refund_status')->nullable();
+            $table->decimal('refund_amount', 10, 2)->nullable();
+            $table->text('refund_reason')->nullable();
+
             $table->timestamps();
         });
     }

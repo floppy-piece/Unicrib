@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('mpesa_transaction', function (Blueprint $table) {
+       Schema::create('mpesa_transaction', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('checkout_request_id')->nullable()->index();
@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('mpesa_receipt')->nullable()->index();
             $table->integer('amount');
             $table->string('phone');
-            $table->string('status')->default('PENDING'); // PENDING, SUCCESS, FAILED
+            $table->string('status')->default('PENDING');
+            $table->string('purpose')->nullable()->index();
             $table->json('raw_callback')->nullable();
             $table->timestamps();
         });
