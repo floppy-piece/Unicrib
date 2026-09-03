@@ -102,6 +102,9 @@ class PropertyController extends Controller
     /**
      * Store a newly created property.
      */
+    /**
+     * Store a newly created property.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -126,15 +129,12 @@ class PropertyController extends Controller
             'capacity' => 'required|integer|min:1',
             'booked_count'=>'required|integer|min:0|lte:capacity',
         ],
-
         [
             'capacity.required'     => 'Please enter the total capacity for this property.',
             'capacity.min'          => 'Capacity must be at least 1 room.',
             'booked_count.required' => 'Please enter how many rooms are already booked.',
             'booked_count.lte'      => 'Initial rented rooms cannot be more than the total rooms available.',
-        ]
-    
-    );
+        ]);
 
         // Handle file uploads
         $imagePaths = [];
@@ -168,19 +168,17 @@ class PropertyController extends Controller
             'landmark' => $validated['landmark'] ?? null,
             'location_confirmed' => !empty($validated['map_lat']) && !empty($validated['map_lng']),
             'capacity'     => $validated['capacity'],
-            'booked_count' => $validate['booked_count'] ?? 0,
+            'booked_count' => $validated['booked_count'] ?? 0, // Fixed variable name here
         ]);
 
         // Geocode address if coordinates not provided
         if (empty($validated['latitude']) || empty($validated['longitude'])) {
             $this->geocodeAddress($property);
         }
-        
 
         return redirect()->route('landlord.properties.myProperties')
             ->with('success', 'Property added successfully!');
     }
-
     /**
      * Show the form for editing a property.
      */
