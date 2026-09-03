@@ -171,7 +171,7 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                @foreach($properties as $property)
+                @forelse($properties as $property)
                 <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition flex flex-col">
                     <div class="relative bg-slate-200 dark:bg-slate-800 p-6 text-center">
                         @if($property->images && count($property->images) > 0)
@@ -202,7 +202,11 @@
                         </a>
                     </div>
                 </div>
-                @endforeach
+                @empty
+                    <div class="col-span-3 text-center py-12 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
+                        <p class="text-slate-500 dark:text-slate-400 text-sm">No verified properties are available right now. Check back soon or list your property!</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
