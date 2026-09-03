@@ -20,10 +20,9 @@ ENV APP_ENV production
 ENV APP_DEBUG false
 ENV LOG_CHANNEL stderr
 
-# Override or hook into container startup to fix permissions dynamically for www-data
-RUN echo '#!/bin/sh\n\
-    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache\n\
-    exec /start.sh' > /entrypoint.sh && chmod +x /entrypoint.sh
+# Fix permissions directly and let the original /start.sh handle execution
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-CMD ["/entrypoint.sh"]
+# Use the image's built-in start script directly
+CMD ["/start.sh"]
