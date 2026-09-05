@@ -58,7 +58,7 @@ to do:
 
 
 
-Route::middleware(['auth', 'category:admin', 'verified'])
+Route::middleware(['auth', 'category:admin', /*'verified'*/])
     ->prefix('admin')
     ->name('admin.')
     ->group(function () {
