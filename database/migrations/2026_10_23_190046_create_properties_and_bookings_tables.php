@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('properties', function (Blueprint $table) {
@@ -43,7 +40,7 @@ return new class extends Migration
             // Status & Features
             $table->json('amenities');
             $table->string('property_type')->default('single-room');
-            $table->boolean('is_available')->default(false); // Set default to false per later migration patches
+            $table->boolean('is_available')->default(false);
             $table->boolean('is_verified')->default(false);
             $table->timestamp('verification_expires_at')->nullable();
             
@@ -56,13 +53,41 @@ return new class extends Migration
             
             $table->index(['latitude', 'longitude']);
         });
+
+        Schema::create('bookings', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('landlord_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('property_id')->constrained('properties')->cascadeOnDelete();
+            
+            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            $table->text('message')->nullable();
+            
+            // Financial & Dates extensions
+            $table->integer('amount')->default(0);
+            $table->date('check_in_date')->nullable();
+            $table->date('check_out_date')->nullable();
+            
+            // Payment tracking fields
+            $table->enum('payment_status', ['unpaid', 'paid', 'refunded', 'failed'])->default('unpaid');
+            $table->string('payment_provider')->nullable()->default('paystack');
+            $table->string('payment_reference')->nullable();
+            $table->string('paystack_subaccount_code')->nullable();
+            $table->text('rejection_reason')->nullable();
+
+            // Refund properties
+            $table->string('refund_reference')->nullable();
+            $table->string('refund_status')->nullable();
+            $table->decimal('refund_amount', 10, 2)->nullable();
+            $table->text('refund_reason')->nullable();
+
+            $table->timestamps();
+        });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
+        Schema::dropIfExists('bookings');
         Schema::dropIfExists('properties');
     }
 };

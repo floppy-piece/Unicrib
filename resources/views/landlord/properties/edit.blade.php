@@ -9,9 +9,9 @@
     {{-- Toast Notification --}}
     <div id="toast" class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-slate-50 dark:text-slate-100 px-4 py-2.5 rounded-xl border border-slate-800 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-[9999] text-xs font-medium shadow-lg"></div>
 
-    {{-- Expose Geoapify key --}}
+    {{-- Expose Geoapify key for global/module access --}}
     <script>
-        const GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
+        window.GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
     </script>
 
     <x-slot name="header">
@@ -26,14 +26,6 @@
             </div>
         </div>
     </x-slot>
-
-    @push('scripts')
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    @endpush
 
     <div class="py-8 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200"
          x-data="{ darkMode: localStorage.getItem('dark') === 'true' }" 
@@ -175,9 +167,6 @@
                                         required min="0" 
                                         class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                     >
-                                    @error('capacity')
-                                        <div class="text-rose-500 dark:text-rose-400 text-[10px] mt-1">{{ $message }}</div>
-                                    @enderror
                                 </div>
 
                                 <div>
@@ -190,9 +179,6 @@
                                         class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                         required
                                     >
-                                    @error('booked_count')
-                                        <div class="text-rose-500 dark:text-rose-400 text-[10px] mt-1">{{ $message }}</div>
-                                    @enderror
                                 </div>
 
                                 <div class="sm:col-span-2 lg:col-span-3">
@@ -312,7 +298,10 @@
 
                             <div class="relative min-h-[400px] border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800">
                                 <div class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-400 z-10" id="mapLoading">Loading map...</div>
-                                <div id="locationMap" style="height: 400px; width: 100%;" class="cursor-default"></div>
+                                <div id="locationMap" 
+                                     data-lat="{{ $property->map_lat ?? $property->latitude }}" 
+                                     data-lng="{{ $property->map_lng ?? $property->longitude }}" 
+                                     style="height: 400px; width: 100%;" class="cursor-default"></div>
                             </div>
 
                             <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 rounded-xl p-4 text-xs space-y-2">
@@ -373,8 +362,10 @@
                                     name="images[]"
                                     multiple
                                     accept="image/*"
+                                    id="imageUpload"
                                     class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-950 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 transition"
                                 >
+                                <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
                                 <p class="text-[10px] text-slate-400">Max 2MB per image. JPEG, PNG, JPG, GIF.</p>
                             </div>
                         </div>
@@ -399,237 +390,6 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
-    <script>
-        const landmarkLat = -0.566519;
-        const landmarkLng = 37.321184;
-
-        const areaCoordinates = {
-            mjini: { lat: -0.5080, lng: 37.2752 },
-            ngomongo: { lat: -0.5100, lng: 37.2800 },
-            diaspora: { lat: -0.5150, lng: 37.2850 },
-            kutus: { lat: -0.5200, lng: 37.2700 }
-        };
-
-        const landmarks = [
-            { name: 'skymart Supermarket', type: 'supermarket', lat: -0.567700, lng: 37.324526 },
-            { name: 'cooperative Bank', type: 'bank', lat: -0.5667250, lng: 37.324600 },
-            { name: 'Rubis Station', type: 'petrol', lat: -0.5682000, lng: 37.3209166 },
-            { name: 'Holy Rosary Catholic Church', type: 'church', lat: -0.567122, lng: 37.325788 },
-            { name: 'Central Mosque', type: 'mosque', lat: -0.5630, lng: 37.3235 },
-            { name: 'Hostel Building A', type: 'building', lat: -0.5660, lng: 37.3260 }
-        ];
-
-        function getLandmarkIcon(type) {
-            let emoji = '📍';
-            let bg = '#4b5563';
-
-            switch (type) {
-                case 'supermarket': emoji = '🛒'; bg = '#22c55e'; break;
-                case 'bank': emoji = '🏦'; bg = '#0ea5e9'; break;
-                case 'petrol': emoji = '⛽'; bg = '#f97316'; break;
-                case 'shop': emoji = '🏬'; bg = '#6366f1'; break;
-                case 'church': emoji = '⛪'; bg = '#a855f7'; break;
-                case 'mosque': emoji = '🕌'; bg = '#10b981'; break;
-                case 'building': emoji = '🏢'; bg = '#facc15'; break;
-            }
-            return { emoji, bg };
-        }
-
-        function createExtraLandmarks() {
-            if (!map) return;
-            landmarks.forEach(l => {
-                const { emoji, bg } = getLandmarkIcon(l.type);
-                const marker = L.marker([l.lat, l.lng], {
-                    icon: L.divIcon({
-                        className: 'custom-marker-extra-landmark',
-                        html: `
-                            <div style="background:${bg}; color:black; max-width:30px; max-height:30px; padding:4px 8px; border-radius:9999px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; gap:4px; text-align:center; font-size:10px; box-shadow:0 2px 5px rgba(0,0,0,0.3); white-space:nowrap;">
-                                <span>${emoji}</span>
-                                <span style="font-size:8px; line-height:1; margin-top:2px;">${l.name}</span>
-                            </div>
-                        `,
-                        iconSize: [40, 24],
-                        iconAnchor: [20, 24]
-                    })
-                }).addTo(map);
-
-                marker.bindTooltip(`${l.name} (${l.type})`, { permanent: false, direction: 'top' });
-            });
-        }
-
-        let map = null;
-        let landmarkMarker = null;
-        let propertyMarker = null;
-        let routeLayer = null;
-
-        function showToast(message, duration = 3000) {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            toast.textContent = message;
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, duration);
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            initMap();
-            setupEventListeners();
-            createExtraLandmarks();
-            const loadingEl = document.getElementById('mapLoading');
-            if (loadingEl) loadingEl.style.display = 'none';
-        });
-
-        function createLandmarkMarker() {
-            if (!map) return;
-            if (landmarkMarker) map.removeLayer(landmarkMarker);
-
-            landmarkMarker = L.marker([landmarkLat, landmarkLng], {
-                icon: L.divIcon({
-                    className: 'custom-marker-landmark',
-                    html: `
-                        <div style="background:#1d4ed8; color:white; min-width:40px; min-height:40px; padding:4px 8px; border-radius:9999px; border:3px solid white; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; font-size:10px; box-shadow:0 2px 5px rgba(0,0,0,0.3); text-align:center;">
-                            🎓
-                            <span style="font-size:8px; line-height:1; margin-top:2px;">UNIVERSITY</span>
-                        </div>
-                    `,
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 40]
-                })
-            }).addTo(map);
-        }
-
-        async function fetchAndDrawRoute(propertyLat, propertyLng) {
-            if (!GEOAPIFY_API_KEY) {
-                console.warn("Geoapify API key is not set.");
-                return;
-            }
-
-            const fromWaypoint = [landmarkLat, landmarkLng];
-            const toWaypoint = [Number(propertyLat), Number(propertyLng)];
-
-            if (Number.isNaN(toWaypoint[0]) || Number.isNaN(toWaypoint[1])) return;
-
-            const url = `https://api.geoapify.com/v1/routing?waypoints=${fromWaypoint.join(',')}|${toWaypoint.join(',')}&mode=drive&details=instruction_details&apiKey=${encodeURIComponent(GEOAPIFY_API_KEY)}`;
-
-            try {
-                const res = await fetch(url);
-                if (!res.ok) return;
-                const data = await res.json();
-                const routeFeature = data.features && data.features[0];
-                if (!routeFeature) return;
-
-                if (routeLayer) map.removeLayer(routeLayer);
-
-                routeLayer = L.geoJSON(routeFeature, {
-                    style: { color: "#3b82f6", weight: 4, opacity: 0.9 }
-                }).addTo(map);
-            } catch (err) {
-                console.error("Failed to fetch route:", err);
-            }
-        }
-
-        function updatePropertyMarker(lat, lng) {
-            if (!map) return;
-            lat = Number(lat);
-            lng = Number(lng);
-
-            if (Number.isNaN(lat) || Number.isNaN(lng)) return;
-
-            if (propertyMarker) map.removeLayer(propertyMarker);
-
-            propertyMarker = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: 'custom-marker-property',
-                    html: `
-                        <div style="background:#ef4444; color:white; width:35px; height:35px; border-radius:50%; border:3px solid white; display:flex; align-items:center; justify-content:center; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.3);">
-                            📍
-                        </div>
-                    `,
-                    iconSize: [35, 35],
-                    iconAnchor: [17.5, 35]
-                })
-            }).addTo(map);
-
-            const latDisplay = document.getElementById('latDisplay');
-            const lngDisplay = document.getElementById('lngDisplay');
-            const mapLatInput = document.getElementById('mapLat');
-            const mapLngInput = document.getElementById('mapLng');
-            const statusEl = document.getElementById('locationStatus');
-
-            if (latDisplay) latDisplay.textContent = lat.toFixed(6);
-            if (lngDisplay) lngDisplay.textContent = lng.toFixed(6);
-            if (mapLatInput) mapLatInput.value = lat;
-            if (mapLngInput) mapLngInput.value = lng;
-            if (statusEl) {
-                statusEl.textContent = 'Location set! ✓';
-                statusEl.style.color = '#10b981';
-            }
-
-            fetchAndDrawRoute(lat, lng);
-        }
-
-        function setupEventListeners() {
-            const areaSelect = document.getElementById('areaSelect');
-            if (areaSelect) {
-                areaSelect.addEventListener('change', function (e) {
-                    const area = e.target.value;
-                    if (areaCoordinates[area] && map) {
-                        const { lat, lng } = areaCoordinates[area];
-                        map.setView([lat, lng], 16);
-                        updatePropertyMarker(lat, lng);
-                    }
-                });
-            }
-
-            const form = document.getElementById('propertyForm');
-            if (form) {
-                form.addEventListener('submit', function (e) {
-                    const mapLat = document.getElementById('mapLat')?.value;
-                    const mapLng = document.getElementById('mapLng')?.value;
-                    if (!mapLat || !mapLng) {
-                        e.preventDefault();
-                        alert('Please click on the map to set your property location!');
-                    }
-                });
-            }
-        }
-
-        function initMap() {
-            try {
-                if (typeof L === 'undefined') return;
-
-                const mapElement = document.getElementById('locationMap');
-                if (!mapElement) return;
-
-                const initialLatRaw = @json($property->map_lat ?? $property->latitude ?? null);
-                const initialLngRaw = @json($property->map_lng ?? $property->longitude ?? null);
-
-                const initialLat = initialLatRaw !== null ? Number(initialLatRaw) : null;
-                const initialLng = initialLngRaw !== null ? Number(initialLngRaw) : null;
-
-                const centerLat = initialLat ?? landmarkLat;
-                const centerLng = initialLng ?? landmarkLng;
-
-                map = L.map('locationMap').setView([centerLat, centerLng], 15);
-
-                map.whenReady(() => {
-                    showToast('Map loaded successfully!');
-                    createLandmarkMarker();
-                    if (initialLat !== null && initialLng !== null) {
-                        updatePropertyMarker(initialLat, initialLng);
-                    }
-                });
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19,
-                }).addTo(map);
-
-                map.on('click', function (e) {
-                    updatePropertyMarker(e.latlng.lat, e.latlng.lng);
-                });
-            } catch (error) {
-                alert('Error loading map: ' + error.message);
-            }
-        }
-    </script>
+    {{-- Bundled application JavaScript via Vite --}}
+    @vite(['resources/js/app.js'])
 </x-app-layout>

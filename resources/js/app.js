@@ -1,32 +1,44 @@
-/**
- * First we will load all of this project's JavaScript dependencies which
- * includes Vue and other libraries. It is a great starting point when
- * building robust, powerful web applications using Vue and Laravel.
- */
+import './bootstrap';
+import { initPropertyMap } from './modules/property-map';
+import { initImageUploadPreview } from './modules/property-images';
+import { initPropertyShowPage } from './modules/property-show';
 
-require('./bootstrap');
+document.addEventListener('DOMContentLoaded', () => {
+    // Inject Geoapify API key globally for Leaflet modules
+    if (document.querySelector('meta[name="geoapify-key"]')) {
+        window.GEOAPIFY_API_KEY = document.querySelector('meta[name="geoapify-key"]').content;
+    }
 
-window.Vue = require('vue');
+    // Initialize property details page script if present
+    if (document.getElementById('propertyMap')) {
+        initPropertyShowPage();
+    }
 
-/**
- * The following block of code may be used to automatically register your
- * Vue components. It will recursively scan this directory for the Vue
- * components and automatically register them with their "basename".
- *
- * Eg. ./components/ExampleComponent.vue -> <example-component></example-component>
- */
+    // Check if property form / map container exists on page
+    const mapContainer = document.getElementById('locationMap');
+    if (mapContainer) {
+        const initialLat = mapContainer.dataset.lat ? parseFloat(mapContainer.dataset.lat) : null;
+        const initialLng = mapContainer.dataset.lng ? parseFloat(mapContainer.dataset.lng) : null;
 
-// const files = require.context('./', true, /\.vue$/i);
-// files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
+        initPropertyMap({ initialLat, initialLng });
+    }
 
-Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+    // Initialize image preview functionality if upload input exists
+    initImageUploadPreview();
 
-/**
- * Next, we will create a fresh Vue application instance and attach it to
- * the page. Then, you may begin adding components to this application
- * or customize the JavaScript scaffolding to fit your unique needs.
- */
+    // General property form validation
+    const form = document.getElementById('propertyForm');
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            const mapLat = document.getElementById('mapLat')?.value;
+            const mapLng = document.getElementById('mapLng')?.value;
 
-const app = new Vue({
-    el: '#app',
+            if (!mapLat || !mapLng) {
+                e.preventDefault();
+                alert('Please click on the map to set your property location!');
+                return false;
+            }
+            return true;
+        });
+    }
 });

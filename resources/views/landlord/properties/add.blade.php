@@ -1,4 +1,3 @@
-{{-- resources/views/landlord/properties/create.blade.php --}}
 <x-app-layout>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
@@ -6,6 +5,10 @@
 
     {{-- Toast Notification --}}
     <div id="toast" class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-slate-50 dark:text-slate-100 px-4 py-2.5 rounded-xl border border-slate-800 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg"></div>
+
+    <script>
+        window.GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
+    </script>
 
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -19,14 +22,6 @@
             </div>
         </div>
     </x-slot>
-
-    @push('scripts')
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    @endpush
 
     <div class="py-8 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200"
          x-data="{ darkMode: localStorage.getItem('dark') === 'true' }" 
@@ -42,13 +37,6 @@
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-colors duration-200">
                 <div class="p-6 sm:p-8 space-y-6">
-                    
-                    <div>
-                        <h1 class="text-lg font-bold text-slate-900 dark:text-slate-100">Add New Property</h1>
-                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                            Accurate details and location help students quickly decide if your unit fits their needs.
-                        </p>
-                    </div>
                     
                     <form method="POST" action="{{ route('landlord.properties.store') }}" enctype="multipart/form-data" id="propertyForm" class="space-y-8">
                         @csrf
@@ -96,113 +84,9 @@
                             </div>
                         </div>
                         
-                        <!-- Property Details -->
-                        <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">Property Details</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Bedrooms *</label>
-                                    <input type="number" name="bedrooms" required min="0" value="{{ old('bedrooms', 0) }}"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Bathrooms *</label>
-                                    <input type="number" name="bathrooms" required min="0" value="{{ old('bathrooms', 0) }}"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Size (sqm) *</label>
-                                    <input type="number" name="size" required min="0" step="0.01" value="{{ old('size', 0) }}"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs">
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Currently Rented Rooms *</label>
-                                    <input type="number" name="booked_count" required min="0" value="{{ old('booked_count', 0) }}"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs">
-                                </div>
-
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Rooms Available *</label>
-                                    <input type="number" name="capacity" value="{{ old('capacity', 1) }}" min="1"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs" required>
-                                </div>
-                            
-                                <div class="sm:col-span-2 lg:col-span-3">
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Amenities</label>
-                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                                        <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                                            <input type="checkbox" name="amenities[]" value="wifi" class="rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                                            <span>WiFi</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                                            <input type="checkbox" name="amenities[]" value="water" class="rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                                            <span>Water 24/7</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                                            <input type="checkbox" name="amenities[]" value="parking" class="rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                                            <span>Parking</span>
-                                        </label>
-                                        <label class="flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300">
-                                            <input type="checkbox" name="amenities[]" value="security" class="rounded text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700">
-                                            <span>Security</span>
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Description *</label>
-                                <textarea name="description" required rows="4"
-                                          class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition"
-                                          placeholder="Describe your property, key rules, and any highlights students should know."></textarea>
-                            </div>
-                        </div>
-                        
-                        <!-- Address Information -->
-                        <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">Address Information</h3>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Building Name (Optional)</label>
-                                    <input type="text" name="building_name"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs"
-                                           placeholder="e.g., Greenview Apartments">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Street/Road *</label>
-                                    <input type="text" name="street" required
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs"
-                                           placeholder="e.g., Mjini Road">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Landmark (Optional)</label>
-                                    <input type="text" name="landmark"
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs"
-                                           placeholder="e.g., Near Equity Bank">
-                                </div>
-                                
-                                <div>
-                                    <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Address *</label>
-                                    <input type="text" name="address" required
-                                           class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3.5 py-2 text-xs"
-                                           placeholder="e.g., Mjini Road, Next to Market">
-                                </div>
-                            </div>
-                        </div>
-                        
                         <!-- Exact Location Selection -->
                         <div class="space-y-4 pt-4 border-t border-slate-100 dark:border-slate-800">
                             <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 pb-2 border-b border-slate-100 dark:border-slate-800">Exact Property Location</h3>
-                            
-                            <div class="p-3.5 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-xs text-blue-900 dark:text-blue-300">
-                                <p><strong>Important:</strong> Please pinpoint the exact location of your property on the map below.</p>
-                                <p class="mt-1"><strong>Instructions:</strong> 1) Select your area above, 2) Click on the map to drop a pin at your property's exact location.</p>
-                            </div>
                             
                             <div class="relative min-h-[400px]">
                                 <div id="mapLoading" class="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-xs z-10 rounded-xl">Loading map...</div>
@@ -290,273 +174,6 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
             crossorigin=""></script>
-
-    <script>
-        // Fixed landmark (Kirinyaga University area)[cite: 1]
-        const landmarkLat = -0.566519;
-        const landmarkLng = 37.321184;
-
-        // Landmarks array with matching 'lat' and 'lng' properties[cite: 1]
-        const landmarks = [
-            { name: 'Skymart Supermarket', type: 'supermarket', lat: -0.567700, lng: 37.324526 },
-            { name: 'Cooperative Bank', type: 'bank', lat: -0.5667250, lng: 37.324600 },
-            { name: 'Rubis Station', type: 'petrol', lat: -0.5682000, lng: 37.3209166 },
-            { name: 'Holy Rosary Catholic Church', type: 'church', lat: -0.567122, lng: 37.325788 },
-            { name: 'Central Mosque', type: 'mosque', lat: -0.5630, lng: 37.3235 },
-            { name: 'Hostel Building A', type: 'building', lat: -0.5660, lng: 37.3260 }
-        ];
-
-        function getLandmarkIcon(type) {
-            let emoji = '📍';
-            let bg = '#4b5563';
-
-            switch (type) {
-                case 'supermarket': emoji = '🛒'; bg = '#22c55e'; break;
-                case 'bank': emoji = '🏦'; bg = '#0ea5e9'; break;
-                case 'petrol': emoji = '⛽'; bg = '#f97316'; break;
-                case 'shop': emoji = '🏬'; bg = '#6366f1'; break;
-                case 'church': emoji = '⛪'; bg = '#a855f7'; break;
-                case 'mosque': emoji = '🕌'; bg = '#10b981'; break;
-                case 'building': emoji = '🏢'; bg = '#facc15'; break;
-            }
-            return { emoji, bg };
-        }
-
-        function createExtraLandmarks() {
-            if (!map) return;
-
-            landmarks.forEach(l => {
-                const { emoji, bg } = getLandmarkIcon(l.type);
-
-                // Fixed property lookup (l.lat and l.lng instead of undefined latitude/longitude)[cite: 1]
-                const marker = L.marker([l.lat, l.lng], {
-                    icon: L.divIcon({
-                        className: 'custom-marker-extra-landmark',
-                        html: `
-                            <div style="background:${bg}; color:#fff; padding:3px 6px; border-radius:6px; border:1.5px solid white; display:flex; align-items:center; gap:4px; font-weight:bold; font-size:10px; box-shadow:0 2px 4px rgba(0,0,0,0.3); white-space:nowrap;">
-                                <span>${emoji}</span>
-                                <span>${l.name}</span>
-                            </div>
-                        `,
-                        iconSize: [120, 24],
-                        iconAnchor: [60, 12]
-                    })
-                }).addTo(map);
-
-                marker.bindTooltip(`${l.name} (${l.type})`, {
-                    permanent: false,
-                    direction: 'top'
-                });
-            });
-        }
-
-        const GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
-
-        let map = null;
-        let landmarkMarker = null;
-        let propertyMarker = null;
-        let routeLine = null;
-        let selectedFiles = []; // Tracks files securely for upload input sync[cite: 1]
-
-        function showToast(message, duration = 3000) {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            toast.textContent = message;
-            toast.style.opacity = '1';
-            setTimeout(() => { toast.style.opacity = '0'; }, duration);
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initMap();
-            setupEventListeners();
-
-            const loadingEl = document.getElementById('mapLoading');
-            if (loadingEl) { loadingEl.style.display = 'none'; }
-        });
-
-        function createLandmarkMarker() {
-            if (!map) return;
-            if (landmarkMarker) { map.removeLayer(landmarkMarker); }
-
-            landmarkMarker = L.marker([landmarkLat, landmarkLng], {
-                icon: L.divIcon({
-                    className: 'custom-marker-landmark',
-                    html: `
-                        <div style="background:#1d4ed8; color:#fff; padding:4px 8px; border-radius:8px; border:2px solid white; display:flex; align-items:center; gap:4px; font-weight:bold; font-size:10px; box-shadow:0 2px 5px rgba(0,0,0,0.3); white-space:nowrap;">
-                            <span>🎓</span>
-                            <span>UNIVERSITY</span>
-                        </div>
-                    `,
-                    iconSize: [100, 30],
-                    iconAnchor: [50, 15]
-                })
-            }).addTo(map);
-        }
-
-        function updatePropertyMarker(lat, lng) {
-            if (!map) return;
-            if (propertyMarker) { map.removeLayer(propertyMarker); }
-
-            propertyMarker = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: 'custom-marker-property',
-                    html: `
-                        <div style="background:#ef4444; color:white; width:32px; height:32px; border-radius:50%; border:2px solid white; display:flex; align-items:center; justify-content:center; font-weight:bold; box-shadow:0 2px 5px rgba(0,0,0,0.3);">
-                            📍
-                        </div>
-                    `,
-                    iconSize: [32, 32],
-                    iconAnchor: [16, 16]
-                })
-            }).addTo(map);
-
-            document.getElementById('latDisplay').textContent = lat.toFixed(6);
-            document.getElementById('lngDisplay').textContent = lng.toFixed(6);
-            document.getElementById('mapLat').value = lat;
-            document.getElementById('mapLng').value = lng;
             
-            const statusEl = document.getElementById('locationStatus');
-            statusEl.textContent = 'Location set! ✓';
-            statusEl.style.color = '#10b981';
-
-            const currentZoom = map.getZoom();
-            map.setView([lat, lng], currentZoom > 16 ? currentZoom : 16);
-
-            if (GEOAPIFY_API_KEY) {
-                fetchRouteFromLandmark(lat, lng);
-            }
-        }
-
-        async function fetchRouteFromLandmark(destLat, destLng) {
-            try {
-                const pathDisplay = document.getElementById('pathDisplay');
-                const distanceDisplay = document.getElementById('distanceDisplay');
-                pathDisplay.textContent = 'Calculating route...';
-                distanceDisplay.textContent = '–';
-
-                const url = `https://api.geoapify.com/v1/routing?waypoints=${landmarkLat},${landmarkLng}|${destLat},${destLng}&mode=drive&details=route_details&apiKey=${encodeURIComponent(GEOAPIFY_API_KEY)}`;
-
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('Routing request failed');
-                const data = await res.json();
-
-                if (!data.features || !data.features.length) throw new Error('No route found');
-
-                const feature = data.features[0];
-                const coords = feature.geometry.coordinates[0];
-                const distanceKm = (feature.properties.distance / 1000).toFixed(2);
-
-                if (routeLine) { map.removeLayer(routeLine); }
-
-                routeLine = L.polyline(coords.map(c => [c[1], c[0]]), {
-                    color: '#10b981', weight: 4, opacity: 0.8
-                }).addTo(map);
-
-                map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
-
-                pathDisplay.textContent = 'Driving route from university to selected property.';
-                distanceDisplay.textContent = `${distanceKm} km`;
-            } catch (err) {
-                console.error('Error fetching route:', err);
-                document.getElementById('pathDisplay').textContent = 'Could not calculate route.';
-            }
-        }
-
-        function setupEventListeners() {
-            const form = document.getElementById('propertyForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    const mapLat = document.getElementById('mapLat')?.value;
-                    const mapLng = document.getElementById('mapLng')?.value;
-
-                    if (!mapLat || !mapLng) {
-                        e.preventDefault();
-                        alert('Please click on the map to set your property location!');
-                        return false;
-                    }
-                    return true;
-                });
-            }
-
-            const imageUpload = document.getElementById('imageUpload');
-            if (imageUpload) {
-                imageUpload.addEventListener('change', function(e) {
-                    selectedFiles = Array.from(e.target.files).slice(0, 5);
-                    renderImagePreviews();
-                });
-            }
-        }
-
-        function renderImagePreviews() {
-            const preview = document.getElementById('imagePreview');
-            if (!preview) return;
-            preview.innerHTML = '';
-
-            selectedFiles.forEach((file, index) => {
-                if (!file.type.startsWith('image/')) return;
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    const div = document.createElement('div');
-                    div.className = 'relative';
-                    div.innerHTML = `
-                        <img src="${ev.target.result}" class="w-full h-24 object-cover rounded-xl border border-slate-200 dark:border-slate-700">
-                        <button type="button" onclick="removeImage(${index})" 
-                                class="absolute top-1 right-1 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-rose-600">×</button>
-                    `;
-                    preview.appendChild(div);
-                };
-                reader.readAsDataURL(file);
-            });
-        }
-
-        window.removeImage = function(index) {
-            selectedFiles.splice(index, 1);
-            
-            // Re-sync file input using DataTransfer
-            const dataTransfer = new DataTransfer();
-            selectedFiles.forEach(file => dataTransfer.items.add(file));
-            document.getElementById('imageUpload').files = dataTransfer.files;
-
-            renderImagePreviews();
-        };
-
-        window.useManualCoordinates = function() {
-            const lat = parseFloat(document.getElementById('manualLat').value);
-            const lng = parseFloat(document.getElementById('manualLng').value);
-
-            if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
-                alert('Please enter valid coordinates');
-                return;
-            }
-
-            if (map) {
-                updatePropertyMarker(lat, lng);
-                document.getElementById('manualLat').value = '';
-                document.getElementById('manualLng').value = '';
-            }
-        };
-
-        function initMap() {
-            try {
-                if (typeof L === 'undefined') return;
-                map = L.map('locationMap').setView([landmarkLat, landmarkLng], 15);
-
-                map.whenReady(() => {
-                    showToast('Map loaded successfully!');
-                    createLandmarkMarker();
-                    createExtraLandmarks(); // Safely render extra landmarks once map is ready[cite: 1]
-                });
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors', maxZoom: 19,
-                }).addTo(map);
-
-                map.on('click', function(e) {
-                    updatePropertyMarker(e.latlng.lat, e.latlng.lng);
-                });
-            } catch (error) {
-                console.error('Error loading map:', error);
-            }
-        }
-    </script>
+    @vite(['resources/js/app.js'])
 </x-app-layout>

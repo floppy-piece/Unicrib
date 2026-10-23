@@ -1,4 +1,3 @@
-{{-- resources/views/properties/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
@@ -6,14 +5,23 @@
         </h2>
     </x-slot>
 
-    {{-- Leaflet CSS --}}
+    {{-- Geoapify API Key Meta Tag --}}
+    <meta name="geoapify-key" content="{{ config('services.geoapify.key') }}">
+
+    {{-- Leaflet CSS & JS --}}
     <link rel="stylesheet"
           href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
           integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
           crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+            crossorigin=""></script>
 
     {{-- Toast --}}
-    <div id="toast" class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg"></div>
+    <div id="toast" 
+         @if(session('booking_status')) data-session='@json(session('booking_status'))' @endif 
+         class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg">
+    </div>
 
     <div class="py-6 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,27 +136,25 @@
                                                         @csrf
                                                         <div>
                                                             <label for="student_name" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
-                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" value="{{ old('student_name', $user->name) }}" required>
+                                                            <input type="text" id="student_name" name="student_name" class="..." value="{{ old('student_name', $user->name) }}" required>
                                                         </div>
 
                                                         <div>
                                                             <label for="student_phone" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Phone number</label>
-                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" value="{{ old('student_phone', $user->phone) }}" required>
+                                                            <input type="text" id="student_phone" name="student_phone" class="..." value="{{ old('student_phone', $user->phone) }}" required>
                                                         </div>
 
                                                         <div>
                                                             <label for="requested_date" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Preferred transport date</label>
-                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" value="{{ old('requested_date') }}" required>
+                                                            <input type="date" id="requested_date" name="requested_date" class="..." value="{{ old('requested_date') }}" required>
                                                             <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                                                                 Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
                                                             </p>
                                                         </div>
 
                                                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
-                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" id="closeTransportModalButton2">
-                                                                Close
-                                                            </button>
-                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
+                                                            <button type="button" class="..." id="closeTransportModalButton2">Close</button>
+                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
                                                                 Send request
                                                             </button>
                                                         </div>
@@ -291,7 +297,11 @@
                     <div class="space-y-4">
                         <div>
                             <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Location & Route</h3>
-                            <div id="propertyMap" class="h-80 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800"></div>
+                            <div id="propertyMap" 
+                                 data-lat="{{ $property->map_lat ?? $property->latitude }}" 
+                                 data-lng="{{ $property->map_lng ?? $property->longitude }}" 
+                                 class="h-80 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                            </div>
                             <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
                                 🎓 University marker is fixed. 📍 shows this property location.
                             </p>
@@ -325,263 +335,4 @@
             </div>
         </div>
     </div>
-
-    @if(session('booking_status'))
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const toast = document.getElementById('toast');
-                if (!toast) return;
-                const data = @json(session('booking_status'));
-                toast.textContent = data.message;
-                toast.style.opacity = '1';
-                const isDark = document.documentElement.classList.contains('dark');
-                if (data.type === 'error') {
-                    toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isDark ? 'bg-rose-950 text-rose-200 border-rose-800' : 'bg-rose-900 text-white border-rose-700'}`;
-                } else {
-                    toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isDark ? 'bg-emerald-950 text-emerald-200 border-emerald-800' : 'bg-emerald-900 text-white border-emerald-700'}`;
-                }
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                }, 3000);
-            });
-        </script>
-    @endif
-
-    {{-- Leaflet JS --}}
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-            crossorigin=""></script>
-
-    <script>
-        const landmarkLat = -0.566519;
-        const landmarkLng = 37.321184;
-        const GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
-
-        let map = null;
-        let landmarkMarker = null;
-        let propertyMarker = null;
-        let routeLine = null;
-
-        function showToast(message, duration = 3000) {
-            const toast = document.getElementById('toast');
-            if (!toast) return;
-            const isDark = document.documentElement.classList.contains('dark');
-            toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isDark ? 'bg-slate-800 text-white border-slate-700' : 'bg-slate-900 text-white border-slate-700'}`;
-            toast.textContent = message;
-            toast.style.opacity = '1';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-            }, duration);
-        }
-
-        const landmarks = [
-            { name: 'skymart Supermarket', type: 'supermarket', lat: -0.567700, lng: 37.324526 },
-            { name: 'cooperative Bank', type: 'bank', lat: -0.5667250, lng: 37.324600 },
-            { name: 'Rubis Station', type: 'petrol', lat: -0.5682000, lng: 37.3209166 },
-            { name: 'Holy Rosary Catholic Church', type: 'church', lat: -0.567122, lng: 37.325788 },
-            { name: 'Central Mosque', type: 'mosque', lat: -0.5630, lng: 37.3235 },
-            { name: 'Hostel Building A', type: 'building', lat: -0.5660, lng: 37.3260 }
-        ];
-
-        function getLandmarkIcon(type) {
-            let emoji = '📍';
-            let bg = '#4b5563';
-            switch (type) {
-                case 'supermarket': emoji = '🛒'; bg = '#22c55e'; break;
-                case 'bank': emoji = '🏦'; bg = '#0ea5e9'; break;
-                case 'petrol': emoji = '⛽'; bg = '#f97316'; break;
-                case 'shop': emoji = '🏬'; bg = '#6366f1'; break;
-                case 'church': emoji = '⛪'; bg = '#a855f7'; break;
-                case 'mosque': emoji = '🕌'; bg = '#10b981'; break;
-                case 'building': emoji = '🏢'; bg = '#facc15'; break;
-            }
-            return { emoji, bg };
-        }
-
-        function createExtraLandmarks() {
-            if (!map) return;
-            const isDark = document.documentElement.classList.contains('dark');
-            const borderColor = isDark ? '#334155' : 'white';
-            const textColor = isDark ? '#f8fafc' : 'black';
-            
-            landmarks.forEach(l => {
-                const { emoji, bg } = getLandmarkIcon(l.type);
-                L.marker([l.lat, l.lng], {
-                    icon: L.divIcon({
-                        className: 'custom-marker-extra-landmark',
-                        html: `<div style="background:${bg};color:${textColor};max-width:30px;max-height:30px;padding:4px 8px;border-radius:9999px;border:2px solid ${borderColor};display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;gap:4px;text-align:center;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);white-space:nowrap;"><span>${emoji}</span><span style="font-size:8px;line-height:1;margin-top:2px;">${l.name}</span></div>`,
-                        iconSize: [40, 24],
-                        iconAnchor: [20, 24]
-                    })
-                }).addTo(map).bindTooltip(`${l.name} (${l.type})`, { permanent: false, direction: 'top' });
-            });
-        }
-
-        function createLandmarkMarker() {
-            if (!map) return;
-            if (landmarkMarker) map.removeLayer(landmarkMarker);
-            const isDark = document.documentElement.classList.contains('dark');
-            const borderColor = isDark ? '#334155' : 'white';
-
-            landmarkMarker = L.marker([landmarkLat, landmarkLng], {
-                icon: L.divIcon({
-                    className: 'custom-marker-landmark',
-                    html: `<div style="background:#1d4ed8;color:white;min-width:40px;min-height:40px;padding:4px 8px;border-radius:9999px;border:3px solid ${borderColor};display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:bold;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,0.3);text-align:center;">🎓<span style="font-size:8px;line-height:1;margin-top:2px;">UNIVERSITY</span></div>`,
-                    iconSize: [40, 40],
-                    iconAnchor: [20, 40]
-                })
-            }).addTo(map);
-        }
-
-        function updatePropertyMarker(lat, lng) {
-            if (!map) return;
-            if (propertyMarker) map.removeLayer(propertyMarker);
-            const isDark = document.documentElement.classList.contains('dark');
-            const borderColor = isDark ? '#334155' : 'white';
-
-            propertyMarker = L.marker([lat, lng], {
-                icon: L.divIcon({
-                    className: 'custom-marker-property',
-                    html: `<div style="background:#ef4444;color:white;width:35px;height:35px;border-radius:50%;border:3px solid ${borderColor};display:flex;align-items:center;justify-content:center;font-weight:bold;box-shadow:0 2px 5px rgba(0,0,0,0.3);">📍</div>`,
-                    iconSize: [35, 35],
-                    iconAnchor: [17.5, 35]
-                })
-            }).addTo(map);
-        }
-
-        async function fetchRouteFromLandmark(destLat, destLng) {
-            try {
-                const pathDisplay = document.getElementById('pathDisplay');
-                const distanceDisplay = document.getElementById('distanceDisplay');
-                if (pathDisplay) pathDisplay.textContent = 'Calculating route...';
-                if (distanceDisplay) distanceDisplay.textContent = '–';
-
-                if (!GEOAPIFY_API_KEY) throw new Error('Geoapify key missing');
-
-                const url = `https://api.geoapify.com/v1/routing?waypoints=${landmarkLat},${landmarkLng}|${destLat},${destLng}&mode=drive&details=route_details&apiKey=${encodeURIComponent(GEOAPIFY_API_KEY)}`;
-
-                const res = await fetch(url);
-                if (!res.ok) throw new Error('Routing request failed');
-                const data = await res.json();
-
-                if (!data.features || !data.features.length) throw new Error('No route found');
-
-                const feature = data.features[0];
-                const coords = feature.geometry.coordinates[0];
-                const distanceKm = (feature.properties.distance / 1000).toFixed(2);
-
-                if (routeLine) map.removeLayer(routeLine);
-
-                const latLngs = coords.map(c => [c[1], c[0]]);
-                routeLine = L.polyline(latLngs, { color: '#10b981', weight: 4, opacity: 0.8 }).addTo(map);
-
-                map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
-
-                if (pathDisplay) pathDisplay.textContent = 'Walking route from university to this property.';
-                if (distanceDisplay) distanceDisplay.textContent = `${distanceKm} km`;
-            } catch (err) {
-                console.error('Error fetching route:', err);
-                const pathDisplay = document.getElementById('pathDisplay');
-                const distanceDisplay = document.getElementById('distanceDisplay');
-                if (pathDisplay) pathDisplay.textContent = 'Could not calculate route.';
-                if (distanceDisplay) distanceDisplay.textContent = '–';
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const lat = @json($property->map_lat ?? $property->latitude);
-            const lng = @json($property->map_lng ?? $property->longitude);
-
-            if (lat && lng) {
-                map = L.map('propertyMap').setView([landmarkLat, landmarkLng], 15);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors',
-                    maxZoom: 19,
-                }).addTo(map);
-
-                map.whenReady(() => {
-                    showToast('Map loaded successfully!');
-                    createLandmarkMarker();
-                    createExtraLandmarks();
-                    updatePropertyMarker(lat, lng);
-                    fetchRouteFromLandmark(lat, lng);
-                });
-            } else {
-                document.getElementById('propertyMap').innerHTML = '<div class="flex items-center justify-center h-full text-xs text-slate-400">Location not provided</div>';
-            }
-        });
-    </script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const openBtn  = document.getElementById('openTransportModalButton');
-            const modal    = document.getElementById('transportRequestModal');
-            const closeBtn = document.getElementById('closeTransportModalButton');
-            const closeBtn2= document.getElementById('closeTransportModalButton2');
-
-            if (modal && openBtn) {
-                function openModal() {
-                    modal.classList.remove('hidden');
-                    document.body.style.overflow = 'hidden';
-                }
-                function closeModal() {
-                    modal.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }
-
-                openBtn.addEventListener('click', openModal);
-                if (closeBtn)  closeBtn.addEventListener('click', closeModal);
-                if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
-            }
-
-            const countdownEl = document.getElementById('transport-countdown');
-            if (!countdownEl) return;
-
-            const deadlineStr = countdownEl.getAttribute('data-deadline');
-            if (!deadlineStr) return;
-
-            const deadline = new Date(deadlineStr).getTime();
-
-            function updateCountdown() {
-                const now    = new Date().getTime();
-                const diff   = deadline - now;
-
-                if (diff <= 0) {
-                    countdownEl.textContent = 'Transport time reached';
-                    clearInterval(timer);
-                    return;
-                }
-
-                const second = 1000;
-                const minute = 60 * second;
-                const hour   = 60 * minute;
-
-                const hours   = Math.floor(diff / hour);
-                const minutes = Math.floor((diff % hour) / minute);
-                const seconds = Math.floor((diff % minute) / second);
-
-                let parts = [];
-                if (hours > 0)   parts.push(hours + 'h');
-                if (minutes >= 0) parts.push(minutes + 'm');
-                parts.push(seconds + 's');
-
-                countdownEl.textContent = parts.join(' ');
-            }
-
-            updateCountdown();
-            const timer = setInterval(updateCountdown, 1000);
-        });
-
-        function openPaymentModal(propertyId) {
-            document.getElementById('payment-modal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('payment-modal').classList.add('hidden');
-        }
-
-        document.addEventListener('keydown', e => {
-            if (e.key === 'Escape') closeModal();
-        });
-    </script>
 </x-app-layout>

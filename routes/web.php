@@ -192,7 +192,7 @@ Route::middleware(['auth', 'category:landlord'/*, 'verified'*/])
 });
 
 //transport routes
-Route::middleware(['auth','verified'])->group(function () {
+Route::middleware(['auth'/*,'verified'*/])->group(function () {
     Route::get('/bookings/{booking}/transport/request', [TransportController::class, 'create'])->name('transport.request.create');
 
     Route::post('/bookings/{booking}/transport/request', [TransportController::class, 'store'])->name('transport.request.store');
