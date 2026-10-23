@@ -13,14 +13,25 @@ use App\Models\Transport;
 class PropertyController extends Controller
 {
     //for welcome landing page
-    public function welcome()
-    {
-        $properties = Property::latest()->where('is_verified', true)->where('is_available', true)->take(6)->get();
-        $totalProperties = Property::count();
-        $totalStudents      = User::where('category', 'student')->count();
+   public function welcome()
+{
+    // Use safe fallbacks so it never fails even if tables are completely empty
+    $properties = Property::where('is_verified', true)
+        ->where('is_available', true)
+        ->latest()
+        ->take(6)
+        ->get();
 
-        return view('welcome', compact('properties','totalProperties','totalStudents'));
+    $totalProperties = Property::count() ?? 0;
+   try {
+        $totalStudents = \Illuminate\Support\Facades\Schema::hasColumn('users', 'category') 
+            ? User::where('category', 'student')->count() 
+            : User::count(); // Fallback to total users if category column isn't there yet
+    } catch (\Exception $e) {
+        $totalStudents = 0;
     }
+    return view('welcome', compact('properties', 'totalProperties', 'totalStudents'));
+}
     /**
      * Display a listing of the landlord's properties.
      */
@@ -102,6 +113,9 @@ class PropertyController extends Controller
     /**
      * Store a newly created property.
      */
+    /**
+     * Store a newly created property.
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -126,15 +140,12 @@ class PropertyController extends Controller
             'capacity' => 'required|integer|min:1',
             'booked_count'=>'required|integer|min:0|lte:capacity',
         ],
-
         [
             'capacity.required'     => 'Please enter the total capacity for this property.',
             'capacity.min'          => 'Capacity must be at least 1 room.',
             'booked_count.required' => 'Please enter how many rooms are already booked.',
             'booked_count.lte'      => 'Initial rented rooms cannot be more than the total rooms available.',
-        ]
-    
-    );
+        ]);
 
         // Handle file uploads
         $imagePaths = [];
@@ -168,19 +179,17 @@ class PropertyController extends Controller
             'landmark' => $validated['landmark'] ?? null,
             'location_confirmed' => !empty($validated['map_lat']) && !empty($validated['map_lng']),
             'capacity'     => $validated['capacity'],
-            'booked_count' => $validate['booked_count'] ?? 0,
+            'booked_count' => $validated['booked_count'] ?? 0, // Fixed variable name here
         ]);
 
         // Geocode address if coordinates not provided
         if (empty($validated['latitude']) || empty($validated['longitude'])) {
             $this->geocodeAddress($property);
         }
-        
 
         return redirect()->route('landlord.properties.myProperties')
             ->with('success', 'Property added successfully!');
     }
-
     /**
      * Show the form for editing a property.
      */

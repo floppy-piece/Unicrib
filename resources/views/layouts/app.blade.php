@@ -35,6 +35,7 @@
                 font-family: 'Plus Jakarta Sans', sans-serif;
             }
         </style>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white transition-colors duration-200">
         

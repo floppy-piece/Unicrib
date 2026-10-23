@@ -25,7 +25,7 @@ rules([
     'name' => ['required', 'string', 'max:255'],
     'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
     'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
-    'category' => ['required', 'string', 'in:student,landlord,admin'],
+    'category' => ['required', 'string', 'in:student,landlord'],
     'phone' => ['required', 'string', 'max:13', 'unique:'.User::class],
 ]);
 
@@ -38,7 +38,7 @@ $register = function () {
 
     Auth::login($user);
 
-    $this->redirect(route('verify-email', absolute: false), navigate: true);
+    $this->redirect(route('verification.notice', absolute: false), navigate: true);
 };
 
 ?>

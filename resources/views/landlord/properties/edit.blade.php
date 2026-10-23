@@ -9,9 +9,9 @@
     {{-- Toast Notification --}}
     <div id="toast" class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-slate-50 dark:text-slate-100 px-4 py-2.5 rounded-xl border border-slate-800 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-[9999] text-xs font-medium shadow-lg"></div>
 
-    {{-- Expose Geoapify key --}}
+    {{-- Expose Geoapify key for global/module access --}}
     <script>
-        const GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
+        window.GEOAPIFY_API_KEY = @json(config('services.geoapify.key'));
     </script>
 
     <x-slot name="header">
@@ -175,9 +175,6 @@
                                         required min="0" 
                                         class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                     >
-                                    @error('capacity')
-                                        <div class="text-rose-500 dark:text-rose-400 text-[10px] mt-1">{{ $message }}</div>
-                                    @enderror
                                 </div>
 
                                 <div>
@@ -190,9 +187,6 @@
                                         class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                         required
                                     >
-                                    @error('booked_count')
-                                        <div class="text-rose-500 dark:text-rose-400 text-[10px] mt-1">{{ $message }}</div>
-                                    @enderror
                                 </div>
 
                                 <div class="sm:col-span-2 lg:col-span-3">
@@ -312,7 +306,10 @@
 
                             <div class="relative min-h-[400px] border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800">
                                 <div class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-400 z-10" id="mapLoading">Loading map...</div>
-                                <div id="locationMap" style="height: 400px; width: 100%;" class="cursor-default"></div>
+                                <div id="locationMap" 
+                                     data-lat="{{ $property->map_lat ?? $property->latitude }}" 
+                                     data-lng="{{ $property->map_lng ?? $property->longitude }}" 
+                                     style="height: 400px; width: 100%;" class="cursor-default"></div>
                             </div>
 
                             <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 rounded-xl p-4 text-xs space-y-2">
@@ -373,8 +370,15 @@
                                     name="images[]"
                                     multiple
                                     accept="image/*"
+<<<<<<< HEAD
                                     class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-950 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 transition"
                                 >
+=======
+                                    id="imageUpload"
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-950 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 transition"
+                                >
+                                <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+>>>>>>> master
                                 <p class="text-[10px] text-slate-400">Max 2MB per image. JPEG, PNG, JPG, GIF.</p>
                             </div>
                         </div>
@@ -399,6 +403,7 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
+<<<<<<< HEAD
     <script>
         const landmarkLat = -0.566519;
         const landmarkLng = 37.321184;
@@ -632,4 +637,8 @@
             }
         }
     </script>
+=======
+    {{-- Bundled application JavaScript via Vite --}}
+    @vite(['resources/js/app.js'])
+>>>>>>> master
 </x-app-layout>
