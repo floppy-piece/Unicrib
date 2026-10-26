@@ -12,7 +12,7 @@ php artisan view:cache
 
 
 echo "Running database migrations..."
-php artisan migrate:fresh
+php artisan migrate:fresh --force
 
 echo "Starting Nginx & PHP-FPM..."
 exec /start.sh
