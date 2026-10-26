@@ -1,22 +1,27 @@
+# Stage 1: Grab Node.js 20 compiled specifically for Alpine (musl libc)
+FROM node:20-alpine AS node_builder
+
+# Stage 2: Main Application Image
 FROM richarvey/nginx-php-fpm:3.1.6
 
 COPY . .
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install libc6-compat and curl/tar for Node.js installation
-RUN apk update && apk add --no-cache libc6-compat curl tar
+# Copy Node.js and npm binaries from the Alpine-based node builder stage
+COPY --from=node_builder /usr/local/bin/node /usr/local/bin/node
+COPY --from=node_builder /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
-# Install Node.js 20.x to satisfy Vite 7 and Tailwind v4 requirements
-ENV NODE_VERSION=20.11.0
-RUN curl -fsSL https://nodejs.org/dist/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz | tar -xJ -C /usr/local --strip-components=1 \
-    && ln -s /usr/local/bin/node /usr/local/bin/nodejs
+# Install libc6-compat (required for native Tailwind v4 oxide binaries on Alpine)
+RUN apk update && apk add --no-cache libc6-compat
 
 # Allow composer to run as root during build
 ENV COMPOSER_ALLOW_SUPERUSER 1
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Install Node modules during build stage
-RUN npm install
+# Build Tailwind / Vite frontend assets inside the container
+RUN npm install && npm run build
 
 # Image config
 ENV SKIP_COMPOSER 1
