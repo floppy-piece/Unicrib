@@ -20,22 +20,8 @@ ENV APP_ENV production
 ENV APP_DEBUG false
 ENV LOG_CHANNEL stderr
 
-# Write the robust entrypoint script
-RUN printf '#!/bin/sh\n\
-    echo "Fixing storage permissions..."\n\
-    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache\n\
-    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache\n\
-    \n\
-    echo "Clearing stale application caches..."\n\
-    php artisan optimize:clear\n\
-    \n\
-    echo "Publishing Livewire assets..."\n\
-    php artisan livewire:publish --assets --ansi\n\
-    \n\
-    echo "Running database migrations..."\n\
-    php artisan migrate --force\n\
-    \n\
-    exec /start.sh\n' > /entrypoint.sh \n\
-    && chmod +x /entrypoint.sh
+# Copy custom start script and make it executable
+COPY render-start.sh /render-start.sh
+RUN chmod +x /render-start.sh
 
-CMD ["/entrypoint.sh"]
+CMD ["/render-start.sh"]
