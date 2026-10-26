@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    // Disable transaction wrapping so statements run independently
+    public $withinTransaction = false;
+
     public function up(): void
     {
         if (!Schema::hasTable('users')) {
