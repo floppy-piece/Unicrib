@@ -3,8 +3,8 @@ FROM richarvey/nginx-php-fpm:3.1.6
 COPY . .
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Node.js & npm on Alpine Linux using apk
-RUN apk update && apk add --no-cache nodejs npm
+# Install libc6-compat (required for native Tailwind v4 oxide binaries on Alpine), Node.js, and npm
+RUN apk update && apk add --no-cache libc6-compat nodejs npm
 
 # Allow composer to run as root during build
 ENV COMPOSER_ALLOW_SUPERUSER 1
