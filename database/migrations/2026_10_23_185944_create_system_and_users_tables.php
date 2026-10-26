@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->string('email')->unique();
                 $table->timestamp('email_verified_at')->nullable();
                 $table->string('password');
-                $table->enum('category', ['student', 'landlord', 'admin'])->default('student');
+                $table->string('category')->default('student');
                 $table->string('phone')->nullable();
                 $table->string('paystack_subaccount_code')->nullable();
                 $table->boolean('is_verified')->default(false);
