@@ -14,24 +14,25 @@ class PropertyController extends Controller
 {
     //for welcome landing page
    public function welcome()
-{
-    // Use safe fallbacks so it never fails even if tables are completely empty
-    $properties = Property::where('is_verified', true)
-        ->where('is_available', true)
-        ->latest()
-        ->take(6)
-        ->get();
+    {
+        // Use safe fallbacks so it never fails even if tables are completely empty
+        try {
+        $properties = Schema::hasTable('properties') 
+            ? Property::where('is_verified', true)->where('is_available', true)->latest()->take(6)->get() 
+            : collect();
 
-    $totalProperties = Property::count() ?? 0;
-   try {
-        $totalStudents = \Illuminate\Support\Facades\Schema::hasColumn('users', 'category') 
+        $totalProperties = Schema::hasTable('properties') ? Property::count() : 0;
+        
+        $totalStudents = Schema::hasTable('users') 
             ? User::where('category', 'student')->count() 
-            : User::count(); // Fallback to total users if category column isn't there yet
-    } catch (\Exception $e) {
-        $totalStudents = 0;
+            : 0;
+        } catch (\Exception $e) {
+            $properties = collect();
+            $totalProperties = 0;
+            $totalStudents = 0;
+        }
+        return view('welcome', compact('properties', 'totalProperties', 'totalStudents'));
     }
-    return view('welcome', compact('properties', 'totalProperties', 'totalStudents'));
-}
     /**
      * Display a listing of the landlord's properties.
      */
