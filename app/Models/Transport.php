@@ -10,6 +10,7 @@ class Transport extends Model
         'booking_id',
         'property_id',
         'student_id',
+        'driver_id',
         'student_name',
         'student_phone',
         'requested_date',
@@ -37,5 +38,9 @@ class Transport extends Model
     public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
+    }
+    public function driver()
+    {
+        return $this->belongsTo(Driver::class);
     }
 }

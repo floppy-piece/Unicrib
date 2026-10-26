@@ -19,32 +19,46 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::create('storage_bookings', function (Blueprint $table) {
+       Schema::create('storage_bookings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('start_date');
             $table->date('end_date');
-            $table->unsignedInteger('months');
-            $table->unsignedInteger('amount'); // total amount in KSh
-            $table->string('status')->default('pending');
+            $table->unsignedInteger('months'); // Total months
+            $table->unsignedInteger('amount'); // Total amount
+            $table->unsignedInteger('paid_amount')->default(0); // Amount paid so far (1st month upfront)
+            $table->string('status')->default('pending'); // pending, active, completed
             $table->string('reference')->nullable();
             $table->timestamps();
         });
 
+        // Drivers table for Uber-like dispatch
+        Schema::create('drivers', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('phone', 20)->unique();
+            $table->string('vehicle_model'); // e.g. Toyota Probox / Bodaboda
+            $table->string('vehicle_plate', 20)->unique();
+            $table->enum('status', ['available', 'busy', 'offline'])->default('available');
+            $table->timestamps();
+        });
+
+        // Upgraded transports table with driver foreign key
         Schema::create('transports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->cascadeOnDelete();
             $table->foreignId('property_id')->constrained()->cascadeOnDelete();
             $table->foreignId('student_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('driver_id')->nullable()->constrained('drivers')->nullOnDelete();
 
             $table->string('student_name');
-            $table->string('student_phone');
+            $table->string('student_phone', 20);
 
             $table->date('requested_date');
             $table->time('requested_time')->nullable();
 
             $table->dateTime('assigned_at')->nullable();
-            $table->string('status')->default('pending'); // pending, confirmed, completed, cancelled
+            $table->string('status')->default('pending'); // pending, driver_assigned, en_route, completed, cancelled
 
             $table->timestamps();
         });
@@ -75,6 +89,7 @@ return new class extends Migration
     {
         Schema::dropIfExists('notifications');
         Schema::dropIfExists('contact_messages');
+        Schema::dropIfExists('drivers');
         Schema::dropIfExists('transports');
         Schema::dropIfExists('storage_bookings');
         Schema::dropIfExists('payments');

@@ -19,6 +19,11 @@ use App\Http\Controllers\StorageHousingController;
 use App\Http\Controllers\Admin\StorageAdminController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\Landlord\LandlordController;
+use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Api\WhatsAppAgentController;
+
+Route::get('/whatsapp/webhook', [WhatsAppAgentController::class, 'verifyWebhook']);
+Route::post('/whatsapp/webhook', [WhatsAppAgentController::class, 'handleIncomingMessage']);
 
 Route::middleware('auth'/*, 'verified'*/)->group(function () {
     // Properties
@@ -84,6 +89,11 @@ Route::middleware(['auth', 'category:admin', /*'verified'*/])
         Route::get('/transports', [TransportAdminController::class, 'index'])->name('transports.index');
 
         Route::patch('/transports/{transport}', [TransportAdminController::class, 'update'])->name('transports.update');
+        Route::post('/transports/{transport}/assign-driver', [DriverController::class, 'assignDriver'])->name('transports.assign-driver');
+
+        // Drivers Management
+        Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
+        Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
 
         //storehousing for admin
         Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');
@@ -127,6 +137,10 @@ Route::middleware(['auth'/*,'verified'*/])->group(function () {
 
     Route::post('/storage/book', [StorageHousingController::class, 'store'])
         ->name('storage.store');
+
+    // Storage Payment Routes
+    Route::get('/payments/storage/{storageBooking}', [PaymentController::class, 'showStorageForm'])->name('payments.storage.form');
+    Route::post('/payments/storage/{storageBooking}', [PaymentController::class, 'processStoragePayment'])->name('payments.storage.pay');
 });
         
 

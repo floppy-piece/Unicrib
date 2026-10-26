@@ -117,5 +117,30 @@ class TransportController extends Controller
 
         return $slot;
     }
+    /**
+     * Agent / API endpoint for WhatsApp bot to fetch ride status
+     */
+    public function apiTransportStatus(Request $request, Booking $booking)
+    {
+        $transport = Transport::with('driver')->where('booking_id', $booking->id)->latest()->first();
+
+        if (!$transport) {
+            return response()->json([
+                'status' => 'none',
+                'message' => 'No transport request found for this booking.'
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => $transport->status,
+            'assigned_time' => optional($transport->assigned_at)->format('d M Y, H:i'),
+            'driver' => $transport->driver ? [
+                'name' => $transport->driver->name,
+                'phone' => $transport->driver->phone,
+                'vehicle' => $transport->driver->vehicle_model,
+                'plate' => $transport->driver->vehicle_plate,
+            ] : null
+        ]);
+    }
     
 }
