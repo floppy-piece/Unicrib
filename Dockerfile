@@ -21,7 +21,8 @@ ENV COMPOSER_ALLOW_SUPERUSER 1
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Build Tailwind / Vite frontend assets inside the container
-RUN npm install && npm run build
+RUN npm install && npm run build \
+    && php artisan livewire:publish --assets
 
 # Image config
 ENV SKIP_COMPOSER 1
