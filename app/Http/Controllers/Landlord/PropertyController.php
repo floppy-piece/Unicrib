@@ -329,4 +329,101 @@ class PropertyController extends Controller
             \Log::error('Geocoding failed: ' . $e->getMessage());
         }
     }
+
+    public function searchPropertiesApi(Request $request, User $user)
+    {
+        $area = $request->input('area', '');
+        $maxPrice = $request->input('max_price');
+        $properties = Property::where('area', 'LIKE', '%' . $area . '%')
+            ->when($maxPrice, fn($q) => $q->where('price', '<=', $maxPrice))
+            ->take(3)
+            ->get();
+        if ($properties->isEmpty()) {
+            return "No properties found matching your criteria.";
+        }
+        return $properties->map(fn($p) => "• {$p->title} - KSh {$p->price}/mo at {$p->address}")->implode("\n");
+    }
+
+    public function landlordPropertiesApi(User $user)
+    {
+        $properties = Property::where('landlord_id', $user->id)->get();
+        if ($properties->isEmpty()) {
+            return "You have no registered properties.";
+        }
+        return "Your Properties:\n" . $properties->map(fn($p) => "• [ID: {$p->id}] {$p->title} - KSh {$p->price} (" . ($p->is_verified ? 'Verified ✅' : 'Pending ⏳') . ")")->implode("\n");
+    }
+
+    public function landlordBookingsApi(User $user)
+    {
+        $bookings = Booking::with(['property', 'student'])->where('landlord_id', $user->id)->latest()->take(5)->get();
+        if ($bookings->isEmpty()) {
+            return "No student bookings found.";
+        }
+        return "Recent Bookings:\n" . $bookings->map(fn($b) => "• Booking #{$b->id}: {$b->student->name} for {$b->property->title} | Status: " . ucfirst($b->status))->implode("\n");
+    }
+
+    public function addLandlordPropertyApi(Request $request, User $user)
+    {
+        if ($user->category !== 'landlord') {
+            return "Unauthorized: Only registered landlords can add properties.";
+        }
+
+        $title = $request->input('title');
+        $price = $request->input('price');
+        $area = $request->input('area');
+        $address = $request->input('address');
+
+        if (!$title || !$price || !$area || !$address) {
+            return "Please provide title, price, area, and address to add a property.";
+        }
+
+        $property = Property::create([
+            'landlord_id' => $user->id,
+            'title' => $title,
+            'description' => $request->input('description', 'Student property listed via WhatsApp AI'),
+            'price' => $price,
+            'area' => $area,
+            'address' => $address,
+            'bedrooms' => $request->input('bedrooms', 1),
+            'bathrooms' => $request->input('bathrooms', 1),
+            'size' => 20,
+            'is_verified' => $user->is_verified,
+            'is_available' => true,
+        ]);
+
+        return "Property added successfully! [ID: {$property->id}] {$property->title} in {$area} at KSh {$property->price}/mo.";
+    }
+
+    public function updatePropertyAvailabilityApi(Request $request, User $user)
+    {
+        $propertyId = $request->input('property_id');
+        $isAvailable = (bool) $request->input('is_available', true);
+
+        $property = Property::where('id', $propertyId)->where('landlord_id', $user->id)->first();
+        if (!$property) {
+            return "Property #{$propertyId} not found or you do not own it.";
+        }
+
+        $property->update(['is_available' => $isAvailable]);
+        $statusText = $isAvailable ? 'available' : 'unavailable';
+        return "Property #{$property->id} ({$property->title}) status updated to {$statusText}.";
+    }
+
+    public function updateBookingStatusApi(Request $request, User $user)
+    {
+        $bookingId = $request->input('booking_id');
+        $status = $request->input('status'); // approved or rejected
+
+        if (!in_array($status, ['approved', 'rejected'])) {
+            return "Invalid status. Please specify 'approved' or 'rejected'.";
+        }
+
+        $booking = Booking::with(['property', 'student'])->where('id', $bookingId)->where('landlord_id', $user->id)->first();
+        if (!$booking) {
+            return "Booking #{$bookingId} not found or does not belong to your properties.";
+        }
+
+        $booking->update(['status' => $status]);
+        return "Booking #{$booking->id} for student {$booking->student->name} ({$booking->property->title}) has been successfully " . ucfirst($status) . ".";
+    }
 }

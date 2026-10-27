@@ -1,21 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class AdminSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
- 
     public function run(): void
     {
-        // avoid duplicate admin with same email
         if (User::where('email', 'admin@unicrib.com')->exists()) {
             return;
         }
@@ -23,9 +19,12 @@ class AdminSeeder extends Seeder
         User::create([
             'name' => 'Unicrib Admin',
             'email' => 'admin@unicrib.com',
-            'phone'=> '0704969006',
-            'category' => 'admin',     // make sure `category` column allows 'admin'
-            'password' => 'adminrules.105.ok,', // change to strong password
+            'phone' => '254704969006',
+            'category' => 'admin',
+            'is_verified' => true,
+            'paystack_subaccount_code' => 'ACCT_admin_sub',
+            'password' => Hash::make('adminrules.105.ok,'),
+            'email_verified_at' => now(),
         ]);
     }
 }

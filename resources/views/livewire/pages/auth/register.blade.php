@@ -43,67 +43,67 @@ $register = function () {
 
 ?>
 
-<div class="w-full bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
+<div class="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
     <div class="mb-6">
-        <h2 class="text-xl font-bold text-slate-900">Create an account</h2>
-        <p class="text-xs text-slate-500 mt-1">Register to access student or landlord features.</p>
+        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Create an account</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Select your account type to get started on UniCrib.</p>
     </div>
 
     <form wire:submit="register" class="space-y-4">
-        <!-- Category -->
+        <!-- Account Category -->
         <div>
-            <x-input-label for="category" :value="__('Category')" />
-            <select wire:model="category" name="category" id="category" class="w-full mt-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:border-indigo-500 focus:ring-indigo-500" required>
-                <option value="">Select category</option>
-                <option value="student">Student</option>
-                <option value="landlord">Landlord</option>
+            <x-input-label for="category" :value="__('I am a')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <select wire:model="category" name="category" id="category" class="w-full mt-1 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400" required>
+                <option value="" class="dark:bg-slate-900">Select role</option>
+                <option value="student" class="dark:bg-slate-900">Student</option>
+                <option value="landlord" class="dark:bg-slate-900">Landlord / Property Manager</option>
             </select>
-            <x-input-error :messages="$errors->get('category')" class="mt-1" />
+            <x-input-error :messages="$errors->get('category')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <!-- Name -->
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" class="block mt-1 w-full" type="text" name="name" required autofocus autocomplete="name" placeholder="Enter your full name" />
-            <x-input-error :messages="$errors->get('name')" class="mt-1" />
+            <x-input-label for="name" :value="__('Full Name')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="name" id="name" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="text" name="name" required autofocus autocomplete="name" placeholder="John Doe" />
+            <x-input-error :messages="$errors->get('name')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autocomplete="username" placeholder="name@example.com" />
-            <x-input-error :messages="$errors->get('email')" class="mt-1" />
+            <x-input-label for="email" :value="__('Email Address')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="email" id="email" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="email" name="email" required autocomplete="username" placeholder="name@example.com" />
+            <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <!-- Phone number -->
         <div>
-            <x-input-label for="phone" :value="__('Phone number')" />
-            <x-text-input wire:model="phone" id="phone" class="block mt-1 w-full" type="tel" name="phone" required autocomplete="phone" placeholder="07XXXXXXXX" />
-            <x-input-error :messages="$errors->get('phone')" class="mt-1" />
+            <x-input-label for="phone" :value="__('Phone Number')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="phone" id="phone" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="tel" name="phone" required autocomplete="phone" placeholder="07XXXXXXXX" />
+            <x-input-error :messages="$errors->get('phone')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <!-- Password -->
         <div>
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input wire:model="password" id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-1" />
+            <x-input-label for="password" :value="__('Password')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="password" id="password" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="password" name="password" required autocomplete="new-password" />
+            <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <!-- Confirm Password -->
         <div>
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
-            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1" />
+            <x-input-label for="password_confirmation" :value="__('Confirm Password')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="password_confirmation" id="password_confirmation" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="password" name="password_confirmation" required autocomplete="new-password" />
+            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <div class="pt-2 flex items-center justify-between">
-            <a class="text-xs font-medium text-indigo-600 hover:text-indigo-800 underline transition" href="{{ route('login') }}" wire:navigate>
+            <a class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline transition" href="{{ route('login') }}" wire:navigate>
                 {{ __('Already registered?') }}
             </a>
 
-            <x-primary-button>
+            <button type="submit" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 dark:hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-5 rounded-xl transition shadow-sm">
                 {{ __('Register') }}
-            </x-primary-button>
+            </button>
         </div>
     </form>
 </div>

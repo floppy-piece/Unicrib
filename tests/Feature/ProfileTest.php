@@ -20,8 +20,24 @@ class ProfileTest extends TestCase
         $response
             ->assertOk()
             ->assertSeeVolt('profile.update-profile-information-form')
+            ->assertSeeVolt('profile.connect-whatsapp-form')
             ->assertSeeVolt('profile.update-password-form')
             ->assertSeeVolt('profile.delete-user-form');
+    }
+
+    public function test_user_can_link_whatsapp_account(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user);
+
+        $component = Volt::test('profile.connect-whatsapp-form')
+            ->set('phone', '254711223344')
+            ->call('linkWhatsApp');
+
+        $component->assertHasNoErrors();
+
+        $this->assertSame('254711223344', $user->refresh()->phone);
     }
 
     public function test_profile_information_can_be_updated(): void

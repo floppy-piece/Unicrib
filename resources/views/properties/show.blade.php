@@ -19,8 +19,14 @@
 
     {{-- Toast --}}
     <div id="toast" 
-         @if(session('booking_status')) data-session='@json(session('booking_status'))' @endif 
-         class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg">
+        @if(session('booking_status')) 
+            data-session='@json(session('booking_status'))' 
+        @elseif(session('success')) 
+            data-session='@json(['type' => 'success', 'message' => session('success')])' 
+        @elseif(session('error')) 
+            data-session='@json(['type' => 'error', 'message' => session('error')])' 
+        @endif 
+        class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg">
     </div>
 
     <div class="py-6 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
@@ -93,21 +99,32 @@
                                         </span>
                                     </div>
                                 @elseif($hasActiveBooking)
-                                    <div class="mt-3 space-y-2">
+                                    <div class="mt-3 space-y-3">
                                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
                                             You have an active booking for this property. To book another property contact the landlord of this Property and request for cancellation.
                                         </span>
 
-                                        @if($user && $user->category === 'student' && isset($activeTransport))
-                                            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-1">
+                                        @php
+                                            $activeTransport = \App\Models\Transport::where('student_id', $user->id)
+                                                ->where('property_id', $property->id)
+                                                ->latest()
+                                                ->first();
+
+                                            $transportStatus = $activeTransport ? $activeTransport->status : null;
+                                            $isComplete = $transportStatus === 'completed';
+                                            $hasActiveRequest = $activeTransport && in_array($transportStatus, ['pending', 'confirmed', 'approved']);
+                                        @endphp
+
+                                        @if($activeTransport)
+                                            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
                                                 <div>
                                                     Transport status:
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $activeTransport->status === 'completed' ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50' : ($activeTransport->status === 'cancelled' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50' : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/50') }}">
-                                                        {{ ucfirst($activeTransport->status) }}
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $isComplete ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50' : ($transportStatus === 'cancelled' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50' : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/50') }}">
+                                                        {{ ucfirst($transportStatus) }}
                                                     </span>
                                                 </div>
 
-                                                @if($activeTransport->assigned_at && $activeTransport->status !== 'completed')
+                                                @if($activeTransport->assigned_at && !$isComplete && $transportStatus !== 'cancelled')
                                                     <div>
                                                         Assigned time: <span class="text-slate-700 dark:text-slate-300 font-medium">{{ $activeTransport->assigned_at->format('d M Y, H:i') }}</span>
                                                     </div>
@@ -118,42 +135,50 @@
                                             </div>
                                         @endif
 
-                                        @if($user && $user->category === 'student' && isset($booking))
-                                            <button type="button" id="openTransportModalButton" class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
-                                                Request transport
+                                        {{-- Transport Action Button --}}
+                                        <div>
+                                            <button type="button" 
+                                                    id="openTransportModalButton" 
+                                                    @if($isComplete || $hasActiveRequest) disabled @endif
+                                                    class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition
+                                                    {{ $isComplete || $hasActiveRequest
+                                                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-60' 
+                                                        : 'bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-500' }}">
+                                                {{ $isComplete ? 'Transport Completed' : ($hasActiveRequest ? 'Transport Requested (Pending)' : 'Request transport') }}
                                             </button>
+                                        </div>
 
-                                            {{-- Transport Modal --}}
-                                            <div id="transportRequestModal" class="fixed inset-0 z-50 hidden">
-                                                <div class="absolute inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm uc-modal-backdrop"></div>
-                                                <div class="relative max-w-lg mx-auto my-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
+                                        {{-- Transport Modal --}}
+                                        @if(!$isComplete && !$hasActiveRequest)
+                                            <div id="transportRequestModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm">
+                                                <div class="relative max-w-lg w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
                                                     <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 flex items-center justify-between text-white">
                                                         <h5 class="text-sm font-bold">Request transport to {{ $property->building_name }}</h5>
                                                         <button type="button" id="closeTransportModalButton" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
                                                     </div>
 
-                                                    <form action="{{ route('transport.request.store', $booking->id) }}" method="POST" class="p-6 space-y-4">
+                                                    <form action="{{ route('transport.request.store', $activeBooking->id) }}" method="POST" class="p-6 space-y-4">
                                                         @csrf
                                                         <div>
                                                             <label for="student_name" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
-                                                            <input type="text" id="student_name" name="student_name" class="..." value="{{ old('student_name', $user->name) }}" required>
+                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_name', $user->name) }}" required>
                                                         </div>
 
                                                         <div>
                                                             <label for="student_phone" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Phone number</label>
-                                                            <input type="text" id="student_phone" name="student_phone" class="..." value="{{ old('student_phone', $user->phone) }}" required>
+                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_phone', $user->phone) }}" required>
                                                         </div>
 
                                                         <div>
                                                             <label for="requested_date" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Preferred transport date</label>
-                                                            <input type="date" id="requested_date" name="requested_date" class="..." value="{{ old('requested_date') }}" required>
+                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('requested_date') }}" required>
                                                             <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
                                                                 Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
                                                             </p>
                                                         </div>
 
                                                         <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
-                                                            <button type="button" class="..." id="closeTransportModalButton2">Close</button>
+                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" id="closeTransportModalButton2">Close</button>
                                                             <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
                                                                 Send request
                                                             </button>
@@ -162,19 +187,19 @@
                                                 </div>
                                             </div>
                                         @endif
-                                    </div>
+                                    </div>                     
                                 @else
                                     <div class="mt-3 space-y-3">
                                         <p class="text-xs text-rose-600 dark:text-rose-400 font-medium">
                                             Make sure to contact the owner of this property before booking.
                                         </p>
                                         
-                                        <button onclick="openPaymentModal({{ $property->id }})" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
+                                        <button type="button" id="pay-and-book-btn" onclick="openPaymentModal()" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
                                             <span>Pay & Book Now</span>
                                         </button>
 
                                         {{-- Payment Modal --}}
-                                        <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+                                        <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
                                             <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden">
                                                 <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex items-center justify-between">
                                                     <div>
@@ -202,7 +227,7 @@
 
                                                     <div>
                                                         <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400">
                                                     </div>
 
                                                     <div class="flex items-start gap-2">
@@ -335,4 +360,151 @@
             </div>
         </div>
     </div>
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // 1. Toast Notification Handler
+            const toast = document.getElementById('toast');
+            if (toast && toast.dataset.session) {
+                try {
+                    const data = JSON.parse(toast.dataset.session);
+                    const message = typeof data === 'string' ? data : (data.message || '');
+                    const isError = data.type === 'error';
+                    const isDark = document.documentElement.classList.contains('dark');
+
+                    if (message) {
+                        toast.textContent = message;
+                        toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-300 z-50 text-xs shadow-lg pointer-events-auto ${
+                            isError
+                                ? (isDark ? 'bg-rose-950 text-rose-200 border-rose-800' : 'bg-rose-900 text-white border-rose-700')
+                                : (isDark ? 'bg-emerald-950 text-emerald-200 border-emerald-800' : 'bg-emerald-900 text-white border-emerald-700')
+                        }`;
+
+                        setTimeout(() => {
+                            toast.style.opacity = '0';
+                        }, 4000);
+                    }
+                } catch (e) {
+                    console.error('Error parsing session toast:', e);
+                }
+            }
+
+            // 2. Transport Modal Handler
+            const openTransportBtn = document.getElementById('openTransportModalButton');
+            const transportModal = document.getElementById('transportRequestModal');
+            const closeTransportBtn = document.getElementById('closeTransportModalButton');
+            const closeTransportBtn2 = document.getElementById('closeTransportModalButton2');
+
+            if (transportModal && openTransportBtn) {
+                openTransportBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (openTransportBtn.hasAttribute('disabled')) return;
+                    transportModal.classList.remove('hidden');
+                    transportModal.classList.add('flex');
+                    transportModal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+
+                const closeTransport = function () {
+                    transportModal.classList.remove('flex');
+                    transportModal.classList.add('hidden');
+                    transportModal.style.display = 'none';
+                    document.body.style.overflow = '';
+                };
+
+                if (closeTransportBtn) closeTransportBtn.addEventListener('click', closeTransport);
+                if (closeTransportBtn2) closeTransportBtn2.addEventListener('click', closeTransport);
+
+                // Close on clicking backdrop
+                transportModal.addEventListener('click', function (e) {
+                    if (e.target === transportModal) {
+                        closeTransport();
+                    }
+                });
+            }
+
+            // 3. Payment Modal Backdrop Click Dismissal
+            const paymentModal = document.getElementById('payment-modal');
+            if (paymentModal) {
+                paymentModal.addEventListener('click', function (e) {
+                    if (e.target === paymentModal) {
+                        window.closeModal();
+                    }
+                });
+            }
+
+            // 4. Global ESC key listener to close modals
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    window.closeModal();
+                    if (transportModal) {
+                        transportModal.classList.remove('flex');
+                        transportModal.classList.add('hidden');
+                        transportModal.style.display = 'none';
+                        document.body.style.overflow = '';
+                    }
+                }
+            });
+
+            // 5. Transport Countdown Timer
+            const countdownEl = document.getElementById('transport-countdown');
+            if (countdownEl) {
+                const deadlineStr = countdownEl.getAttribute('data-deadline');
+                if (deadlineStr) {
+                    const deadline = new Date(deadlineStr).getTime();
+
+                    const updateCountdown = () => {
+                        const now = new Date().getTime();
+                        const diff = deadline - now;
+
+                        if (diff <= 0) {
+                            countdownEl.textContent = 'Transport time reached';
+                            clearInterval(timer);
+                            return;
+                        }
+
+                        const second = 1000;
+                        const minute = 60 * second;
+                        const hour = 60 * minute;
+
+                        const hours = Math.floor(diff / hour);
+                        const minutes = Math.floor((diff % hour) / minute);
+                        const seconds = Math.floor((diff % minute) / second);
+
+                        let parts = [];
+                        if (hours > 0) parts.push(hours + 'h');
+                        if (minutes >= 0) parts.push(minutes + 'm');
+                        parts.push(seconds + 's');
+
+                        countdownEl.textContent = parts.join(' ');
+                    };
+
+                    updateCountdown();
+                    const timer = setInterval(updateCountdown, 1000);
+                }
+            }
+        });
+
+        // Global Payment Modal Window Functions (Attached to window scope)
+        window.openPaymentModal = function () {
+            const paymentModal = document.getElementById('payment-modal');
+            if (paymentModal) {
+                paymentModal.classList.remove('hidden');
+                paymentModal.classList.add('flex');
+                paymentModal.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            }
+        };
+
+        window.closeModal = function () {
+            const paymentModal = document.getElementById('payment-modal');
+            if (paymentModal) {
+                paymentModal.classList.remove('flex');
+                paymentModal.classList.add('hidden');
+                paymentModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        };
+    </script>
+    @endpush
 </x-app-layout>

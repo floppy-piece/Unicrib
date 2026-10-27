@@ -16,6 +16,14 @@
 
             <div class="p-6 sm:p-8 bg-white border border-slate-200 rounded-2xl shadow-sm">
                 <div class="max-w-xl">
+                    <livewire:profile.connect-telegram />
+                </div>
+            </div>
+
+
+
+            <div class="p-6 sm:p-8 bg-white border border-slate-200 rounded-2xl shadow-sm">
+                <div class="max-w-xl">
                     <livewire:profile.update-password-form />
                 </div>
             </div>

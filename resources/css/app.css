@@ -360,3 +360,35 @@
 [x-cloak] {
     display: none !important;
 }
+
+/* 3D Animations & Lively UI Enhancements */
+@keyframes float3d {
+    0%, 100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+    50% { transform: translateY(-10px) rotateX(2deg) rotateY(2deg); }
+}
+
+@keyframes pulseGlow {
+    0%, 100% { opacity: 0.3; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.08); }
+}
+
+.animate-float-3d {
+    animation: float3d 6s ease-in-out infinite;
+}
+
+.animate-pulse-glow {
+    animation: pulseGlow 4s ease-in-out infinite;
+}
+
+.preserve-3d {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.card-3d-hover {
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-3d-hover:hover {
+    transform: translateY(-8px) rotateX(3deg) rotateY(-3deg) scale(1.02);
+    box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.3);
+}

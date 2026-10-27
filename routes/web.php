@@ -20,10 +20,6 @@ use App\Http\Controllers\Admin\StorageAdminController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\Landlord\LandlordController;
 use App\Http\Controllers\Admin\DriverController;
-use App\Http\Controllers\Api\WhatsAppAgentController;
-
-Route::get('/whatsapp/webhook', [WhatsAppAgentController::class, 'verifyWebhook']);
-Route::post('/whatsapp/webhook', [WhatsAppAgentController::class, 'handleIncomingMessage']);
 
 Route::middleware('auth'/*, 'verified'*/)->group(function () {
     // Properties
@@ -37,31 +33,15 @@ Route::middleware('auth'/*, 'verified'*/)->group(function () {
     Route::post('/landlord/subaccount', [LandlordController::class, 'createSubaccount'])->name('landlord.subaccount');
 });
 
-
-
-
-
 Route::middleware(['auth'/*, 'verified'*/])->group(function () {
     Route::get('/pay', [PaymentController::class, 'showForm'])->name('pay.form');
     Route::post('/pay', [PaymentController::class, 'redirectToGateway'])->name('pay');
     Route::get('/payment/callback', [PaymentController::class, 'handleGatewayCallback'])
-        //->middleware('paystack.ip')
         ->name('payment.callback');
 
     Route::post('/payment/{payment}/refund', [RefundController::class, 'refund'])
         ->name('payment.refund');
 });
-
-
-
-/*
-to do: 
-        add feature admin only can create landlord accounts
-*/
-
-
-
-
 
 Route::middleware(['auth', 'category:admin', /*'verified'*/])
     ->prefix('admin')
@@ -80,112 +60,82 @@ Route::middleware(['auth', 'category:admin', /*'verified'*/])
         // Bookings
         Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
         Route::post('/bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.updateStatus');
-
-        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-        Route::post('/users/{user}/status', [AdminUserController::class, 'updateStatus'])->name('users.updateStatus');
         Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
 
-        // routes/web.php
+        // Transports & Drivers
         Route::get('/transports', [TransportAdminController::class, 'index'])->name('transports.index');
-
         Route::patch('/transports/{transport}', [TransportAdminController::class, 'update'])->name('transports.update');
         Route::post('/transports/{transport}/assign-driver', [DriverController::class, 'assignDriver'])->name('transports.assign-driver');
-
-        // Drivers Management
         Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
         Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
 
-        //storehousing for admin
+        // Storage Housing Admin
         Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');
         Route::patch('/storage/{storageBooking}', [StorageAdminController::class, 'update'])->name('storage.update');
-
     });
 
-
-//Route::view('/', 'welcome');
 Route::get('/', [PropertyController::class, 'welcome'])->name('welcome');
 Route::view('/about', 'about')->name('about');
 Route::view('/services', 'services')->name('services');
-//contacts
-Route::get('/contact', [ContactController::class, 'show'])
-    ->name('contact.show');
 
-Route::post('/contact', [ContactController::class, 'submit'])
-    ->name('contact.submit');    
-//profile
+Route::get('/contact', [ContactController::class, 'show'])->name('contact.show');
+Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');    
+
 Route::view('profile', 'profile')
-    ->middleware(['auth', 'verified'])
+    ->middleware(['auth'/*, 'verified'*/])
     ->name('profile');
 
 require __DIR__.'/auth.php';
 
-//dashboard redirect
+// Dashboard & Student/Landlord Web Routes
 Route::middleware(['auth'/*,'verified'*/])->group(function () {
-    // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/student/dashboard', [DashboardController::class, 'studentDashboard'])->name('student.dashboard');
-    Route::get('/landlord/dashboard', [DashboardController::class, 'landlordDashboard'])->name('landlord.dashboard');
-    //Route::get('/admin/dashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
-    Route::get('/api/properties/{area}', [PropertyController::class, 'getPropertiesByArea']);
     Route::get('/student/dashboard', [PropertyController::class, 'studentIndex'])->name('student.dashboard');
-    // Student-facing property details
-    //Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
+    Route::get('/landlord/dashboard', [DashboardController::class, 'landlordDashboard'])->name('landlord.dashboard');
+    Route::get('/api/properties/{area}', [PropertyController::class, 'getPropertiesByArea']);
 
-    //store housing for students
-    Route::get('/store-housing', [StorageHousingController::class, 'index'])
-        ->name('store-housing');
-
-    Route::post('/storage/book', [StorageHousingController::class, 'store'])
-        ->name('storage.store');
+    // Store housing for students
+    Route::get('/store-housing', [StorageHousingController::class, 'index'])->name('store-housing');
+    Route::post('/storage/book', [StorageHousingController::class, 'store'])->name('storage.store');
 
     // Storage Payment Routes
     Route::get('/payments/storage/{storageBooking}', [PaymentController::class, 'showStorageForm'])->name('payments.storage.form');
     Route::post('/payments/storage/{storageBooking}', [PaymentController::class, 'processStoragePayment'])->name('payments.storage.pay');
 });
-        
 
-// Student: pay KES 50 to view details for 6 hours
+// Student: pay KES 50 to view details
 Route::middleware(['auth','category:student'/*,'verified'*/])->group(function () {
     Route::get('/payments/student', [PaymentController::class, 'showStudentForm'])->name('payments.student.form');
     Route::post('/payments/student', [PaymentController::class, 'handleStudentPayment'])->name('payments.student.pay');
-    //show notifications
     Route::get('/student/notifications', [MessageController::class, 'notify'])->name('student.notifications');
-    //store booking
     Route::post('/properties/{property}/book', [BookingController::class, 'payAndBook'])->name('student.bookings.store');
-    //cancel booking
     Route::post('/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('student.bookings.cancel');
-    //show students property i.e accessible to only students that paid
+    
     Route::middleware('studentAccess')->group(function (){
         Route::get('/properties/{property}', [PropertyController::class, 'show'])->name('properties.show');
     });
-       
 });
 
-// Landlord: pay KES 500 per semester to verify account and property
+// Landlord Routes
 Route::middleware(['auth','category:landlord'/*,'verified'*/])->group(function () {
-    //view requests from students
     Route::get('/messages', [MessageController::class, 'index'])->name('messages');
     Route::get('/payments/landlord', [PaymentController::class, 'showLandlordForm'])->name('payments.landlord.form');
     Route::post('/payments/landlord', [PaymentController::class, 'handleLandlordPayment'])->name('payments.landlord.pay');
-    Route::post('/mpesa/callback', [PaymentController::class, 'mpesaCallback'])
-    ->name('mpesa.callback');
-    Route::get('/landlord/payment/verified', [PaymentController::class, 'afterVerificationRedirect'])
-    ->name('payments.landlord.verified');
+    Route::post('/mpesa/callback', [PaymentController::class, 'mpesaCallback'])->name('mpesa.callback');
+    Route::get('/landlord/payment/verified', [PaymentController::class, 'afterVerificationRedirect'])->name('payments.landlord.verified');
 });
 
 Route::middleware(['auth', 'category:landlord'/*, 'verified'*/])
 ->prefix('landlord')
 ->name('landlord.')
 ->group(function () {
-    Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])
-        ->name('ashboard');
+    Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])->name('ashboard');
     Route::prefix('properties')->name('properties.')->group(function () {
         Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
         Route::get('/create', [PropertyController::class, 'create'])->name('add');
         Route::post('/', [PropertyController::class, 'store'])->name('store');
         Route::get('/{property}', [PropertyController::class, 'showProperty'])->name('show'); 
 
-        // Only verified properties can be edited/deleted/published:
         Route::middleware('landlordVerified')->group(function () {
             Route::get('/{property}/edit', [PropertyController::class, 'edit'])->name('edit');
             Route::put('/{property}', [PropertyController::class, 'update'])->name('update');
@@ -200,20 +150,12 @@ Route::middleware(['auth', 'category:landlord'/*, 'verified'*/])
         Route::post('/{booking}/cancel', [BookingController::class, 'cancelStudent'])->name('cancelStudent');
         Route::post('/{booking}/pay', [BookingController::class, 'pay'])->name('bookings.pay');
         Route::get('/{booking}/paystack/callback', [BookingController::class, 'paystackCallback'])->name('bookings.paystack.callback');
-        //Route::post('/{booking}/reject', [BookingController::class, 'reject'])->name('bookings.reject');
     });
-    
 });
 
-//transport routes
+// Transport Routes
 Route::middleware(['auth'/*,'verified'*/])->group(function () {
     Route::get('/bookings/{booking}/transport/request', [TransportController::class, 'create'])->name('transport.request.create');
-
     Route::post('/bookings/{booking}/transport/request', [TransportController::class, 'store'])->name('transport.request.store');
-
     Route::post('/paystack/webhook', [PaystackWebhookController::class, 'handle'])->name('paystack.webhook');
-    
 });
-
-    
-

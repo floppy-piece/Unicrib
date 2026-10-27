@@ -1,6 +1,28 @@
 import { showToast } from './toast.js';
 
+// Inside your resources/js/modules/property-show.js
+
 export function initPropertyShowPage() {
+    // Make modal functions globally accessible for inline onclick handlers
+    window.openPaymentModal = function () {
+        const paymentModal = document.getElementById('payment-modal');
+        if (paymentModal) {
+            paymentModal.classList.remove('hidden');
+            paymentModal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+    };
+
+    window.closeModal = function () {
+        const paymentModal = document.getElementById('payment-modal');
+        if (paymentModal) {
+            paymentModal.classList.remove('flex');
+            paymentModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    };
+
+    // --- Your other module initialization code (Leaflet maps, countdowns, etc.) ---
     initToasts();
     initPropertyMap();
     initTransportModalAndCountdown();
@@ -8,28 +30,30 @@ export function initPropertyShowPage() {
 }
 
 /**
- * Handle session toasts
+ * Handle session & flash toasts
  */
 function initToasts() {
     const toast = document.getElementById('toast');
     if (!toast) return;
 
-    // Toast triggered via data-session attribute
     if (toast.dataset.session) {
         try {
             const data = JSON.parse(toast.dataset.session);
             const isDark = document.documentElement.classList.contains('dark');
+            const message = typeof data === 'string' ? data : (data.message || '');
             const isError = data.type === 'error';
 
-            toast.textContent = data.message;
+            if (!message) return;
+
+            toast.textContent = message;
             toast.className = `fixed top-4 right-4 px-4 py-3 rounded-xl border opacity-100 transition-opacity duration-200 z-50 text-xs shadow-lg ${isError
-                    ? isDark ? 'bg-rose-950 text-rose-200 border-rose-800' : 'bg-rose-900 text-white border-rose-700'
-                    : isDark ? 'bg-emerald-950 text-emerald-200 border-emerald-800' : 'bg-emerald-900 text-white border-emerald-700'
+                ? isDark ? 'bg-rose-950 text-rose-200 border-rose-800' : 'bg-rose-900 text-white border-rose-700'
+                : isDark ? 'bg-emerald-950 text-emerald-200 border-emerald-800' : 'bg-emerald-900 text-white border-emerald-700'
                 }`;
 
             setTimeout(() => {
                 toast.style.opacity = '0';
-            }, 3000);
+            }, 4000);
         } catch (e) {
             console.error('Error parsing toast session data:', e);
         }
@@ -194,11 +218,15 @@ function initTransportModalAndCountdown() {
     const closeBtn2 = document.getElementById('closeTransportModalButton2');
 
     if (modal && openBtn) {
-        const openModal = () => {
+        const openModal = (e) => {
+            if (e) e.preventDefault();
+            if (openBtn.hasAttribute('disabled')) return; // Prevent opening if disabled
             modal.classList.remove('hidden');
+            modal.classList.add('flex');
             document.body.style.overflow = 'hidden';
         };
         const closeModal = () => {
+            modal.classList.remove('flex');
             modal.classList.add('hidden');
             document.body.style.overflow = '';
         };
@@ -206,6 +234,10 @@ function initTransportModalAndCountdown() {
         openBtn.addEventListener('click', openModal);
         if (closeBtn) closeBtn.addEventListener('click', closeModal);
         if (closeBtn2) closeBtn2.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeModal();
+        });
     }
 
     // Countdown logic
@@ -250,19 +282,34 @@ function initTransportModalAndCountdown() {
 /**
  * Handles payment modal triggers
  */
+/**
+ * Handles payment modal triggers
+ */
 function initPaymentModal() {
     const paymentModal = document.getElementById('payment-modal');
-    if (!paymentModal) return;
+    const openBtn = document.getElementById('pay-and-book-btn');
 
-    window.openPaymentModal = function () {
-        paymentModal.classList.remove('hidden');
-    };
-
+    // Also support closing via a close button or cancel button inside the modal if they use inline or specific triggers
     window.closeModal = function () {
-        paymentModal.classList.add('hidden');
+        if (paymentModal) {
+            paymentModal.classList.remove('flex');
+            paymentModal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
     };
+
+    if (paymentModal && openBtn) {
+        openBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            paymentModal.classList.remove('hidden');
+            paymentModal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        });
+    }
 
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape') window.closeModal();
+        if (e.key === 'Escape') {
+            window.closeModal();
+        }
     });
 }

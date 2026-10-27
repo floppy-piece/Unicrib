@@ -30,6 +30,28 @@
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
             
+            {{-- Admin Navigation Tabs --}}
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-3 shadow-sm flex items-center gap-2 overflow-x-auto">
+                <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                    Dashboard
+                </a>
+                <a href="{{ route('admin.users.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                    Users
+                </a>
+                <a href="{{ route('admin.properties.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request()->routeIs('admin.properties.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                    Properties
+                </a>
+                <a href="{{ route('admin.bookings.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request()->routeIs('admin.bookings.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                    Bookings
+                </a>
+                <a href="{{ route('admin.transports.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request()->routeIs('admin.transports.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                    Transports
+                </a>
+                <a href="{{ route('admin.storage.index') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition whitespace-nowrap {{ request()->routeIs('admin.storage.*') ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800' }}">
+                    Store Housing
+                </a>
+            </div>
+
             <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 space-y-6 transition-colors duration-200">
                 
                 @if(session('success'))
@@ -95,7 +117,6 @@
                                 </td>
 
                                 <td class="py-3 px-4">
-                                    {{-- show verification for all users based on boolean is_verified --}}
                                     @if($user->category === 'student')
                                         @if($user->hasValidStudentAccess())
                                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">Verified</span>
@@ -121,7 +142,6 @@
 
                                 <td class="py-3 px-4 text-right">
                                     <div class="inline-flex items-center justify-end gap-2">
-                                        {{-- Toggle is_verified --}}
                                         <form action="{{ route('admin.users.updateStatus', $user) }}"
                                               method="POST"
                                               class="inline-flex items-center gap-1">
@@ -135,7 +155,6 @@
                                             </button>
                                         </form>
 
-                                        {{-- Delete --}}
                                         <form action="{{ route('admin.users.destroy', $user) }}"
                                               method="POST"
                                               class="inline"

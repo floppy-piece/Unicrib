@@ -16,9 +16,6 @@ rules(['email' => ['required', 'string', 'email']]);
 $sendPasswordResetLink = function () {
     $this->validate();
 
-    // We will send the password reset link to this user. Once we have attempted
-    // to send the link, we will examine the response then see the message we
-    // need to show to the user. Finally, we'll send out a proper response.
     $status = Password::sendResetLink(
         $this->only('email')
     );
@@ -36,35 +33,33 @@ $sendPasswordResetLink = function () {
 
 ?>
 
-<div class="w-full bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
-    <div class="mb-6">
-        <h2 class="text-xl font-bold text-slate-900">Forgot your password?</h2>
-        <p class="text-xs text-slate-500 mt-1">No problem. Enter your email address to receive a reset link.</p>
+<div class="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
+    <div class="mb-5">
+        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Forgot password</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter your account email and we'll send you a password reset link.</p>
     </div>
 
-    <div class="mb-4 text-xs text-slate-600 leading-relaxed">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
-
-    <!-- Session Status -->
     @if (session('status'))
-        <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-700 font-medium">
+        <div class="mb-4 p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 font-medium">
             {{ session('status') }}
         </div>
     @endif
 
     <form wire:submit="sendPasswordResetLink" class="space-y-4">
-        <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full" type="email" name="email" required autofocus autocomplete="username" placeholder="name@example.com" />
-            <x-input-error :messages="$errors->get('email')" class="mt-1" />
+            <x-input-label for="email" :value="__('Email')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="email" id="email" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="email" name="email" required autofocus autocomplete="username" placeholder="name@example.com" />
+            <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
-        <div class="pt-2 flex items-center justify-end">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
+        <div class="pt-2 flex items-center justify-between">
+            <a class="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 underline transition" href="{{ route('login') }}" wire:navigate>
+                {{ __('Back to login') }}
+            </a>
+
+            <button type="submit" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm">
+                {{ __('Send Reset Link') }}
+            </button>
         </div>
     </form>
 </div>

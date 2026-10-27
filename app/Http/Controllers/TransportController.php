@@ -47,10 +47,10 @@ class TransportController extends Controller
     
         $property = $booking->property;
     
-        // 1) Block if there is an active (not completed/cancelled) request
+        // 1) Block if there is an active (pending, confirmed, or approved) request
         $existing = Transport::where('booking_id', $booking->id)
             ->where('student_id', $user->id)
-            ->whereIn('status', ['pending', 'confirmed']) // treat these as active
+            ->whereIn('status', ['pending', 'confirmed', 'approved'])
             ->first();
     
         if ($existing) {
@@ -66,7 +66,7 @@ class TransportController extends Controller
             'requested_date'=> ['required', 'date', 'after_or_equal:today'],
         ]);
     
-        // 3) Assign slot as before
+        // 3) Assign slot
         $assignedSlot = $this->assignSlot($property->id, $validated['requested_date']);
     
         // 4) Create transport record
@@ -77,7 +77,7 @@ class TransportController extends Controller
             'student_name'   => $validated['student_name'],
             'student_phone'  => $validated['student_phone'],
             'requested_date' => $validated['requested_date'],
-            'requested_time' => $assignedSlot->format('H:i:s'), // or null if column is nullable
+            'requested_time' => $assignedSlot->format('H:i:s'),
             'assigned_at'    => $assignedSlot,
             'status'         => 'pending',
         ]);
@@ -120,27 +120,36 @@ class TransportController extends Controller
     /**
      * Agent / API endpoint for WhatsApp bot to fetch ride status
      */
-    public function apiTransportStatus(Request $request, Booking $booking)
+    public function apiTransportStatus(Request $request)
     {
-        $transport = Transport::with('driver')->where('booking_id', $booking->id)->latest()->first();
+        $identifier = $request->input('identifier') ?? $request->input('booking_id');
+        $transport = Transport::with('driver')
+            ->when(is_numeric($identifier), fn($q) => $q->where('booking_id', $identifier))
+            ->when(!is_numeric($identifier) && $identifier, fn($q) => $q->whereHas('property', fn($p) => $p->where('area', 'LIKE', '%' . $identifier . '%')->orWhere('title', 'LIKE', '%' . $identifier . '%')))
+            ->latest()->first();
 
         if (!$transport) {
-            return response()->json([
-                'status' => 'none',
-                'message' => 'No transport request found for this booking.'
-            ], 404);
+            $msg = "No transport request or route found for identifier '{$identifier}'.";
+            return $request->wantsJson() ? response()->json(['status' => 'none', 'message' => $msg], 404) : $msg;
         }
 
-        return response()->json([
-            'status' => $transport->status,
-            'assigned_time' => optional($transport->assigned_at)->format('d M Y, H:i'),
-            'driver' => $transport->driver ? [
-                'name' => $transport->driver->name,
-                'phone' => $transport->driver->phone,
-                'vehicle' => $transport->driver->vehicle_model,
-                'plate' => $transport->driver->vehicle_plate,
-            ] : null
-        ]);
+        $driverInfo = $transport->driver ? "Driver: {$transport->driver->name} ({$transport->driver->vehicle_model}, Plate: {$transport->driver->vehicle_plate})" : "Driver pending assignment.";
+        $statusStr = "Transport Status: " . ucfirst($transport->status) . "\nRequested Date: {$transport->requested_date}\n{$driverInfo}";
+
+        if ($request->wantsJson() && !$request->has('identifier')) {
+            return response()->json([
+                'status' => $transport->status,
+                'assigned_time' => optional($transport->assigned_at)->format('d M Y, H:i'),
+                'driver' => $transport->driver ? [
+                    'name' => $transport->driver->name,
+                    'phone' => $transport->driver->phone,
+                    'vehicle' => $transport->driver->vehicle_model,
+                    'plate' => $transport->driver->vehicle_plate,
+                ] : null
+            ]);
+        }
+
+        return $statusStr;
     }
     
 }

@@ -56,11 +56,11 @@ class AuthenticationTest extends TestCase
 
     public function test_navigation_menu_can_be_rendered(): void
     {
-        $user = User::factory()->create();
+        $user = User::factory()->create(['category' => 'student', 'is_verified' => true]);
 
         $this->actingAs($user);
 
-        $response = $this->get('/dashboard');
+        $response = $this->get('/profile');
 
         $response
             ->assertOk()

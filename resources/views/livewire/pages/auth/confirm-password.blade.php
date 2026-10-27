@@ -32,33 +32,30 @@ $confirmPassword = function () {
 
 ?>
 
-<div class="w-full bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8">
-    <div class="mb-6">
-        <h2 class="text-xl font-bold text-slate-900">Confirm password</h2>
-        <p class="text-xs text-slate-500 mt-1">This is a secure area of the application. Please confirm your password.</p>
-    </div>
-
-    <div class="mb-4 text-xs text-slate-600 leading-relaxed">
-        {{ __('This is a secure area of the application. Please confirm your password before continuing.') }}
+<div class="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
+    <div class="mb-4">
+        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Confirm password</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+            This is a secure action. Please confirm your password to proceed.
+        </p>
     </div>
 
     <form wire:submit="confirmPassword" class="space-y-4">
-        <!-- Password -->
         <div>
-            <x-input-label for="password" :value="__('Password')" />
+            <x-input-label for="password" :value="__('Password')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
             <x-text-input wire:model="password"
                           id="password"
-                          class="block mt-1 w-full"
+                          class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500"
                           type="password"
                           name="password"
                           required autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-1" />
+            <x-input-error :messages="$errors->get('password')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <div class="pt-2 flex items-center justify-end">
-            <x-primary-button>
+            <button type="submit" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-5 rounded-xl transition shadow-sm">
                 {{ __('Confirm') }}
-            </x-primary-button>
+            </button>
         </div>
     </form>
 </div>

@@ -20,6 +20,7 @@ return new class extends Migration
                 $table->string('password');
                 $table->string('category')->default('student');
                 $table->string('phone')->nullable();
+                $table->string('telegram_chat_id')->nullable();
                 $table->string('paystack_subaccount_code')->nullable();
                 $table->boolean('is_verified')->default(false);
                 $table->timestamp('access_expires_at')->nullable();

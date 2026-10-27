@@ -64,7 +64,20 @@
         <main class="flex-grow">
             {{ $slot }}
         </main>
+        @stack('scripts')
 
+        {{-- Global Toast Notification Container --}}
+        <div id="toast" 
+            @if(session('booking_status')) 
+                data-session='@json(session('booking_status'))' 
+            @elseif(session('success')) 
+                data-session='@json(['type' => 'success', 'message' => session('success')])' 
+            @elseif(session('error')) 
+                data-session='@json(['type' => 'error', 'message' => session('error')])' 
+            @endif 
+            class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-300 z-50 text-xs shadow-lg pointer-events-none">
+        </div>
+        
         {{-- Footer --}}
         <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 mt-auto transition-colors duration-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">

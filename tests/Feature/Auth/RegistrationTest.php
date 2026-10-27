@@ -22,14 +22,16 @@ class RegistrationTest extends TestCase
     public function test_new_users_can_register(): void
     {
         $component = Volt::test('pages.auth.register')
+            ->set('category', 'student')
             ->set('name', 'Test User')
             ->set('email', 'test@example.com')
+            ->set('phone', '254711223344')
             ->set('password', 'password')
             ->set('password_confirmation', 'password');
 
         $component->call('register');
 
-        $component->assertRedirect(route('dashboard', absolute: false));
+        $component->assertRedirect(route('verification.notice', absolute: false));
 
         $this->assertAuthenticated();
     }
