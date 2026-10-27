@@ -1,6 +1,19 @@
 {{-- resources/views/layouts/app.blade.php --}}
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" 
+      x-data="{ 
+          darkMode: localStorage.getItem('dark') === 'true' || (!('dark' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) 
+      }" 
+      x-init="
+          $watch('darkMode', val => {
+              localStorage.setItem('dark', val);
+              if (val) {
+                  document.documentElement.classList.add('dark');
+              } else {
+                  document.documentElement.classList.remove('dark');
+              }
+          })
+      ">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,16 +27,10 @@
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-        <script src="https://cdn.tailwindcss.com"></script>
-
+        
+        {{-- Prevent flash of light/dark mode --}}
         <script>
-            // Configure Tailwind to support class-based dark mode
-            tailwind.config = {
-                darkMode: 'class',
-            }
-            
-            // Check and apply saved theme on initial load to prevent flashing
-            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (localStorage.getItem('dark') === 'true' || (!('dark' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
             } else {
                 document.documentElement.classList.remove('dark');

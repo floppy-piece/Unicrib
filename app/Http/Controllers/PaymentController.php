@@ -1,7 +1,5 @@
 <?php
 
-
-// app/Http/Controllers/PaymentController.php
 namespace App\Http\Controllers;
 
 use App\Models\Payment;
@@ -14,18 +12,69 @@ use App\Models\StorageBooking;
 
 class PaymentController extends Controller
 {
-    //student
+    // Student payment form view
     public function showStudentForm()
     {
         return view('payments.student');
     }
-    //
-    //landlord
+
+    // Landlord payment form view
     public function showLandlordForm()
     {
         return view('payments.landlord');
     }
-    //
+
+    // General gateway redirection for /pay
+    public function redirectToGateway(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Default amount: KES 500 for landlords, KES 50 for students unless specified
+        $amountInKes = $request->input('amount', $user->category === 'landlord' ? 500 : 50);
+        $amountInCents = $amountInKes * 100; // Paystack expects minor units (cents)
+        
+        $reference = Paystack::genTranxRef();
+
+        $payment = Payment::create([
+            'user_id'          => $user->id,
+            'reference'        => $reference,
+            'amount'           => $amountInCents,
+            'currency'         => 'KES',
+            'status'           => 'pending',
+            'provider_payload' => $request->all(),
+        ]);
+
+        $data = [
+            'amount'       => $amountInCents,
+            'email'        => $user->email,
+            'reference'    => $reference,
+            'callback_url' => route('payment.callback'),
+            'currency'     => 'KES',
+            'metadata'     => [
+                'payment_id' => $payment->id,
+                'user_id'    => $user->id,
+                'category'   => $user->category,
+            ],
+        ];
+
+        return Paystack::getAuthorizationUrl($data)->redirectNow();
+    }
+
+    // Dedicated handler for student 6-hour access fee (KES 50)
+    public function handleStudentPayment(Request $request)
+    {
+        $request->merge(['amount' => 50]);
+        return $this->redirectToGateway($request);
+    }
+
+    // Dedicated handler for landlord semester verification fee (KES 500)
+    public function handleLandlordPayment(Request $request)
+    {
+        $request->merge(['amount' => 500]);
+        return $this->redirectToGateway($request);
+    }
+
+    // Handle Paystack callback after payment completion
     public function handleGatewayCallback(Request $request)
     {
         \Log::info('Paystack callback hit', ['query' => $request->all()]);
@@ -51,7 +100,7 @@ class PaymentController extends Controller
         }
 
         $reference = $paymentDetails['data']['reference'];
-        $amountInCents = $paymentDetails['data']['amount']; // amount in minor unit (e.g. 5000 = KES 50)
+        $amountInCents = $paymentDetails['data']['amount']; 
         $amountInKes = $amountInCents / 100;
 
         $payment = Payment::where('reference', $reference)->firstOrFail();
@@ -131,7 +180,7 @@ class PaymentController extends Controller
     public function showStorageForm(StorageBooking $storageBooking)
     {
         $monthlyPrice = 800;
-        $upfrontAmount = $monthlyPrice; // First month only
+        $upfrontAmount = $monthlyPrice; 
 
         return view('payments.storage', [
             'booking' => $storageBooking,
@@ -143,7 +192,7 @@ class PaymentController extends Controller
     {
         $user = Auth::user();
         $monthlyPrice = 800;
-        $upfrontAmountInCents = $monthlyPrice * 100; // Paystack expects amount in minor currency unit (cents/kobo)
+        $upfrontAmountInCents = $monthlyPrice * 100; 
         $reference = Paystack::genTranxRef();
 
         $payment = Payment::create([
@@ -171,4 +220,3 @@ class PaymentController extends Controller
         return Paystack::getAuthorizationUrl($data)->redirectNow();
     }
 }
-

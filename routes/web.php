@@ -129,7 +129,7 @@ Route::middleware(['auth', 'category:landlord'/*, 'verified'*/])
 ->prefix('landlord')
 ->name('landlord.')
 ->group(function () {
-    Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])->name('ashboard');
+    Route::get('/landlord/dashboard', [DashboardController::class, 'index2'])->name('dashboard');
     Route::prefix('properties')->name('properties.')->group(function () {
         Route::get('/', [PropertyController::class, 'index'])->name('myProperties');
         Route::get('/create', [PropertyController::class, 'create'])->name('add');

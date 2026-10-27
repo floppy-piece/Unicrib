@@ -41,7 +41,7 @@
                                 <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 shadow-sm">
                                     Unverified Access ⚠️
                                 </span>
-                                <a href="{{ route('pay.form') }}" wire:navigate class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition">
+                                <a href="{{ route('payments.student.form') }}" wire:navigate class="px-4 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition">
                                     Verify Payment (KSh 50)
                                 </a>
                             </div>

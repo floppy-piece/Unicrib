@@ -1,11 +1,11 @@
 {{-- resources/views/components/dark-mode-toggle.blade.php --}}
 <button 
     x-data="{ 
-        darkMode: localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) 
+        darkMode: localStorage.getItem('dark') === 'true' || (!('dark' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches) 
     }"
     x-init="
         $watch('darkMode', val => {
-            localStorage.setItem('theme', val ? 'dark' : 'light');
+            localStorage.setItem('dark', val);
             document.documentElement.classList.toggle('dark', val);
         });
         document.documentElement.classList.toggle('dark', darkMode);
