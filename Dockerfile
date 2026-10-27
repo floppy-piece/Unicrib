@@ -22,7 +22,8 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 # Build Tailwind / Vite frontend assets inside the container
 RUN npm install && npm run build \
-    && php artisan livewire:publish --assets
+    && php artisan livewire:publish --assets \
+    && ln -s /var/www/html/public/vendor/livewire /var/www/html/public/livewire
 
 # Image config
 ENV SKIP_COMPOSER 1
