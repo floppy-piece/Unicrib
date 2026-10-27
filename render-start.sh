@@ -13,6 +13,7 @@ if [ ! -f "public/build/manifest.json" ]; then
 fi
 
 echo "Clearing stale application caches..."
+php artisan cache:clear
 php artisan config:clear
 php artisan config:cache
 php artisan route:cache
