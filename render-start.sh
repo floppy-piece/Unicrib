@@ -21,7 +21,6 @@ php artisan view:cache
 
 # Run database migrations safely
 php artisan migrate --force
-php artisan schedule:work
 
 echo "Starting Nginx and PHP-FPM..."
 exec /start.sh

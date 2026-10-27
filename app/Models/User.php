@@ -25,6 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'phone',
         'is_verified',
         'paystack_subaccount_code',
+        'telegram_chat_id',
     ];
 
     /**

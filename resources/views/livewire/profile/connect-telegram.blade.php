@@ -1,12 +1,13 @@
+{{-- resources/views/livewire/profile/telegram-link.blade.php --}}
 <?php
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
 use function Livewire\Volt\state;
 
 state([
     'telegram_chat_id' => fn () => auth()->user()->telegram_chat_id,
+    'isLinked' => fn () => !empty(auth()->user()->telegram_chat_id),
 ]);
 
 $linkTelegram = function () {
@@ -19,6 +20,13 @@ $linkTelegram = function () {
     $user->update([
         'telegram_chat_id' => $validated['telegram_chat_id'],
     ]);
+
+    // Refresh the authenticated user instance in session/container
+    $user->refresh();
+    
+    // Update local state variables
+    $this->telegram_chat_id = $user->telegram_chat_id;
+    $this->isLinked = true;
 
     $this->dispatch('telegram-linked');
 };
@@ -36,8 +44,8 @@ $linkTelegram = function () {
                 {{ __("Link your Telegram Chat ID to your Unicrib account. This enables seamless authorization for chatting with Unicrib AI, searching student housing, tracking transport, and managing storage directly via Telegram.") }}
             </p>
         </div>
-        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold {{ auth()->user()->telegram_chat_id ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/50' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50' }}">
-            {{ auth()->user()->telegram_chat_id ? 'Linked ✅' : 'Not Connected ⚠️' }}
+        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold {{ $isLinked ? 'bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-900/50' : 'bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-900/50' }}">
+            {{ $isLinked ? 'Linked ✅' : 'Not Connected ⚠️' }}
         </span>
     </header>
 
@@ -56,7 +64,7 @@ $linkTelegram = function () {
                 {{ __('Link Telegram Account') }}
             </x-primary-button>
 
-            @if (auth()->user()->telegram_chat_id)
+            @if ($isLinked)
                 <a href="https://t.me/{{ env('TELEGRAM_BOT_USERNAME', 'UnicribBot') }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 border border-sky-600 rounded-xl text-xs font-semibold text-white hover:bg-sky-700 shadow-sm transition">
                     <span>🤖 Open Telegram Bot</span>
                 </a>
