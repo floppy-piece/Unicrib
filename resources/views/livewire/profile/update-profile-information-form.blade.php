@@ -50,44 +50,44 @@ $sendVerification = function () {
 
 ?>
 
-<section class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl">
+<section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl transition-colors duration-200">
     <header>
-        <h2 class="text-sm font-bold text-slate-900">
+        <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">
             {{ __('Profile Information') }}
         </h2>
 
-        <p class="mt-1 text-xs text-slate-500 leading-relaxed">
+        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
             {{ __("Update your account's profile information and email address.") }}
         </p>
     </header>
 
     <form wire:submit="updateProfileInformation" class="mt-6 space-y-4">
         <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full" required autofocus autocomplete="name" />
+            <x-input-label for="name" :value="__('Name')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="name" id="name" name="name" type="text" class="mt-1 block w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200" required autofocus autocomplete="name" />
             <x-input-error class="mt-1" :messages="$errors->get('name')" />
         </div>
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
+            <x-input-label for="email" :value="__('Email')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200" required autocomplete="username" />
             <x-input-error class="mt-1" :messages="$errors->get('email')" />
 
             @if (auth()->user() instanceof MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
                 <div class="mt-3">
-                    <p class="text-xs text-slate-600">
+                    <p class="text-xs text-slate-600 dark:text-slate-400">
                         {{ __('Your email address is unverified.') }}
 
                         <button
                             wire:click.prevent="sendVerification"
-                            class="text-xs font-medium text-indigo-600 hover:text-indigo-800 underline transition ml-1"
+                            class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline transition ml-1"
                         >
                             {{ __('Click here to re-send the verification email.') }}
                         </button>
                     </p>
 
                     @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 text-xs font-medium text-emerald-600">
+                        <p class="mt-2 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                             {{ __('A new verification link has been sent to your email address.') }}
                         </p>
                     @endif
@@ -96,15 +96,15 @@ $sendVerification = function () {
         </div>
 
         <div>
-            <x-input-label for="phone" :value="__('Phone Number')" />
-            <x-text-input wire:model="phone" id="phone" name="phone" type="tel" class="mt-1 block w-full" required autocomplete="phone" />
+            <x-input-label for="phone" :value="__('Phone Number')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-text-input wire:model="phone" id="phone" name="phone" type="tel" class="mt-1 block w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200" required autocomplete="phone" />
             <x-input-error class="mt-1" :messages="$errors->get('phone')" />
         </div>
 
         <div class="pt-2 flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+            <x-primary-button target="updateProfileInformation">{{ __('Save') }}</x-primary-button>
 
-            <x-action-message class="me-3 text-xs text-emerald-600 font-medium" on="profile-updated">
+            <x-action-message class="me-3 text-xs text-emerald-600 dark:text-emerald-400 font-medium" on="profile-updated">
                 {{ __('Saved.') }}
             </x-action-message>
         </div>
