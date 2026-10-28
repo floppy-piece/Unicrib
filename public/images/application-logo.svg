@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <!-- Background Soft Glow -->
+    <radialGradient id="bgGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#aabdd2" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#dae4ee" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Sparkle Glow -->
+    <radialGradient id="sparkleGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#cad8e5" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#8da5c0" stop-opacity="0" />
+    </radialGradient>
+
+    <!-- Outer House Outline Gradient -->
+    <linearGradient id="roofOutline" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2e2f2c" />
+      <stop offset="100%" stop-color="#6a6c6a" />
+    </linearGradient>
+
+    <!-- House Pill Inner Gradient -->
+    <linearGradient id="innerPill" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="65%" stop-color="#dae4ee" />
+      <stop offset="100%" stop-color="#cad8e5" />
+    </linearGradient>
+
+    <!-- Drop Shadow for Main Badge -->
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#2e2f2c" flood-opacity="0.15" />
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#6a6c6a" flood-opacity="0.10" />
+    </filter>
+  </defs>
+
+  <!-- Canvas Background -->
+  <rect width="800" height="500" fill="#dae4ee" />
+  <circle cx="400" cy="250" r="300" fill="url(#bgGlow)" />
+
+  <!-- Sparkle Glow Aura -->
+  <circle cx="400" cy="122" r="45" fill="url(#sparkleGlow)" />
+
+  <!-- Top Four-Pointed Sparkle -->
+  <path d="M400,102 Q400,122 420,122 Q400,122 400,142 Q400,122 380,122 Q400,122 400,102 Z" fill="#8da5c0" />
+
+  <!-- Main Unicrib House Badge Group -->
+  <g filter="url(#dropShadow)">
+    <!-- Outer Dark House Border -->
+    <path d="M 400,165 
+             L 570,240 
+             A 55,55 0 0,1 600,285 
+             L 600,315 
+             A 45,45 0 0,1 555,360 
+             L 245,360 
+             A 45,45 0 0,1 200,315 
+             L 200,285 
+             A 55,55 0 0,1 230,240 
+             Z" fill="url(#roofOutline)" />
+
+    <!-- Inner Light Pill Body -->
+    <path d="M 400,180 
+             L 560,250 
+             A 42,42 0 0,1 582,285 
+             L 582,310 
+             A 32,32 0 0,1 550,342 
+             L 250,342 
+             A 32,32 0 0,1 218,310 
+             L 218,285 
+             A 42,42 0 0,1 240,250 
+             Z" fill="url(#innerPill)" />
+
+    <!-- Window Grid (4 Squares) -->
+    <g fill="#2e2f2c" opacity="0.9">
+      <rect x="389" y="218" width="9" height="9" rx="1.5" />
+      <rect x="402" y="218" width="9" height="9" rx="1.5" />
+      <rect x="389" y="231" width="9" height="9" rx="1.5" />
+      <rect x="402" y="231" width="9" height="9" rx="1.5" />
+    </g>
+
+    <!-- Brand Typography "Unicrib" -->
+    <text x="400" y="318" text-anchor="middle" font-family="system-ui, -apple-system, BlinkMacSystemFont, &#39;Segoe UI&#39;, Roboto, &#39;Helvetica Neue&#39;, sans-serif" font-weight="800" font-size="64" letter-spacing="-1.5" fill="#2e2f2c">Unicrib</text>
+  </g>
+</svg>
