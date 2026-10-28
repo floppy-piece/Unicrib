@@ -66,7 +66,7 @@ $linkTelegram = function () {
 
             @if ($isLinked)
                 <a href="https://t.me/{{ config('services.telegram.bot_username', env('TELEGRAM_BOT_USERNAME')) }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-sky-600 border border-sky-600 rounded-xl text-xs font-semibold text-white hover:bg-sky-700 shadow-sm transition">
-                    <span>🤖 Open Telegram Bot (@{{ config('services.telegram.bot_username', env('TELEGRAM_BOT_USERNAME')) }})</span>
+                    <span>🤖 Open Telegram Bot </span>
                 </a>
             @endif
 
