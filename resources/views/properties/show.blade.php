@@ -1,6 +1,7 @@
+{{-- resources/views/properties/show.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <h2 class="text-lg font-semibold text-[#2e2f2c] dark:text-white">
             {{ $property->building_name }}
         </h2>
     </x-slot>
@@ -26,20 +27,20 @@
         @elseif(session('error')) 
             data-session='@json(['type' => 'error', 'message' => session('error')])' 
         @endif 
-        class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-white px-4 py-3 rounded-xl border border-slate-700 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg">
+        class="fixed top-4 right-4 bg-[#2e2f2c] dark:bg-[#6a6c6a] text-white px-4 py-3 rounded-xl border border-[#6a6c6a] dark:border-[#8da5c0] opacity-0 transition-opacity duration-200 z-50 text-xs shadow-lg">
     </div>
 
-    <div class="py-6 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
+    <div class="py-6 bg-[#dae4ee] dark:bg-[#2e2f2c] min-h-screen transition-colors duration-200">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 transition-colors duration-200">
+            <div class="bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 transition-colors duration-200">
                 
                 {{-- Top section --}}
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-[#cad8e5] dark:border-[#6a6c6a]">
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">
+                        <h1 class="text-xl font-bold text-[#2e2f2c] dark:text-white">
                             {{ $property->building_name }}
                         </h1>
-                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+                        <p class="text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5] mt-1">
                             {{ ucfirst($property->property_type) }} • Area: {{ ucfirst($property->area) }}
                             @if($property->street)
                                 • {{ $property->street }}
@@ -49,15 +50,15 @@
                             @endif
                         </p>
                         @if($property->landmark)
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
+                            <p class="text-[11px] text-[#6a6c6a] dark:text-[#aabdd2] mt-0.5">
                                 Landmark: {{ $property->landmark }}
                             </p>
                         @endif
 
                         <div class="mt-2">
-                            <p class="text-xs text-slate-600 dark:text-slate-300">
+                            <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5]">
                                 Landlord phone:
-                                <a href="tel:{{ optional($property->landlord)->phone }}" class="text-slate-900 dark:text-slate-100 font-bold hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+                                <a href="tel:{{ optional($property->landlord)->phone }}" class="text-[#2e2f2c] dark:text-white font-bold hover:underline">
                                     {{ optional($property->landlord)->phone ?? 'No phone set' }}
                                 </a>
                             </p>
@@ -65,10 +66,10 @@
                     </div>
 
                     <div class="text-left md:text-right flex flex-col items-start md:items-end">
-                        <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                        <p class="text-xl font-bold text-[#2e2f2c] dark:text-[#aabdd2]">
                             KES {{ number_format($property->price) }}
                         </p>
-                        <p class="text-xs text-slate-400 dark:text-slate-500">
+                        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5]">
                             per month
                         </p>
                        
@@ -100,7 +101,7 @@
                                     </div>
                                 @elseif($hasActiveBooking)
                                     <div class="mt-3 space-y-3">
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#dae4ee] dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-[#cad8e5] border border-[#aabdd2] dark:border-[#6a6c6a]">
                                             You have an active booking for this property. To book another property contact the landlord of this Property and request for cancellation.
                                         </span>
 
@@ -116,20 +117,20 @@
                                         @endphp
 
                                         @if($activeTransport)
-                                            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-1 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800">
+                                            <div class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] space-y-1 p-3 rounded-xl bg-[#dae4ee]/50 dark:bg-[#2e2f2c]/50 border border-[#cad8e5] dark:border-[#6a6c6a]">
                                                 <div>
                                                     Transport status:
-                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $isComplete ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50' : ($transportStatus === 'cancelled' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50' : 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-900/50') }}">
+                                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold {{ $isComplete ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50' : ($transportStatus === 'cancelled' ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50' : 'bg-[#cad8e5] dark:bg-[#6a6c6a] text-[#2e2f2c] dark:text-white') }}">
                                                         {{ ucfirst($transportStatus) }}
                                                     </span>
                                                 </div>
 
                                                 @if($activeTransport->assigned_at && !$isComplete && $transportStatus !== 'cancelled')
                                                     <div>
-                                                        Assigned time: <span class="text-slate-700 dark:text-slate-300 font-medium">{{ $activeTransport->assigned_at->format('d M Y, H:i') }}</span>
+                                                        Assigned time: <span class="text-[#2e2f2c] dark:text-white font-medium">{{ $activeTransport->assigned_at->format('d M Y, H:i') }}</span>
                                                     </div>
                                                     <div>
-                                                        Time until transport: <span id="transport-countdown" data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}" class="text-indigo-600 dark:text-indigo-400 font-bold">calculating...</span>
+                                                        Time until transport: <span id="transport-countdown" data-deadline="{{ $activeTransport->assigned_at->toIso8601String() }}" class="text-[#2e2f2c] dark:text-[#aabdd2] font-bold">calculating...</span>
                                                     </div>
                                                 @endif
                                             </div>
@@ -142,17 +143,17 @@
                                                     @if($isComplete || $hasActiveRequest) disabled @endif
                                                     class="inline-flex items-center justify-center px-4 py-2 rounded-xl text-xs font-semibold shadow-sm transition
                                                     {{ $isComplete || $hasActiveRequest
-                                                        ? 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed opacity-60' 
-                                                        : 'bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-500' }}">
+                                                        ? 'bg-[#cad8e5] dark:bg-[#6a6c6a] text-[#6a6c6a] dark:text-[#aabdd2] cursor-not-allowed opacity-60' 
+                                                        : 'bg-[#cad8e5] text-[#2e2f2c] hover:bg-[#aabdd2] dark:bg-[#cad8e5] dark:text-[#2e2f2c] dark:hover:bg-[#aabdd2]' }}">
                                                 {{ $isComplete ? 'Transport Completed' : ($hasActiveRequest ? 'Transport Requested (Pending)' : 'Request transport') }}
                                             </button>
                                         </div>
 
                                         {{-- Transport Modal --}}
                                         @if(!$isComplete && !$hasActiveRequest)
-                                            <div id="transportRequestModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm">
-                                                <div class="relative max-w-lg w-full bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
-                                                    <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 flex items-center justify-between text-white">
+                                            <div id="transportRequestModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-[#2e2f2c]/60 dark:bg-[#2e2f2c]/80 backdrop-blur-sm">
+                                                <div class="relative max-w-lg w-full bg-white dark:bg-[#6a6c6a]/30 rounded-2xl border border-[#cad8e5] dark:border-[#8da5c0]/40 shadow-2xl overflow-hidden">
+                                                    <div class="px-6 py-4 bg-[#2e2f2c] dark:bg-[#6a6c6a] flex items-center justify-between text-white">
                                                         <h5 class="text-sm font-bold">Request transport to {{ $property->building_name }}</h5>
                                                         <button type="button" id="closeTransportModalButton" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
                                                     </div>
@@ -160,26 +161,26 @@
                                                     <form action="{{ route('transport.request.store', $activeBooking->id) }}" method="POST" class="p-6 space-y-4">
                                                         @csrf
                                                         <div>
-                                                            <label for="student_name" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Name</label>
-                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_name', $user->name) }}" required>
+                                                            <label for="student_name" class="block text-xs font-medium text-[#2e2f2c] dark:text-[#cad8e5] mb-1">Name</label>
+                                                            <input type="text" id="student_name" name="student_name" class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] px-3.5 py-2.5 text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0]" value="{{ old('student_name', $user->name) }}" required>
                                                         </div>
 
                                                         <div>
-                                                            <label for="student_phone" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Phone number</label>
-                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('student_phone', $user->phone) }}" required>
+                                                            <label for="student_phone" class="block text-xs font-medium text-[#2e2f2c] dark:text-[#cad8e5] mb-1">Phone number</label>
+                                                            <input type="text" id="student_phone" name="student_phone" class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] px-3.5 py-2.5 text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0]" value="{{ old('student_phone', $user->phone) }}" required>
                                                         </div>
 
                                                         <div>
-                                                            <label for="requested_date" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Preferred transport date</label>
-                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 focus:ring-indigo-500" value="{{ old('requested_date') }}" required>
-                                                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
+                                                            <label for="requested_date" class="block text-xs font-medium text-[#2e2f2c] dark:text-[#cad8e5] mb-1">Preferred transport date</label>
+                                                            <input type="date" id="requested_date" name="requested_date" class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] px-3.5 py-2.5 text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0]" value="{{ old('requested_date') }}" required>
+                                                            <p class="text-[11px] text-[#6a6c6a] dark:text-[#aabdd2] mt-1">
                                                                 Transport slots run between 8:00am and 10:00pm. The system will assign you the next available 2‑hour slot.
                                                             </p>
                                                         </div>
 
-                                                        <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
-                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" id="closeTransportModalButton2">Close</button>
-                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 transition">
+                                                        <div class="pt-4 border-t border-[#cad8e5] dark:border-[#6a6c6a] flex justify-end gap-2">
+                                                            <button type="button" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#dae4ee] dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-[#cad8e5] hover:bg-[#cad8e5] dark:hover:bg-[#6a6c6a] transition" id="closeTransportModalButton2">Close</button>
+                                                            <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#cad8e5] hover:bg-[#aabdd2] text-[#2e2f2c] transition">
                                                                 Send request
                                                             </button>
                                                         </div>
@@ -194,17 +195,17 @@
                                             Make sure to contact the owner of this property before booking.
                                         </p>
                                         
-                                        <button type="button" id="pay-and-book-btn" onclick="openPaymentModal()" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
-                                            <span>Pay & Book Now</span>
+                                        <button type="button" id="pay-and-book-btn" onclick="openPaymentModal()" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-[#cad8e5] text-[#2e2f2c] shadow-sm hover:bg-[#aabdd2] transition">
+                                            <span>Pay &amp; Book Now</span>
                                         </button>
 
                                         {{-- Payment Modal --}}
-                                        <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 dark:bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
-                                            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-2xl max-w-lg w-full overflow-hidden">
-                                                <div class="px-6 py-4 bg-indigo-600 dark:bg-indigo-700 text-white flex items-center justify-between">
+                                        <div id="payment-modal" class="fixed inset-0 bg-[#2e2f2c]/60 dark:bg-[#2e2f2c]/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+                                            <div class="bg-white dark:bg-[#6a6c6a]/30 rounded-2xl border border-[#cad8e5] dark:border-[#8da5c0]/40 shadow-2xl max-w-lg w-full overflow-hidden">
+                                                <div class="px-6 py-4 bg-[#2e2f2c] dark:bg-[#6a6c6a] text-white flex items-center justify-between">
                                                     <div>
-                                                        <h2 class="text-sm font-bold">Book & Pay Securely</h2>
-                                                        <p class="text-[11px] text-indigo-100">Complete payment to book {{ $property->building_name ?? 'Property' }}</p>
+                                                        <h2 class="text-sm font-bold">Book &amp; Pay Securely</h2>
+                                                        <p class="text-[11px] text-[#cad8e5]">Complete payment to book {{ $property->building_name ?? 'Property' }}</p>
                                                     </div>
                                                     <button type="button" onclick="closeModal()" class="text-white/80 hover:text-white text-xl font-bold">&times;</button>
                                                 </div>
@@ -213,36 +214,36 @@
                                                     @csrf            
                                                     <input type="hidden" name="reference" value="{{ Paystack::genTranxRef() }}">
 
-                                                    <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-700/80 flex items-center justify-between">
+                                                    <div class="p-4 rounded-xl bg-[#dae4ee]/50 dark:bg-[#2e2f2c]/60 border border-[#cad8e5] dark:border-[#6a6c6a] flex items-center justify-between">
                                                         <div>
-                                                            <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Assurance fee Required (5%)</p>
-                                                            <p class="text-lg font-bold text-indigo-600 dark:text-indigo-400 mt-0.5">
+                                                            <p class="text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5]">Assurance fee Required (5%)</p>
+                                                            <p class="text-lg font-bold text-[#2e2f2c] dark:text-[#aabdd2] mt-0.5">
                                                                 KES {{ number_format(ceil(5/100 * ($property->price ?? 0))) }}
                                                             </p>
                                                         </div>
-                                                        <span class="text-[11px] font-semibold text-slate-400 dark:text-slate-400 bg-white dark:bg-slate-800 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-700">
+                                                        <span class="text-[11px] font-semibold text-[#6a6c6a] dark:text-[#cad8e5] bg-white dark:bg-[#2e2f2c] px-2.5 py-1 rounded-full border border-[#cad8e5] dark:border-[#6a6c6a]">
                                                             of KES {{ number_format($property->price ?? 0) }}
                                                         </span>
                                                     </div>
 
                                                     <div>
-                                                        <label class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+                                                        <label class="block text-xs font-medium text-[#2e2f2c] dark:text-[#cad8e5] mb-1">Email</label>
+                                                        <input type="email" name="email" value="{{ old('email', auth()->user()->email ?? '') }}" required class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] px-3 py-2 text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0]">
                                                     </div>
 
                                                     <div class="flex items-start gap-2">
-                                                        <input type="checkbox" name="terms_agreement" id="terms" required class="mt-0.5 h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 dark:bg-slate-800">
-                                                        <label for="terms" class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed cursor-pointer">
+                                                        <input type="checkbox" name="terms_agreement" id="terms" required class="mt-0.5 h-4 w-4 rounded border-[#cad8e5] dark:border-[#6a6c6a] text-[#2e2f2c] focus:ring-[#8da5c0] dark:bg-[#2e2f2c]">
+                                                        <label for="terms" class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed cursor-pointer">
                                                             I agree to pay and book this property. Payment is non-refundable unless landlord rejects.
                                                         </label>
                                                     </div>
 
-                                                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-2">
-                                                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+                                                    <div class="pt-4 border-t border-[#cad8e5] dark:border-[#6a6c6a] flex justify-end gap-2">
+                                                        <button type="button" onclick="closeModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#dae4ee] dark:bg-[#2e2f2c] text-[#6a6c6a] dark:text-[#cad8e5] hover:bg-[#cad8e5] dark:hover:bg-[#6a6c6a] transition">
                                                             Cancel
                                                         </button>
-                                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
-                                                            Pay & Book Now
+                                                        <button type="submit" class="px-4 py-2 rounded-xl text-xs font-semibold bg-[#cad8e5] hover:bg-[#aabdd2] text-[#2e2f2c] transition">
+                                                            Pay &amp; Book Now
                                                         </button>
                                                     </div>
                                                 </form>
@@ -258,13 +259,13 @@
                 {{-- Images --}}
                 @if(is_array($property->images) && count($property->images))
                     <div class="mt-6">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-3">Photos</h3>
+                        <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white mb-3">Photos</h3>
                         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
                             @foreach($property->images as $image)
                                 @php
                                     $path = preg_replace('/^public\//', '', $image);
                                 @endphp
-                                <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800">
+                                <div class="overflow-hidden rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee] dark:bg-[#2e2f2c]">
                                     <img src="{{ asset('storage/'.$path) }}" alt="Property image" class="w-full h-40 object-cover hover:scale-105 transition duration-300">
                                 </div>
                             @endforeach
@@ -276,40 +277,40 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
                     <div class="md:col-span-2 space-y-6">
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Description</h3>
-                            <div class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed whitespace-pre-line">
+                            <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white mb-2">Description</h3>
+                            <div class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed whitespace-pre-line">
                                 {{ $property->description }}
                             </div>
                         </div>
 
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Details</h3>
-                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-700 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-700/80">
+                            <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white mb-2">Details</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-[#2e2f2c] dark:text-[#cad8e5] bg-[#dae4ee]/50 dark:bg-[#2e2f2c]/60 p-4 rounded-2xl border border-[#cad8e5] dark:border-[#6a6c6a]">
                                 <div>
-                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Bedrooms</span>
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->bedrooms }}</span>
+                                    <span class="font-medium text-[#6a6c6a] dark:text-[#aabdd2] block text-[11px]">Bedrooms</span>
+                                    <span class="font-bold text-[#2e2f2c] dark:text-white">{{ $property->bedrooms }}</span>
                                 </div>
                                 <div>
-                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Bathrooms</span>
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->bathrooms }}</span>
+                                    <span class="font-medium text-[#6a6c6a] dark:text-[#aabdd2] block text-[11px]">Bathrooms</span>
+                                    <span class="font-bold text-[#2e2f2c] dark:text-white">{{ $property->bathrooms }}</span>
                                 </div>
                                 <div>
-                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Size</span>
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->size }} sqm</span>
+                                    <span class="font-medium text-[#6a6c6a] dark:text-[#aabdd2] block text-[11px]">Size</span>
+                                    <span class="font-bold text-[#2e2f2c] dark:text-white">{{ $property->size }} sqm</span>
                                 </div>
-                                <div class="col-span-2 sm:col-span-3 pt-2 border-t border-slate-200 dark:border-slate-700">
-                                    <span class="font-medium text-slate-400 dark:text-slate-400 block text-[11px]">Address</span>
-                                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ $property->address }}</span>
+                                <div class="col-span-2 sm:col-span-3 pt-2 border-t border-[#cad8e5] dark:border-[#6a6c6a]">
+                                    <span class="font-medium text-[#6a6c6a] dark:text-[#aabdd2] block text-[11px]">Address</span>
+                                    <span class="font-bold text-[#2e2f2c] dark:text-white">{{ $property->address }}</span>
                                 </div>
                             </div>
                         </div>
 
                         @if(is_array($property->amenities) && count($property->amenities))
                             <div>
-                                <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Amenities</h3>
+                                <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white mb-2">Amenities</h3>
                                 <div class="flex flex-wrap gap-2">
                                     @foreach($property->amenities as $amenity)
-                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/50">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold bg-[#dae4ee] dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-[#aabdd2] border border-[#aabdd2] dark:border-[#6a6c6a]">
                                             {{ ucfirst($amenity) }}
                                         </span>
                                     @endforeach
@@ -321,20 +322,20 @@
                     {{-- Map + route --}}
                     <div class="space-y-4">
                         <div>
-                            <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 mb-2">Location & Route</h3>
+                            <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white mb-2">Location &amp; Route</h3>
                             <div id="propertyMap" 
                                  data-lat="{{ $property->map_lat ?? $property->latitude }}" 
                                  data-lng="{{ $property->map_lng ?? $property->longitude }}" 
-                                 class="h-80 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800">
+                                 class="h-80 w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee] dark:bg-[#2e2f2c]">
                             </div>
-                            <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5">
+                            <p class="text-[11px] text-[#6a6c6a] dark:text-[#aabdd2] mt-1.5">
                                 🎓 University marker is fixed. 📍 shows this property location.
                             </p>
                         </div>
 
-                        <div class="text-[11px] text-slate-500 dark:text-slate-400 space-y-0.5">
-                            <p><span class="font-medium text-slate-700 dark:text-slate-300">Property Lat:</span> {{ $property->map_lat ?? $property->latitude ?? 'N/A' }}</p>
-                            <p><span class="font-medium text-slate-700 dark:text-slate-300">Property Lng:</span> {{ $property->map_lng ?? $property->longitude ?? 'N/A' }}</p>
+                        <div class="text-[11px] text-[#6a6c6a] dark:text-[#cad8e5] space-y-0.5">
+                            <p><span class="font-medium text-[#2e2f2c] dark:text-white">Property Lat:</span> {{ $property->map_lat ?? $property->latitude ?? 'N/A' }}</p>
+                            <p><span class="font-medium text-[#2e2f2c] dark:text-white">Property Lng:</span> {{ $property->map_lng ?? $property->longitude ?? 'N/A' }}</p>
                         </div>
 
                         <div class="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-900/50 text-xs text-emerald-900 dark:text-emerald-300 space-y-1">
@@ -351,8 +352,8 @@
                 </div>
 
                 {{-- Back --}}
-                <div class="mt-8 pt-4 border-t border-slate-100 dark:border-slate-800">
-                    <a href="{{ route('student.dashboard') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 transition flex items-center gap-1">
+                <div class="mt-8 pt-4 border-t border-[#cad8e5] dark:border-[#6a6c6a]">
+                    <a href="{{ route('student.dashboard') }}" class="text-xs font-medium text-[#2e2f2c] dark:text-white hover:text-[#8da5c0] transition flex items-center gap-1">
                         &larr; Back to properties
                     </a>
                 </div>
@@ -360,6 +361,7 @@
             </div>
         </div>
     </div>
+
     @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -415,7 +417,6 @@
                 if (closeTransportBtn) closeTransportBtn.addEventListener('click', closeTransport);
                 if (closeTransportBtn2) closeTransportBtn2.addEventListener('click', closeTransport);
 
-                // Close on clicking backdrop
                 transportModal.addEventListener('click', function (e) {
                     if (e.target === transportModal) {
                         closeTransport();
@@ -485,7 +486,6 @@
             }
         });
 
-        // Global Payment Modal Window Functions (Attached to window scope)
         window.openPaymentModal = function () {
             const paymentModal = document.getElementById('payment-modal');
             if (paymentModal) {

@@ -10,27 +10,26 @@ class UserController extends Controller
 {
     public function index(Request $request)
     {
-        $users = User::where('category','!=','admin')->latest()->paginate(20);
-        $user = User::latest()->first(); // single model, not collection
-        $category = $request->query('category'); // optional filter
+        $category = $request->input('category');
 
+        // Base query
+        $query = User::query();
+
+        // Filter by category if selected
+        if ($category && in_array($category, ['student', 'landlord', 'admin'])) {
+            $query->where('category', $category);
+        }
+
+        $users = $query->latest()->paginate(10)->withQueryString();
+
+        // Calculate category counts for the filter tabs
         $categoryCounts = [
-            'student'   => User::where('category', 'student')->count(),
+            'student'  => User::where('category', 'student')->count(),
             'landlord' => User::where('category', 'landlord')->count(),
-            'admin' => User::where('category', 'admin')->count(),
+            'admin'    => User::where('category', 'admin')->count(),
         ];
 
-        if ($category) {
-            $users->where('category', $category);
-        }
-
-        foreach ($users as $user) {
-            $user->status = $user->is_verified ? 'verified' : 'Not verified';
-        }
-
-        
-
-        return view('admin.users.index', compact('users', 'user', 'categoryCounts','category'));
+        return view('admin.users.index', compact('users', 'category', 'categoryCounts'));
     }
 
     public function updateStatus(Request $request, User $user)

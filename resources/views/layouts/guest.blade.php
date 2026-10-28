@@ -50,25 +50,25 @@
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased min-h-screen flex items-center justify-center p-4 selection:bg-indigo-600 selection:text-white transition-colors duration-300">
+<body class="bg-[#dae4ee] dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-[#cad8e5] antialiased min-h-screen flex items-center justify-center p-4 selection:bg-[#8da5c0] selection:text-white transition-colors duration-300">
 
     {{-- Global Page Loader Overlay --}}
     <x-loading />
 
     {{-- Livewire SPA Navigation Loading Bar --}}
-    <div wire:loading.delay class="fixed top-0 left-0 right-0 z-[110] h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 animate-pulse"></div>
+    <div wire:loading.delay class="fixed top-0 left-0 right-0 z-[110] h-1 bg-gradient-to-r from-[#8da5c0] via-[#aabdd2] to-[#8da5c0] animate-pulse"></div>
     
     <div class="w-full max-w-md animate-float">
         <!-- Main Card with 3D Shadow Depth -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xl shadow-indigo-500/10 dark:shadow-none p-8 sm:p-10 relative overflow-hidden transition-all duration-300 hover:shadow-indigo-500/20">
+        <div class="bg-white dark:bg-[#6a6c6a]/30 rounded-3xl border border-[#cad8e5] dark:border-[#8da5c0]/40 shadow-2xl p-8 sm:p-10 relative overflow-hidden transition-all duration-300">
             
             <!-- Header Section -->
             <header class="text-center mb-8">
                 <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-3 group" wire:navigate>
-                    <div class="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-105">
+                    <div class="h-14 w-14 rounded-2xl bg-[#dae4ee] dark:bg-[#2e2f2c] border border-[#aabdd2] dark:border-[#6a6c6a] flex items-center justify-center overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-105">
                         <x-application-logo class="h-full w-full object-cover" />
                     </div>
-                    <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition">UniCrib</h1>
+                    <h1 class="text-2xl font-bold tracking-tight text-[#2e2f2c] dark:text-white group-hover:text-[#8da5c0] transition">UniCrib</h1>
                 </a>
             </header>
 
@@ -78,9 +78,9 @@
             </div>
 
             <!-- Footer Link -->
-            <div class="mt-6 pt-6 text-center text-xs text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800">
+            <div class="mt-6 pt-6 text-center text-xs text-[#6a6c6a] dark:text-[#cad8e5] border-t border-[#cad8e5] dark:border-[#6a6c6a]">
                 <span>Need an account?</span>
-                <a href="{{ route('register') }}" class="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline ml-1 transition" wire:navigate>Register instead</a>
+                <a href="{{ route('register') }}" class="text-[#2e2f2c] dark:text-white font-semibold hover:underline ml-1 transition" wire:navigate>Register instead</a>
             </div>
 
         </div>

@@ -2,36 +2,36 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+            <h2 class="text-lg font-semibold text-[#2e2f2c] dark:text-white">
                 {{ __('Booking Updates') }}
             </h2>
-            <p class="mt-0.5 text-xs font-medium text-slate-500 dark:text-slate-400">
+            <p class="mt-0.5 text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5]">
                 Track the status of your housing requests and booking confirmations.
             </p>
         </div>
     </x-slot>
 
-    <div class="py-6 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
+    <div class="py-6 bg-[#dae4ee] dark:bg-[#2e2f2c] min-h-screen transition-colors duration-200">
         <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 transition-colors duration-200">
+            <div class="bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 transition-colors duration-200">
                 
                 @if($user && $user->category === 'student')
-                    <div class="border-b border-slate-200 dark:border-slate-800 pb-4 mb-6">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100 tracking-tight">Booking updates</h3>
+                    <div class="border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-4 mb-6">
+                        <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white tracking-tight">Booking updates</h3>
                     </div>
 
                     <div class="space-y-6">
                         @forelse($notifications as $notification)
-                            <div class="flex flex-col sm:flex-row gap-4 p-4 border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-slate-900 hover:border-indigo-500/50 dark:hover:border-indigo-500 hover:shadow-md transition-all">
+                            <div class="flex flex-col sm:flex-row gap-4 p-4 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl bg-white dark:bg-[#2e2f2c]/50 hover:border-[#8da5c0] hover:shadow-md transition-all">
                                 
                                 {{-- Property Thumbnail --}}
                                 <div class="flex-shrink-0">
                                     @if(($notification->property)->images && count(($notification->property)->images) > 0)
-                                        <img class="w-full sm:w-32 h-28 rounded-xl object-cover border border-slate-100 dark:border-slate-800"
+                                        <img class="w-full sm:w-32 h-28 rounded-xl object-cover border border-[#cad8e5] dark:border-[#6a6c6a]"
                                              src="{{ asset('storage/' . ($notification->property)->images[0]) }}"
                                              alt="{{ ($notification->property)->building_name }}">
                                     @else
-                                        <div class="w-full sm:w-32 h-28 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-100 dark:border-slate-700/80 flex items-center justify-center text-slate-400 dark:text-slate-500">
+                                        <div class="w-full sm:w-32 h-28 rounded-xl bg-[#dae4ee] dark:bg-[#2e2f2c] border border-[#cad8e5] dark:border-[#6a6c6a] flex items-center justify-center text-[#6a6c6a] dark:text-[#aabdd2]">
                                             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                                             </svg>
@@ -43,28 +43,28 @@
                                 <div class="flex-1 flex flex-col justify-between">
                                     <div>
                                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                                            <h4 class="text-sm font-bold text-slate-900 dark:text-slate-100">
+                                            <h4 class="text-sm font-bold text-[#2e2f2c] dark:text-white">
                                                 {{ optional($notification->property)->building_name }}
                                             </h4>
-                                            <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                                            <span class="text-xs font-bold text-[#2e2f2c] dark:text-[#aabdd2]">
                                                 KES {{ number_format(optional($notification->property)->price) }}
                                             </span>
                                         </div>
 
-                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] mt-1">
                                             Landlord Phone: 
-                                            <a href="tel:{{ optional($notification->landlord)->phone }}" class="text-slate-700 dark:text-slate-300 font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 underline">
+                                            <a href="tel:{{ optional($notification->landlord)->phone }}" class="text-[#2e2f2c] dark:text-white font-semibold hover:underline">
                                                 {{ optional($notification->landlord)->phone ?? 'Phone not set' }}
                                             </a>
                                         </p>
 
-                                        <p class="text-xs text-slate-600 dark:text-slate-300 mt-2">
+                                        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] mt-2">
                                             {{ $notification->data['message'] ?? 'Update on your booking' }}
                                         </p>
                                     </div>
 
-                                    <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                                        <div class="text-[11px] font-medium text-slate-400 dark:text-slate-500 space-x-2">
+                                    <div class="mt-4 pt-3 border-t border-[#cad8e5] dark:border-[#6a6c6a] flex flex-wrap items-center justify-between gap-2">
+                                        <div class="text-[11px] font-medium text-[#6a6c6a] dark:text-[#aabdd2] space-x-2">
                                             <span>Requested: {{ $notification->created_at->format('d M Y, H:i') }}</span>
                                         </div>
 
@@ -90,7 +90,7 @@
                             </div>
                         @empty
                             <div class="text-center py-12">
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                                <p class="text-xs font-semibold text-[#6a6c6a] dark:text-[#cad8e5]">
                                     You have no booking updates yet.
                                 </p>
                             </div>

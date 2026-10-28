@@ -1,29 +1,29 @@
 {{-- resources/views/payments/student-pay.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="text-lg font-semibold text-slate-900 dark:text-slate-100">
+        <h2 class="text-lg font-semibold text-[#2e2f2c] dark:text-white">
             {{ __('Student Access Payment') }}
         </h2>
     </x-slot>
 
-    <div class="py-6 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200">
+    <div class="py-6 bg-[#dae4ee] dark:bg-[#2e2f2c] min-h-screen transition-colors duration-200">
         <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-colors duration-200">
+            <div class="bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm overflow-hidden transition-colors duration-200">
                 <div class="p-6 space-y-6">
                     
                     <div>
-                        <h1 class="text-xl font-bold text-slate-900 dark:text-slate-100">Unlock full property details</h1>
-                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-1">
+                        <h1 class="text-xl font-bold text-[#2e2f2c] dark:text-white">Unlock full property details</h1>
+                        <p class="text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5] mt-1">
                             One-time access fee that covers all properties for 6 hours.
                         </p>
                     </div>
 
-                    <div class="p-4 rounded-xl bg-indigo-50/50 dark:bg-slate-800/60 border border-indigo-100 dark:border-slate-700/80 space-y-2">
-                        <h3 class="text-sm font-bold text-slate-900 dark:text-slate-100">Pay KES 50 to view property details</h3>
-                        <p class="text-xs text-slate-600 dark:text-slate-300 leading-relaxed">
+                    <div class="p-4 rounded-xl bg-[#dae4ee]/50 dark:bg-[#2e2f2c]/60 border border-[#cad8e5] dark:border-[#6a6c6a] space-y-2">
+                        <h3 class="text-sm font-bold text-[#2e2f2c] dark:text-white">Pay KES 50 to view property details</h3>
+                        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed">
                             This payment unlocks full property details, landlord contacts, and maps for 6 hours on your account.
                         </p>
-                        <p class="text-[11px] text-slate-400 dark:text-slate-500">
+                        <p class="text-[11px] text-[#6a6c6a] dark:text-[#aabdd2]">
                             You will be redirected back to dashboard after payment to continue browsing.
                         </p>
                     </div>
@@ -37,16 +37,16 @@
                     <form method="POST" action="{{ route('pay') }}" class="space-y-4">
                         @csrf
                         <div>
-                            <label for="amount" class="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">Amount (KES)</label>
-                            <input type="number" name="amount" id="amount" class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500 dark:focus:ring-indigo-400 @error('amount') border-rose-500 dark:border-rose-500 @enderror" placeholder="Amount (e.g. 50)" min="50" required>
+                            <label for="amount" class="block text-xs font-medium text-[#2e2f2c] dark:text-[#cad8e5] mb-1">Amount (KES)</label>
+                            <input type="number" name="amount" id="amount" class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] px-3 py-2 text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0] @error('amount') border-rose-500 @enderror" placeholder="Amount (e.g. 50)" min="50" required>
                             @error('amount')
                                 <p class="text-[11px] text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div class="pt-2 flex items-center justify-end">
-                            <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 text-white shadow-sm shadow-indigo-200 dark:shadow-none hover:bg-indigo-700 dark:hover:bg-indigo-500 transition">
-                                Pay & Verify
+                            <button type="submit" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl text-xs font-semibold bg-[#cad8e5] hover:bg-[#aabdd2] text-[#2e2f2c] shadow-sm transition">
+                                Pay &amp; Verify
                             </button>
                         </div>
                     </form>

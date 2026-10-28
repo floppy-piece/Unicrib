@@ -1,3 +1,4 @@
+{{-- resources/views/livewire/auth/confirm-password.blade.php --}}
 <?php
 
 use Illuminate\Support\Facades\Auth;
@@ -32,20 +33,20 @@ $confirmPassword = function () {
 
 ?>
 
-<div class="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
+<div class="w-full max-w-md mx-auto bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
     <div class="mb-4">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Confirm password</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+        <h2 class="text-xl font-bold text-[#2e2f2c] dark:text-white">Confirm password</h2>
+        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] mt-1 leading-relaxed">
             This is a secure action. Please confirm your password to proceed.
         </p>
     </div>
 
     <form wire:submit="confirmPassword" class="space-y-4">
         <div>
-            <x-input-label for="password" :value="__('Password')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
+            <x-input-label for="password" :value="__('Password')" class="text-xs font-semibold text-[#2e2f2c] dark:text-[#cad8e5]" />
             <x-text-input wire:model="password"
                           id="password"
-                          class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500"
+                          class="block mt-1 w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0]"
                           type="password"
                           name="password"
                           required autocomplete="current-password" />
@@ -53,7 +54,7 @@ $confirmPassword = function () {
         </div>
 
         <div class="pt-2 flex items-center justify-end">
-            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-5 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center gap-2 bg-[#cad8e5] hover:bg-[#aabdd2] dark:bg-[#cad8e5] dark:hover:bg-[#aabdd2] text-[#2e2f2c] text-xs font-semibold py-2.5 px-5 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                 <span wire:loading wire:target="confirmPassword">
                     <x-spinner size="w-3.5 h-3.5" />
                 </span>

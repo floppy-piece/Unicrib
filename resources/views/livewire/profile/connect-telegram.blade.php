@@ -33,14 +33,14 @@ $linkTelegram = function () {
 
 ?>
 
-<section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl transition-colors duration-200">
+<section class="bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl transition-colors duration-200">
     <header class="flex items-start justify-between">
         <div>
-            <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h2 class="text-sm font-bold text-[#2e2f2c] dark:text-white flex items-center gap-2">
                 <span class="text-sky-500 text-lg">🤖</span> {{ __('Connect to Unicrib Telegram AI') }}
             </h2>
 
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p class="mt-1 text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed">
                 {{ __("Link your Telegram Chat ID to your Unicrib account. This enables seamless authorization for chatting with Unicrib AI, searching student housing, tracking transport, and managing storage directly via Telegram.") }}
             </p>
         </div>
@@ -51,11 +51,11 @@ $linkTelegram = function () {
 
     <form wire:submit="linkTelegram" class="mt-6 space-y-4">
         <div>
-            <x-input-label for="telegram_chat_id" :value="__('Telegram Chat ID (e.g. 123456789)')" />
-            <x-text-input wire:model="telegram_chat_id" id="telegram_chat_id" name="telegram_chat_id" type="text" class="mt-1 block w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200" required placeholder="123456789" />
+            <x-input-label for="telegram_chat_id" :value="__('Telegram Chat ID (e.g. 123456789)')" class="text-xs font-semibold text-[#2e2f2c] dark:text-[#cad8e5]" />
+            <x-text-input wire:model="telegram_chat_id" id="telegram_chat_id" name="telegram_chat_id" type="text" class="mt-1 block w-full dark:bg-[#2e2f2c] dark:border-[#6a6c6a] dark:text-white" required placeholder="123456789" />
             <x-input-error class="mt-1" :messages="$errors->get('telegram_chat_id')" />
-            <p class="mt-1 text-[11px] text-slate-400 dark:text-slate-500">
-                Tip: You can find your Telegram Chat ID by messaging a bot like <span class="font-semibold text-slate-600 dark:text-slate-300">@userinfobot</span> on Telegram.
+            <p class="mt-1 text-[11px] text-[#6a6c6a] dark:text-[#aabdd2]">
+                Tip: You can find your Telegram Chat ID by messaging a bot like <span class="font-semibold text-[#2e2f2c] dark:text-white">@userinfobot</span> on Telegram.
             </p>
         </div>
 

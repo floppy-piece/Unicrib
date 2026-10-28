@@ -1,3 +1,4 @@
+{{-- resources/views/livewire/profile/whatsapp-link.blade.php --}}
 <?php
 
 use App\Models\User;
@@ -26,14 +27,14 @@ $linkWhatsApp = function () {
 
 ?>
 
-<section class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl transition-colors duration-200">
+<section class="bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 sm:p-8 max-w-2xl transition-colors duration-200">
     <header class="flex items-start justify-between">
         <div>
-            <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <h2 class="text-sm font-bold text-[#2e2f2c] dark:text-white flex items-center gap-2">
                 <span class="text-emerald-600 text-lg">💬</span> {{ __('Connect to Unicrib WhatsApp AI') }}
             </h2>
 
-            <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+            <p class="mt-1 text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed">
                 {{ __("Link your phone number to your Unicrib account. This connects your WhatsApp number as your secure authorization for chatting with Unicrib AI, searching housing, managing storage, and inspecting property photos.") }}
             </p>
         </div>
@@ -44,8 +45,8 @@ $linkWhatsApp = function () {
 
     <form wire:submit="linkWhatsApp" class="mt-6 space-y-4">
         <div>
-            <x-input-label for="whatsapp_phone" :value="__('WhatsApp Phone Number (e.g. 254712345678)')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
-            <x-text-input wire:model="phone" id="whatsapp_phone" name="phone" type="tel" class="mt-1 block w-full dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200" required placeholder="254712345678" />
+            <x-input-label for="whatsapp_phone" :value="__('WhatsApp Phone Number (e.g. 254712345678)')" class="text-xs font-semibold text-[#2e2f2c] dark:text-[#cad8e5]" />
+            <x-text-input wire:model="phone" id="whatsapp_phone" name="phone" type="tel" class="mt-1 block w-full dark:bg-[#2e2f2c] dark:border-[#6a6c6a] dark:text-white" required placeholder="254712345678" />
             <x-input-error class="mt-1" :messages="$errors->get('phone')" />
         </div>
 

@@ -1,3 +1,4 @@
+{{-- resources/views/livewire/profile/delete-user-form.blade.php --}}
 <?php
 
 use App\Livewire\Actions\Logout;
@@ -20,13 +21,13 @@ $deleteUser = function (Logout $logout) {
 
 ?>
 
-<section class="space-y-6 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
+<section class="space-y-6 bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
     <header>
-        <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">
+        <h2 class="text-sm font-bold text-[#2e2f2c] dark:text-white">
             {{ __('Delete Account') }}
         </h2>
 
-        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        <p class="mt-1 text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed">
             {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
         </p>
     </header>
@@ -37,14 +38,14 @@ $deleteUser = function (Logout $logout) {
     >{{ __('Delete Account') }}</x-danger-button>
 
     <x-modal name="confirm-user-deletion" :show="$errors->isNotEmpty()" focusable>
-        <form wire:submit="deleteUser" class="p-6 space-y-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+        <form wire:submit="deleteUser" class="p-6 space-y-4 bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl">
 
             <div>
-                <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h2 class="text-sm font-bold text-[#2e2f2c] dark:text-white">
                     {{ __('Are you sure you want to delete your account?') }}
                 </h2>
 
-                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                <p class="mt-1 text-xs text-[#6a6c6a] dark:text-[#cad8e5] leading-relaxed">
                     {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Please enter your password to confirm you would like to permanently delete your account.') }}
                 </p>
             </div>
@@ -57,7 +58,7 @@ $deleteUser = function (Logout $logout) {
                     id="password"
                     name="password"
                     type="password"
-                    class="mt-1 block w-full sm:w-3/4 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-200"
+                    class="mt-1 block w-full sm:w-3/4 dark:bg-[#2e2f2c] dark:border-[#6a6c6a] dark:text-white"
                     placeholder="{{ __('Password') }}"
                 />
 

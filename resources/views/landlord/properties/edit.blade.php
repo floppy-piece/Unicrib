@@ -7,7 +7,7 @@
           crossorigin="" />
 
     {{-- Toast Notification --}}
-    <div id="toast" class="fixed top-4 right-4 bg-slate-900 dark:bg-slate-800 text-slate-50 dark:text-slate-100 px-4 py-2.5 rounded-xl border border-slate-800 dark:border-slate-700 opacity-0 transition-opacity duration-200 z-[9999] text-xs font-medium shadow-lg"></div>
+    <div id="toast" class="fixed top-4 right-4 bg-[#2e2f2c] dark:bg-[#6a6c6a] text-slate-50 dark:text-slate-100 px-4 py-2.5 rounded-xl border border-[#6a6c6a] dark:border-[#8da5c0] opacity-0 transition-opacity duration-200 z-[9999] text-xs font-medium shadow-lg"></div>
 
     {{-- Expose Geoapify key for global/module access --}}
     <script>
@@ -17,10 +17,10 @@
     <x-slot name="header">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-                <h2 class="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+                <h2 class="text-xl font-bold tracking-tight text-[#2e2f2c] dark:text-white">
                     {{ __('Edit Property') }}
                 </h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">
+                <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5]">
                     Update details, location, and images for this listing.
                 </p>
             </div>
@@ -35,7 +35,7 @@
     </script>
     @endpush
 
-    <div class="py-8 bg-slate-50 dark:bg-slate-950 min-h-screen transition-colors duration-200"
+    <div class="py-8 bg-[#dae4ee] dark:bg-[#2e2f2c] min-h-screen transition-colors duration-200"
          x-data="{ darkMode: localStorage.getItem('dark') === 'true' }" 
          :class="{ 'dark': darkMode }"
          x-init="$watch('darkMode', val => localStorage.setItem('dark', val))">
@@ -47,10 +47,10 @@
         </script>
 
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden transition-colors duration-200">
+            <div class="bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm overflow-hidden transition-colors duration-200">
                 <div class="p-6 sm:p-8 space-y-6">
                     
-                    <h1 class="text-lg font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-4">
+                    <h1 class="text-lg font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-4">
                         Edit: {{ $property->title }}
                     </h1>
 
@@ -75,22 +75,22 @@
 
                         {{-- Basic Information --}}
                         <div class="space-y-4">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Basic Information</h3>
+                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Basic Information</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Property Title *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Property Title *</label>
                                     <input
                                         type="text"
                                         name="title"
                                         value="{{ old('title', $property->title) }}"
                                         required
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Property Type *</label>
-                                    <select name="property_type" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm">
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Property Type *</label>
+                                    <select name="property_type" required class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm">
                                         @php $types = ['apartment','house','room','studio','bedsitter']; @endphp
                                         <option value="">Select Type</option>
                                         @foreach($types as $type)
@@ -103,19 +103,19 @@
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Price (KES) *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Price (KES) *</label>
                                     <input
                                         type="number"
                                         name="price"
                                         value="{{ old('price', $property->price) }}"
                                         required min="0" step="0.01"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Area *</label>
-                                    <select name="area" id="areaSelect" required class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm">
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Area *</label>
+                                    <select name="area" id="areaSelect" required class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm">
                                         @php $areas = ['mjini','ngomongo','diaspora','kutus']; @endphp
                                         <option value="">Select Area</option>
                                         @foreach($areas as $area)
@@ -131,66 +131,66 @@
 
                         {{-- Property Details --}}
                         <div class="space-y-4">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Property Details</h3>
+                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Property Details</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Bedrooms *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Bedrooms *</label>
                                     <input
                                         type="number"
                                         name="bedrooms"
                                         value="{{ old('bedrooms', $property->bedrooms) }}"
                                         required min="0"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Bathrooms *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Bathrooms *</label>
                                     <input
                                         type="number"
                                         name="bathrooms"
                                         value="{{ old('bathrooms', $property->bathrooms) }}"
                                         required min="0"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Size (sqm) *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Size (sqm) *</label>
                                     <input
                                         type="number"
                                         name="size"
                                         value="{{ old('size', $property->size) }}"
                                         required min="0" step="0.01"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Initial Rented Rooms *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Initial Rented Rooms *</label>
                                     <input
                                         type="number"
                                         name="booked_count"
                                         value="{{ old('booked_count', $property->booked_count) }}"
                                         required min="0" 
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Rooms available *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Rooms available *</label>
                                     <input
                                         type="number"
                                         name="capacity"
                                         value="{{ old('capacity', $property->capacity) }}"
                                         min="1"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                         required
                                     >
                                 </div>
 
                                 <div class="sm:col-span-2 lg:col-span-3">
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Amenities</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Amenities</label>
                                     @php
                                         $selectedAmenities = old('amenities', $property->amenities ?? []);
                                         $allAmenities = [
@@ -202,15 +202,15 @@
                                     @endphp
                                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                                         @foreach($allAmenities as $key => $label)
-                                            <label class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 p-2.5 rounded-xl cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition">
+                                            <label class="flex items-center gap-2 bg-[#dae4ee]/50 dark:bg-[#2e2f2c] border border-[#cad8e5] dark:border-[#6a6c6a] p-2.5 rounded-xl cursor-pointer hover:bg-[#cad8e5]/40 dark:hover:bg-[#6a6c6a]/40 transition">
                                                 <input
                                                     type="checkbox"
                                                     name="amenities[]"
                                                     value="{{ $key }}"
-                                                    class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-900"
+                                                    class="rounded border-[#cad8e5] dark:border-[#6a6c6a] text-[#2e2f2c] focus:ring-[#8da5c0] bg-white dark:bg-[#2e2f2c]"
                                                     {{ in_array($key, $selectedAmenities, true) ? 'checked' : '' }}
                                                 >
-                                                <span class="text-slate-700 dark:text-slate-300 font-medium">{{ $label }}</span>
+                                                <span class="text-[#2e2f2c] dark:text-[#cad8e5] font-medium">{{ $label }}</span>
                                             </label>
                                         @endforeach
                                     </div>
@@ -218,59 +218,59 @@
                             </div>
 
                             <div class="pt-2">
-                                <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Description *</label>
+                                <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Description *</label>
                                 <textarea
                                     name="description"
                                     rows="4"
                                     required
-                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                 >{{ old('description', $property->description) }}</textarea>
                             </div>
                         </div>
 
                         {{-- Address --}}
                         <div class="space-y-4">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Address Information</h3>
+                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Address Information</h3>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Building Name (Optional)</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Building Name (Optional)</label>
                                     <input
                                         type="text"
                                         name="building_name"
                                         value="{{ old('building_name', $property->building_name) }}"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Street/Road *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Street/Road *</label>
                                     <input
                                         type="text"
                                         name="street"
                                         value="{{ old('street', $property->street) }}"
                                         required
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Landmark (Optional)</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Landmark (Optional)</label>
                                     <input
                                         type="text"
                                         name="landmark"
                                         value="{{ old('landmark', $property->landmark) }}"
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Address *</label>
+                                    <label class="block font-semibold text-[#6a6c6a] dark:text-[#cad8e5] mb-1">Full Address *</label>
                                     <input
                                         type="text"
                                         name="address"
                                         value="{{ old('address', $property->address) }}"
                                         required
-                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                        class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs py-2 px-3 focus:outline-none focus:border-[#8da5c0] focus:ring-1 focus:ring-[#8da5c0] transition shadow-sm"
                                     >
                                 </div>
                             </div>
@@ -278,13 +278,13 @@
 
                         {{-- Availability --}}
                         <div class="space-y-3">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Availability</h3>
-                            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Availability</h3>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5]">
                                 <input
                                     type="checkbox"
                                     name="is_available"
                                     value="1"
-                                    class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-900"
+                                    class="rounded border-[#cad8e5] dark:border-[#6a6c6a] text-[#2e2f2c] focus:ring-[#8da5c0] bg-[#dae4ee]/50 dark:bg-[#2e2f2c]"
                                     {{ old('is_available', $property->is_available) ? 'checked' : '' }}
                                 >
                                 <span>Mark as available for students</span>
@@ -293,7 +293,7 @@
 
                         {{-- Exact Location (Map) --}}
                         <div class="space-y-4">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Exact Property Location</h3>
+                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Exact Property Location</h3>
 
                             <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 text-xs text-blue-900 dark:text-blue-300 space-y-1">
                                 <p>
@@ -304,19 +304,19 @@
                                 </p>
                             </div>
 
-                            <div class="relative min-h-[400px] border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800">
-                                <div class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-400 z-10" id="mapLoading">Loading map...</div>
+                            <div class="relative min-h-[400px] border border-[#cad8e5] dark:border-[#6a6c6a] rounded-xl overflow-hidden bg-[#dae4ee] dark:bg-[#2e2f2c]">
+                                <div class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-[#6a6c6a] dark:text-[#aabdd2] z-10" id="mapLoading">Loading map...</div>
                                 <div id="locationMap" 
                                      data-lat="{{ $property->map_lat ?? $property->latitude }}" 
                                      data-lng="{{ $property->map_lng ?? $property->longitude }}" 
                                      style="height: 400px; width: 100%;" class="cursor-default"></div>
                             </div>
 
-                            <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 rounded-xl p-4 text-xs space-y-2">
+                            <div class="bg-[#dae4ee]/50 dark:bg-[#2e2f2c]/60 border border-[#cad8e5] dark:border-[#6a6c6a] rounded-xl p-4 text-xs space-y-2">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <span class="text-slate-400 font-semibold uppercase text-[10px]">Latitude:</span>
-                                        <span id="latDisplay" class="ml-2 font-mono font-medium text-slate-900 dark:text-slate-100">
+                                        <span class="text-[#6a6c6a] dark:text-[#aabdd2] font-semibold uppercase text-[10px]">Latitude:</span>
+                                        <span id="latDisplay" class="ml-2 font-mono font-medium text-[#2e2f2c] dark:text-white">
                                             {{ $property->map_lat ?? $property->latitude ?? 'Click on map' }}
                                         </span>
                                         <input
@@ -327,8 +327,8 @@
                                         >
                                     </div>
                                     <div>
-                                        <span class="text-slate-400 font-semibold uppercase text-[10px]">Longitude:</span>
-                                        <span id="lngDisplay" class="ml-2 font-mono font-medium text-slate-900 dark:text-slate-100">
+                                        <span class="text-[#6a6c6a] dark:text-[#aabdd2] font-semibold uppercase text-[10px]">Longitude:</span>
+                                        <span id="lngDisplay" class="ml-2 font-mono font-medium text-[#2e2f2c] dark:text-white">
                                             {{ $property->map_lng ?? $property->longitude ?? 'Click on map' }}
                                         </span>
                                         <input
@@ -339,7 +339,7 @@
                                         >
                                     </div>
                                 </div>
-                                <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700">
+                                <div class="text-[11px] text-[#6a6c6a] dark:text-[#cad8e5] pt-1 border-t border-[#cad8e5] dark:border-[#6a6c6a]">
                                     <span id="locationStatus" class="font-semibold">
                                         {{ ($property->map_lat || $property->latitude) ? 'Location already set' : 'No location selected' }}
                                     </span>
@@ -349,14 +349,14 @@
 
                         {{-- Images --}}
                         <div class="space-y-4">
-                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Property Images</h3>
+                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Property Images</h3>
 
                             @if(is_array($property->images) && count($property->images))
-                                <p class="text-xs font-semibold text-slate-500 dark:text-slate-400">Existing images:</p>
+                                <p class="text-xs font-semibold text-[#6a6c6a] dark:text-[#cad8e5]">Existing images:</p>
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     @foreach($property->images as $image)
                                         @php $path = preg_replace('/^public\//', '', $image); @endphp
-                                        <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 aspect-video bg-slate-50 dark:bg-slate-800">
+                                        <div class="overflow-hidden rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] aspect-video bg-[#dae4ee] dark:bg-[#2e2f2c]">
                                             <img src="{{ asset('storage/'.$path) }}" alt="Existing image" class="w-full h-full object-cover">
                                         </div>
                                     @endforeach
@@ -364,27 +364,27 @@
                             @endif
 
                             <div class="space-y-1.5 pt-2">
-                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Upload additional images (existing ones will be kept):</label>
+                                <label class="block text-xs font-semibold text-[#6a6c6a] dark:text-[#cad8e5]">Upload additional images (existing ones will be kept):</label>
                                 <input
                                     type="file"
                                     name="images[]"
                                     multiple
                                     accept="image/*"
-                   id="imageUpload"
-                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-950 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 transition"
+                                    id="imageUpload"
+                                    class="w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-[#2e2f2c] dark:text-white text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#cad8e5] file:text-[#2e2f2c] hover:file:bg-[#aabdd2] transition"
                                 >
                                 <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
 
-                                <p class="text-[10px] text-slate-400">Max 2MB per image. JPEG, PNG, JPG, GIF.</p>
+                                <p class="text-[10px] text-[#6a6c6a] dark:text-[#aabdd2]">Max 2MB per image. JPEG, PNG, JPG, GIF.</p>
                             </div>
                         </div>
 
                         {{-- Submit / Footer --}}
-                        <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
-                            <a href="{{ route('landlord.properties.myProperties') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition shadow-sm">
+                        <div class="flex items-center justify-between pt-6 border-t border-[#cad8e5] dark:border-[#6a6c6a]">
+                            <a href="{{ route('landlord.properties.myProperties') }}" class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-white dark:bg-[#2e2f2c] hover:bg-[#dae4ee] dark:hover:bg-[#6a6c6a] text-[#2e2f2c] dark:text-white text-xs font-semibold transition shadow-sm">
                                 Cancel
                             </a>
-                            <button type="submit" class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">
+                            <button type="submit" class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-[#cad8e5] hover:bg-[#aabdd2] text-[#2e2f2c] text-xs font-semibold transition shadow-sm">
                                 Save changes
                             </button>
                         </div>

@@ -13,11 +13,9 @@ state(['email' => '']);
 
 rules(['email' => ['required', 'string', 'email']]);
 
-$sendPasswordResetLink = function () {
-    $this->validate();
+$sendPasswordResetLink = function () {$this->validate();
 
-    $status = Password::sendResetLink(
-        $this->only('email')
+    $status = Password::sendResetLink($this->only('email')
     );
 
     if ($status != Password::RESET_LINK_SENT) {
@@ -33,10 +31,10 @@ $sendPasswordResetLink = function () {
 
 ?>
 
-<div class="w-full max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
+<div class="w-full max-w-md mx-auto bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm p-6 sm:p-8 transition-colors duration-200">
     <div class="mb-5">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-slate-100">Forgot password</h2>
-        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Enter your account email and we'll send you a password reset link.</p>
+        <h2 class="text-xl font-bold text-[#2e2f2c] dark:text-white">Forgot password</h2>
+        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] mt-1">Enter your account email and we'll send you a password reset link.</p>
     </div>
 
     @if (session('status'))
@@ -47,17 +45,17 @@ $sendPasswordResetLink = function () {
 
     <form wire:submit="sendPasswordResetLink" class="space-y-4">
         <div>
-            <x-input-label for="email" :value="__('Email')" class="text-xs font-semibold text-slate-700 dark:text-slate-300" />
-            <x-text-input wire:model="email" id="email" class="block mt-1 w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-800 dark:text-slate-200 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-indigo-500" type="email" name="email" required autofocus autocomplete="username" placeholder="name@example.com" />
+            <x-input-label for="email" :value="__('Email')" class="text-xs font-semibold text-[#2e2f2c] dark:text-[#cad8e5]" />
+            <x-text-input wire:model="email" id="email" class="block mt-1 w-full rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] bg-[#dae4ee]/50 dark:bg-[#2e2f2c] text-xs text-[#2e2f2c] dark:text-white focus:border-[#8da5c0] focus:ring-[#8da5c0]" type="email" name="email" required autofocus autocomplete="username" placeholder="name@example.com" />
             <x-input-error :messages="$errors->get('email')" class="mt-1 text-xs text-rose-600 dark:text-rose-400" />
         </div>
 
         <div class="pt-2 flex items-center justify-between">
-            <a class="text-xs font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 underline transition" href="{{ route('login') }}" wire:navigate>
+            <a class="text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5] hover:text-[#2e2f2c] dark:hover:text-white underline transition" href="{{ route('login') }}" wire:navigate>
                 {{ __('Back to login') }}
             </a>
 
-            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center gap-2 bg-[#cad8e5] hover:bg-[#aabdd2] dark:bg-[#cad8e5] dark:hover:bg-[#aabdd2] text-[#2e2f2c] text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
                 <span wire:loading wire:target="sendPasswordResetLink">
                     <x-spinner size="w-3.5 h-3.5" />
                 </span>
