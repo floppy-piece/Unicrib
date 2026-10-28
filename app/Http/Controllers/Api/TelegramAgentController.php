@@ -26,40 +26,67 @@ class TelegramAgentController extends Controller
             }
 
             $chatId = $message['chat']['id'] ?? null;
-            $from = $message['from'] ?? [];
-            $text = $message['text'] ?? $message['caption'] ?? '';
+            $text = trim($message['text'] ?? $message['caption'] ?? '');
             $photo = $message['photo'] ?? null;
 
             if (!$chatId) {
                 return response()->json(['status' => 'no_chat_id']);
             }
 
-            // Authenticate user by Telegram chat ID or allow linking via phone command
+            // Fetch user by Telegram Chat ID
             $user = User::where('telegram_chat_id', $chatId)->first();
 
+            // 1. Handle Telegram /start Command
+            if ($text === '/start') {
+                if ($user) {
+                    $this->sendTelegramReply(
+                        $chatId, 
+                        "👋 *Welcome back to UniCrib, {$user->name}!*\n\nYour account is connected. Ask me anything about student housing, property listings, storage, or transport!"
+                    );
+                    return response()->json(['status' => 'welcome_existing_user']);
+                } else {
+                    $this->sendTelegramReply(
+                        $chatId, 
+                        "👋 *Welcome to UniCrib AI!*\n\nYour Telegram account is not linked yet. To connect your account, please reply with your registered phone number in this format:\n\n`/link 254712345678`"
+                    );
+                    return response()->json(['status' => 'welcome_new_user']);
+                }
+            }
+
+            // 2. Handle /link <phone> Command
             if (!$user && str_starts_with($text, '/link')) {
                 $parts = explode(' ', $text);
-                $phoneInput = $parts[1] ?? '';
+                $phoneInput = trim($parts[1] ?? '');
+
+                if (empty($phoneInput)) {
+                    $this->sendTelegramReply($chatId, "⚠️ Please provide your phone number. Example:\n`/link 254712345678`");
+                    return response()->json(['status' => 'missing_phone']);
+                }
+
                 $user = User::where('phone', 'LIKE', '%' . substr($phoneInput, -9))->first();
                 if ($user) {
                     $user->update(['telegram_chat_id' => $chatId]);
-                    $this->sendTelegramReply($chatId, "✅ Success! Your Telegram account is now linked to your Unicrib account ({$user->name}). How can I help you today?");
+                    $this->sendTelegramReply($chatId, "✅ *Success!* Your Telegram account is now linked to *{$user->name}*.\n\nHow can I help you today?");
                     return response()->json(['status' => 'linked']);
                 } else {
-                    $this->sendTelegramReply($chatId, "❌ Phone number not found in Unicrib records. Please check your number and try again.");
+                    $this->sendTelegramReply($chatId, "❌ Phone number not found in UniCrib records. Please check your number and try again.");
                     return response()->json(['status' => 'link_failed']);
                 }
             }
 
+            // 3. Handle Unlinked Users Sending Regular Text
             if (!$user) {
-                $this->sendTelegramReply($chatId, "Welcome to Unicrib! Your Telegram account is not linked yet. Please reply with your registered phone number in this format:\n`/link 254712345678`");
+                $this->sendTelegramReply(
+                    $chatId, 
+                    "⚠️ *Account Not Linked*\n\nPlease link your UniCrib account first by replying with:\n`/link 254712345678`"
+                );
                 return response()->json(['status' => 'user_not_found']);
             }
 
-            // Send immediate feedback so the user knows the bot received the message
-            $this->sendTelegramReply($chatId, "⏳ Processing your request...");
+            // 4. Send immediate processing feedback
+            $this->sendTelegramReply($chatId, "⏳ *Processing your request...*");
 
-            // Handle Photo / Image Uploads
+            // 5. Handle Photo / Image Uploads
             if (!empty($photo)) {
                 $largestPhoto = end($photo);
                 $fileId = $largestPhoto['file_id'] ?? null;
@@ -71,7 +98,7 @@ class TelegramAgentController extends Controller
                 return response()->json(['status' => 'success']);
             }
 
-            // Handle Text Commands / AI Prompts
+            // 6. Handle Text Commands / AI Prompts
             if (empty($text)) {
                 $this->sendTelegramReply($chatId, "⚠️ Received an empty message.");
                 return response()->json(['status' => 'empty_text']);
@@ -83,7 +110,7 @@ class TelegramAgentController extends Controller
             return response()->json(['status' => 'success']);
 
         } catch (\Exception $e) {
-            Log::error('Telegram Webhook Critical Error: ' . $e->getMessage(), [
+            Log::error('Telegram Webhook Exception: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
             
@@ -125,7 +152,7 @@ class TelegramAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Telegram AI Model API HTTP Error:', ['status' => $response->status(), 'body' => $response->body()]);
-            return "I'm having trouble connecting to Unicrib AI right now. Please try again!";
+            return "I'm having trouble connecting to UniCrib AI right now. Please try again!";
         }
 
         $resData = $response->json();
@@ -291,37 +318,5 @@ class TelegramAgentController extends Controller
         } catch (\Exception $e) {
             Log::error('Telegram API Exception: ' . $e->getMessage());
         }
-    }
-
-    /**
-     * Local simulation endpoint for testing via cURL without setting up Telegram Bot webhooks
-     */
-    public function simulateMessage(Request $request)
-    {
-        $request->validate([
-            'chat_id' => 'required|string',
-            'message' => 'required|string',
-        ]);
-
-        $chatId = $request->input('chat_id');
-        $userMessage = $request->input('message');
-
-        $user = User::where('telegram_chat_id', $chatId)->first();
-        if (!$user) {
-            return response()->json([
-                'status' => 'user_not_found',
-                'reply' => "Welcome to Unicrib! Account not linked. Send '/link <your_phone_number>' first."
-            ], 404);
-        }
-
-        $aiResponse = $this->askMetaModelWithToolGateway($userMessage, $user, $chatId);
-        $this->sendTelegramReply($chatId, $aiResponse);
-
-        return response()->json([
-            'status' => 'success',
-            'chat_id' => $chatId,
-            'user' => $user->name,
-            'reply' => $aiResponse
-        ]);
     }
 }
