@@ -160,13 +160,24 @@
                                         type="number"
                                         name="size"
                                         value="{{ old('size', 25) }}"
+                                        required min="0" step="0.01"
+                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Initial Rented Rooms *</label>
+                                    <input
+                                        type="number"
+                                        name="booked_count"
+                                        value="{{ old('booked_count', 0) }}"
                                         required min="0"
                                         class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                     >
                                 </div>
 
                                 <div>
-                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Capacity (Rooms) *</label>
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Rooms available *</label>
                                     <input
                                         type="number"
                                         name="capacity"
@@ -175,75 +186,166 @@
                                         class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                     >
                                 </div>
+
+                                <div class="sm:col-span-2 lg:col-span-3">
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Amenities</label>
+                                    @php
+                                        $selectedAmenities = old('amenities', []);
+                                        $allAmenities = [
+                                            'wifi' => 'WiFi',
+                                            'water' => 'Water 24/7',
+                                            'parking' => 'Parking',
+                                            'security' => 'Security',
+                                        ];
+                                    @endphp
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                                        @foreach($allAmenities as $key => $label)
+                                            <label class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 p-2.5 rounded-xl cursor-pointer hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition">
+                                                <input
+                                                    type="checkbox"
+                                                    name="amenities[]"
+                                                    value="{{ $key }}"
+                                                    class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-900"
+                                                    {{ in_array($key, $selectedAmenities, true) ? 'checked' : '' }}
+                                                >
+                                                <span class="text-slate-700 dark:text-slate-300 font-medium">{{ $label }}</span>
+                                            </label>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
 
-                            <div>
+                            <div class="pt-2">
                                 <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Description *</label>
                                 <textarea
                                     name="description"
                                     rows="4"
                                     required
                                     placeholder="Describe amenities, proximity to campus, rules, etc."
-                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs p-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
                                 >{{ old('description') }}</textarea>
                             </div>
                         </div>
 
-                        {{-- Exact Location Selection (Leaflet Map) --}}
+                        {{-- Address --}}
+                        <div class="space-y-4">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Address Information</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                                <div>
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Building Name (Optional)</label>
+                                    <input
+                                        type="text"
+                                        name="building_name"
+                                        value="{{ old('building_name') }}"
+                                        placeholder="e.g. Sunrise Complex"
+                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Street/Road *</label>
+                                    <input
+                                        type="text"
+                                        name="street"
+                                        value="{{ old('street') }}"
+                                        required
+                                        placeholder="e.g. Kutus-Mwea Road"
+                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Landmark (Optional)</label>
+                                    <input
+                                        type="text"
+                                        name="landmark"
+                                        value="{{ old('landmark') }}"
+                                        placeholder="e.g. Near Kirinyaga University Gate B"
+                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    >
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-600 dark:text-slate-400 mb-1">Full Address *</label>
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value="{{ old('address') }}"
+                                        required
+                                        placeholder="e.g. Kutus, Kirinyaga"
+                                        class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs py-2 px-3 focus:outline-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 transition shadow-sm"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Availability --}}
+                        <div class="space-y-3">
+                            <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Availability</h3>
+                            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-slate-700 dark:text-slate-300">
+                                <input
+                                    type="checkbox"
+                                    name="is_available"
+                                    value="1"
+                                    class="rounded border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-indigo-500 bg-slate-100 dark:bg-slate-900"
+                                    {{ old('is_available', true) ? 'checked' : '' }}
+                                >
+                                <span>Mark as available for students</span>
+                            </label>
+                        </div>
+
+                        {{-- Exact Location (Map) --}}
                         <div class="space-y-4">
                             <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Exact Property Location</h3>
-                            
-                            <div class="relative min-h-[400px] rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 shadow-sm">
-                                <div id="mapLoading" class="absolute inset-0 flex items-center justify-center bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-medium text-xs z-10">Loading interactive map...</div>
-                                <div id="locationMap" class="h-[400px] w-full"></div>
+
+                            <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900 text-xs text-blue-900 dark:text-blue-300 space-y-1">
+                                <p>
+                                    <strong class="font-bold">Tip:</strong> Click on the map to set the exact location of this property.
+                                </p>
+                                <p class="text-[11px] text-blue-700 dark:text-blue-400">
+                                    🎓 Fixed university marker shows the campus. 📍 is your property. The route is from Geoapify.
+                                </p>
                             </div>
 
-                            <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 text-xs">
+                            <div class="relative min-h-[400px] border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden bg-slate-50 dark:bg-slate-800">
+                                <div class="absolute inset-0 flex items-center justify-center text-xs font-semibold text-slate-400 z-10" id="mapLoading">Loading map...</div>
+                                <div id="locationMap" 
+                                     style="height: 400px; width: 100%;" class="cursor-default"></div>
+                            </div>
+
+                            <div class="bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700 rounded-xl p-4 text-xs space-y-2">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <span class="text-slate-500 dark:text-slate-400">Latitude:</span>
-                                        <span id="latDisplay" class="ml-1 font-semibold text-slate-900 dark:text-slate-100">Click on map</span>
-                                        <input type="hidden" name="latitude" id="mapLat" value="{{ old('latitude') }}" required>
+                                        <span class="text-slate-400 font-semibold uppercase text-[10px]">Latitude:</span>
+                                        <span id="latDisplay" class="ml-2 font-mono font-medium text-slate-900 dark:text-slate-100">
+                                            Click on map
+                                        </span>
+                                        <input
+                                            type="hidden"
+                                            name="map_lat"
+                                            id="mapLat"
+                                            value="{{ old('map_lat') }}"
+                                            required
+                                        >
                                     </div>
                                     <div>
-                                        <span class="text-slate-500 dark:text-slate-400">Longitude:</span>
-                                        <span id="lngDisplay" class="ml-1 font-semibold text-slate-900 dark:text-slate-100">Click on map</span>
-                                        <input type="hidden" name="longitude" id="mapLng" value="{{ old('longitude') }}" required>
+                                        <span class="text-slate-400 font-semibold uppercase text-[10px]">Longitude:</span>
+                                        <span id="lngDisplay" class="ml-2 font-mono font-medium text-slate-900 dark:text-slate-100">
+                                            Click on map
+                                        </span>
+                                        <input
+                                            type="hidden"
+                                            name="map_lng"
+                                            id="mapLng"
+                                            value="{{ old('map_lng') }}"
+                                            required
+                                        >
                                     </div>
                                 </div>
-                                <div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400">
-                                    <span id="locationStatus">No location selected on map yet.</span>
-                                </div>
-                            </div>
-
-                            {{-- Route & Distance Display --}}
-                            <div class="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-900 dark:text-emerald-300 space-y-1 shadow-sm">
-                                <div>
-                                    <strong>Route from University:</strong>
-                                    <span id="pathDisplay">No route calculated yet.</span>
-                                </div>
-                                <div>
-                                    <strong>Distance:</strong>
-                                    <span id="distanceDisplay">–</span>
-                                </div>
-                            </div>
-
-                            {{-- Manual Coordinate Input (Fallback) --}}
-                            <div class="text-xs text-slate-500 dark:text-slate-400 space-y-2 pt-2">
-                                <p class="font-medium text-slate-700 dark:text-slate-300">Can't find your location on the map? Enter coordinates manually:</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                    <input type="number" step="any" id="manualLat" 
-                                           class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-xs shadow-sm"
-                                           placeholder="Latitude (e.g., -0.5080)">
-                                    <input type="number" step="any" id="manualLng" 
-                                           class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-xs shadow-sm"
-                                           placeholder="Longitude (e.g., 37.2752)">
-                                    <div>
-                                        <button type="button" onclick="useManualCoordinates()" 
-                                                class="w-full px-4 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-semibold transition border border-slate-200 dark:border-slate-700 shadow-sm">
-                                            Apply Coordinates
-                                        </button>
-                                    </div>
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1 border-t border-slate-200/60 dark:border-slate-700">
+                                    <span id="locationStatus" class="font-semibold">
+                                        No location selected
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -251,27 +353,30 @@
                         {{-- Property Images --}}
                         <div class="space-y-4">
                             <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 border-b border-slate-100 dark:border-slate-800 pb-2">Property Images</h3>
-                            
-                            <div class="p-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-center bg-slate-50/50 dark:bg-slate-800/30">
-                                <input type="file"
-                                       name="images[]"
-                                       multiple
-                                       accept="image/*"
-                                       id="imageUpload"
-                                       class="w-full cursor-pointer text-xs text-slate-500 dark:text-slate-400">
-                                <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Upload multiple images (max 5 images, 2MB each).</p>
+
+                            <div class="space-y-1.5 pt-2">
+                                <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Upload property images:</label>
+                                <input
+                                    type="file"
+                                    name="images[]"
+                                    multiple
+                                    accept="image/*"
+                                    id="imageUpload"
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 dark:file:bg-indigo-950 file:text-indigo-700 dark:file:text-indigo-300 hover:file:bg-indigo-100 dark:hover:file:bg-indigo-900 transition"
+                                >
                                 <div id="imagePreview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                                <p class="text-[10px] text-slate-400">Max 2MB per image. JPEG, PNG, JPG, GIF.</p>
                             </div>
                         </div>
 
                         {{-- Action Buttons --}}
                         <div class="flex items-center justify-between pt-6 border-t border-slate-100 dark:border-slate-800">
                             <a href="{{ route('landlord.properties.myProperties') }}"
-                               class="px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition shadow-sm">
+                               class="inline-flex items-center justify-center px-5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold transition shadow-sm">
                                 Cancel
                             </a>
                             <button type="submit"
-                                    class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-md shadow-indigo-600/30">
+                                    class="inline-flex items-center justify-center px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold transition shadow-sm">
                                 Add Property
                             </button>
                         </div>
@@ -281,10 +386,22 @@
         </div>
     </div>
 
-    {{-- Leaflet JS --}}
+    {{-- Leaflet JS & Map Script --}}
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
+
+    <script type="module">
+        import { initPropertyMap } from "{{ asset('build/assets/property-map.js') }}"; // Or let Vite bundle it via app.js
+        // If bundled via app.js, ensure initPropertyMap is called on DOMContentLoaded:
+    </script>
+    
+    <script type="module">
+        import { initPropertyMap } from "{{ Vite::asset('resources/js/property-map.js') }}";
+        document.addEventListener('DOMContentLoaded', () => {
+            initPropertyMap();
+        });
+    </script>
 
     @vite(['resources/js/app.js'])
 </x-app-layout>
