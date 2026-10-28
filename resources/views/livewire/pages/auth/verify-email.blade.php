@@ -43,12 +43,18 @@ $logout = function (Logout $logout) {
     @endif
 
     <div class="pt-2 flex items-center justify-between gap-4">
-        <button wire:click="sendVerification" type="button" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm">
-            {{ __('Resend Email') }}
+        <button wire:click="sendVerification" wire:loading.attr="disabled" type="button" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+            <span wire:loading wire:target="sendVerification">
+                <x-spinner size="w-3.5 h-3.5" />
+            </span>
+            <span>{{ __('Resend Email') }}</span>
         </button>
 
-        <button wire:click="logout" type="button" class="text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 underline transition">
-            {{ __('Log Out') }}
+        <button wire:click="logout" wire:loading.attr="disabled" type="button" class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 underline transition disabled:opacity-50">
+            <span wire:loading wire:target="logout">
+                <x-spinner size="w-3.5 h-3.5" />
+            </span>
+            <span>{{ __('Log Out') }}</span>
         </button>
     </div>
 </div>

@@ -52,11 +52,17 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased min-h-screen flex items-center justify-center p-4 selection:bg-indigo-600 selection:text-white transition-colors duration-300">
 
+    {{-- Global Page Loader Overlay --}}
+    <x-loading />
+
+    {{-- Livewire SPA Navigation Loading Bar --}}
+    <div wire:loading.delay class="fixed top-0 left-0 right-0 z-[110] h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 animate-pulse"></div>
+    
     <div class="w-full max-w-md animate-float">
         <!-- Main Card with 3D Shadow Depth -->
         <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/90 dark:border-slate-800 shadow-2xl shadow-indigo-500/10 dark:shadow-none p-8 sm:p-10 relative overflow-hidden transition-all duration-300 hover:shadow-indigo-500/20">
             
-            <!-- Header Section (Clean, no slop pills) -->
+            <!-- Header Section -->
             <header class="text-center mb-8">
                 <a href="{{ url('/') }}" class="inline-flex flex-col items-center gap-3 group" wire:navigate>
                     <div class="h-14 w-14 rounded-2xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-100 dark:border-indigo-900/50 flex items-center justify-center overflow-hidden shadow-sm transition-transform duration-300 group-hover:scale-105">

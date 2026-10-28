@@ -57,8 +57,11 @@ $sendPasswordResetLink = function () {
                 {{ __('Back to login') }}
             </a>
 
-            <button type="submit" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm">
-                {{ __('Send Reset Link') }}
+            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                <span wire:loading wire:target="sendPasswordResetLink">
+                    <x-spinner size="w-3.5 h-3.5" />
+                </span>
+                <span>{{ __('Send Reset Link') }}</span>
             </button>
         </div>
     </form>

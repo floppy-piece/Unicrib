@@ -46,6 +46,17 @@
 
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased selection:bg-indigo-600 selection:text-white min-h-screen flex flex-col transition-colors duration-200">
 
+    {{-- Global Page Loader Overlay (Automatically shows on Livewire navigation / requests) --}}
+    <div wire:loading.delay.class.remove="hidden" class="hidden">
+        <x-loading />
+    </div>
+
+    {{-- Initial Page Load Overlay --}}
+    <x-loading />
+
+    {{-- Livewire SPA Navigation Loading Bar --}}
+    <div wire:loading.delay class="fixed top-0 left-0 right-0 z-[110] h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 animate-pulse"></div>
+
     {{-- HEADER --}}
     <header class="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-200">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -86,17 +97,17 @@
                 <div>
                     <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Platform</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Properties</a></li>
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Universities</a></li>
-                        <li><a href="{{ url('/services') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Services</a></li>
-                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Dashboard</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" wire:navigate>Properties</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" wire:navigate>Universities</a></li>
+                        <li><a href="{{ url('/services') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" wire:navigate>Services</a></li>
+                        <li><a href="{{ url('/dashboard') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" wire:navigate>Dashboard</a></li>
                     </ul>
                 </div>
 
                 <div>
                     <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-xs tracking-wider uppercase mb-3">Company</h3>
                     <ul class="space-y-2 text-xs">
-                        <li><a href="{{ url('/about') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">About us</a></li>
+                        <li><a href="{{ url('/about') }}" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition" wire:navigate>About us</a></li>
                         <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Careers</a></li>
                         <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Blog</a></li>
                         <li><a href="#" class="hover:text-indigo-600 dark:hover:text-indigo-400 transition">Press</a></li>

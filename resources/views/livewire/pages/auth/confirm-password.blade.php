@@ -53,8 +53,11 @@ $confirmPassword = function () {
         </div>
 
         <div class="pt-2 flex items-center justify-end">
-            <button type="submit" class="inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-5 rounded-xl transition shadow-sm">
-                {{ __('Confirm') }}
+            <button type="submit" wire:loading.attr="disabled" class="inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold py-2.5 px-5 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                <span wire:loading wire:target="confirmPassword">
+                    <x-spinner size="w-3.5 h-3.5" />
+                </span>
+                <span>{{ __('Confirm') }}</span>
             </button>
         </div>
     </form>

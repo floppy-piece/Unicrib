@@ -19,7 +19,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ config('app.name', 'UniCrib') }}</title>
 
         <x-icon/>
 
@@ -46,6 +46,12 @@
     </head>
     <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 antialiased min-h-screen flex flex-col selection:bg-indigo-600 selection:text-white transition-colors duration-200">
         
+        {{-- Global Page Loader Overlay --}}
+        <x-loading />
+
+        {{-- Livewire SPA Navigation Loading Bar --}}
+        <div wire:loading.delay class="fixed top-0 left-0 right-0 z-[110] h-1 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 animate-pulse"></div>
+
         {{-- Navigation (Livewire component) --}}
         <livewire:layout.navigation />
 
@@ -88,7 +94,7 @@
         {{-- Footer --}}
         <footer class="bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800 py-6 text-xs text-slate-500 dark:text-slate-400 mt-auto transition-colors duration-200">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <p>&copy; {{ date('Y') }} {{ config('app.name', 'CampusNest') }}. Built for student housing.</p>
+                <p>&copy; {{ date('Y') }} {{ config('app.name', 'UniCrib') }}. Built for student housing.</p>
                 <div class="flex space-x-6">
                     <span class="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer">Support</span>
                     <span class="hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer">Privacy</span>

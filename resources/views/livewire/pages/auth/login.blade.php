@@ -62,8 +62,11 @@ $login = function () {
         </div>
 
         <div class="pt-2">
-            <button type="submit" class="w-full inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-500 dark:hover:bg-indigo-500 text-white text-xs font-semibold py-3 px-4 rounded-xl transition shadow-sm">
-                {{ __('Log in') }}
+            <button type="submit" wire:loading.attr="disabled" class="w-full inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 dark:hover:bg-indigo-500 text-white text-xs font-semibold py-3 px-4 rounded-xl transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                <span wire:loading wire:target="login">
+                    <x-spinner size="w-3.5 h-3.5" />
+                </span>
+                <span>{{ __('Log in') }}</span>
             </button>
         </div>
 
