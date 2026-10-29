@@ -18,26 +18,30 @@ class LandlordController extends Controller
 
         $user = $request->user();
 
-        // Pass both settlement_bank and bank_code to ensure Paystack API validation passes
+        // Paystack's API strictly requires 'settlement_bank' for the bank code parameter
         $subaccountData = [
-            'business_name'      => $user->name . ' (Unicrib Landlord)',
-            'settlement_bank'    => trim($request->bank_code),
-            'bank_code'          => trim($request->bank_code),
-            'account_number'     => trim($request->account_number),
-            'percentage_charge'  => 1.0, // Platform commission fee (e.g. 1%)
+            'business_name'         => $user->name . ' (Unicrib Landlord)',
+            'settlement_bank'       => trim($request->bank_code),
+            'account_number'        => trim($request->account_number),
+            'percentage_charge'     => 1.0, // Platform commission split fee percentage
             'primary_contact_email' => $user->email,
-            'description'        => 'Unicrib Landlord - ' . $user->id,
+            'description'           => 'Unicrib Landlord - ' . $user->id,
         ];
 
         try {
             $response = Paystack::createSubAccount($subaccountData);
             
-            if (!$response || !isset($response['status']) || !$response['status']) {
-                $errMsg = $response['message'] ?? 'Unknown Paystack error occurred.';
+            // Check if response is returned as an array or object
+            $isSuccessful = is_array($response) ? ($response['status'] ?? false) : ($response->status ?? false);
+
+            if (!$isSuccessful) {
+                $errMsg = is_array($response) ? ($response['message'] ?? 'Unknown Paystack error') : ($response->message ?? 'Unknown Paystack error');
                 throw new \Exception($errMsg);
             }
 
-            $subaccountCode = $response['data']['subaccount_code'] ?? null;
+            $subaccountCode = is_array($response) 
+                ? ($response['data']['subaccount_code'] ?? null) 
+                : ($response->data->subaccount_code ?? null);
 
             if (!$subaccountCode) {
                 throw new \Exception('Subaccount code was not returned by Paystack.');
