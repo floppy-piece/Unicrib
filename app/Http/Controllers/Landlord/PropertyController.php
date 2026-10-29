@@ -362,38 +362,56 @@ class PropertyController extends Controller
         return "Recent Bookings:\n" . $bookings->map(fn($b) => "• Booking #{$b->id}: {$b->student->name} for {$b->property->title} | Status: " . ucfirst($b->status))->implode("\n");
     }
 
-    public function addLandlordPropertyApi(Request $request, User $user)
+   public function addLandlordPropertyApi(Request $request, User $user, $imageFileUrls = [])
     {
         if ($user->category !== 'landlord') {
             return "Unauthorized: Only registered landlords can add properties.";
         }
 
-        $title = $request->input('title');
-        $price = $request->input('price');
-        $area = $request->input('area');
-        $address = $request->input('address');
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'area' => 'required|in:mjini,ngomongo,diaspora,kutus',
+            'address' => 'required|string',
+            'property_type' => 'required|in:apartment,house,room,studio,bedsitter',
+            'bedrooms' => 'required|integer|min:0',
+            'bathrooms' => 'required|integer|min:0',
+            'capacity' => 'required|integer|min:1',
+        ]);
 
-        if (!$title || !$price || !$area || !$address) {
-            return "Please provide title, price, area, and address to add a property.";
+        // Download and store images if provided via chat upload
+        $imagePaths = [];
+        foreach ($imageFileUrls as $url) {
+            try {
+                $contents = file_get_contents($url);
+                $filename = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
+                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $contents);
+                $imagePaths[] = $filename;
+            } catch (\Exception $e) {
+                \Log::error('Failed to download agent property image: ' . $e->getMessage());
+            }
         }
 
         $property = Property::create([
             'landlord_id' => $user->id,
-            'title' => $title,
-            'description' => $request->input('description', 'Student property listed via WhatsApp AI'),
-            'price' => $price,
-            'area' => $area,
-            'address' => $address,
-            'bedrooms' => $request->input('bedrooms', 1),
-            'bathrooms' => $request->input('bathrooms', 1),
-            'size' => 20,
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? 'Student property listed via AI Assistant',
+            'price' => $validated['price'],
+            'area' => $validated['area'],
+            'address' => $validated['address'],
+            'property_type' => $validated['property_type'],
+            'bedrooms' => $validated['bedrooms'],
+            'bathrooms' => $validated['bathrooms'],
+            'capacity' => $validated['capacity'],
+            'booked_count' => 0,
+            'images' => $imagePaths,
             'is_verified' => $user->is_verified,
             'is_available' => true,
         ]);
 
-        return "Property added successfully! [ID: {$property->id}] {$property->title} in {$area} at KSh {$property->price}/mo.";
+        return "Property successfully created! [ID: {$property->id}] {$property->title} in {$property->area} at KSh {$property->price}/mo with " . count($imagePaths) . " attached image(s).";
     }
-
     public function updatePropertyAvailabilityApi(Request $request, User $user)
     {
         $propertyId = $request->input('property_id');

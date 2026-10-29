@@ -311,7 +311,30 @@ class TelegramAgentController extends Controller
                         "description" => "View recent student bookings, payment statuses, and tenant details.",
                         "parameters" => ["type" => "object", "properties" => []]
                     ]
+                ],
+                [
+                    "type" => "function",
+                    "function" => [
+                        "name" => "add_landlord_property",
+                        "description" => "Add a new student property listing with full details including title, description, price, area, address, property type, bedrooms, and bathrooms.",
+                        "parameters" => [
+                            "type" => "object",
+                            "properties" => [
+                                "title" => ["type" => "string", "description" => "Property title e.g. Greenview Student Hostel"],
+                                "description" => ["type" => "string", "description" => "Detailed description of amenities and rules"],
+                                "price" => ["type" => "number", "description" => "Monthly rent in Kenyan Shillings (KSh)"],
+                                "area" => ["type" => "string", "description" => "Area/ward: mjini, ngomongo, diaspora, or kutus", "enum" => ["mjini", "ngomongo", "diaspora", "kutus"]],
+                                "address" => ["type" => "string", "description" => "Physical address or landmark location"],
+                                "property_type" => ["type" => "string", "description" => "Type: apartment, house, room, studio, or bedsitter", "enum" => ["apartment", "house", "room", "studio", "bedsitter"]],
+                                "bedrooms" => ["type" => "integer", "description" => "Number of bedrooms"],
+                                "bathrooms" => ["type" => "integer", "description" => "Number of bathrooms"],
+                                "capacity" => ["type" => "integer", "description" => "Total tenant capacity"]
+                            ],
+                            "required" => ["title", "price", "area", "address", "property_type", "bedrooms", "bathrooms", "capacity"]
+                        ]
+                    ]
                 ]
+
             ];
         }
 
@@ -360,6 +383,20 @@ class TelegramAgentController extends Controller
                         "required" => ["action"]
                     ]
                 ]
+            ],
+            [
+                "type" => "function",
+                "function" => [
+                    "name" => "get_payment_link",
+                    "description" => "Get a secure browser payment link for a pending student booking or storage reservation.",
+                    "parameters" => [
+                        "type" => "object",
+                        "properties" => [
+                            "booking_id" => ["type" => "integer", "description" => "The active booking ID"]
+                        ],
+                        "required" => ["booking_id"]
+                    ]
+                ]
             ]
         ];
     }
@@ -384,8 +421,19 @@ class TelegramAgentController extends Controller
             case 'get_landlord_properties':
                 return app(\App\Http\Controllers\Landlord\PropertyController::class)->landlordPropertiesApi($user);
 
+            case 'add_landlord_property':
+                return app(\App\Http\Controllers\Landlord\PropertyController::class)->addLandlordPropertyApi($request, $user);
+
             case 'get_landlord_bookings':
                 return app(\App\Http\Controllers\Landlord\PropertyController::class)->landlordBookingsApi($user);
+
+            case 'get_payment_link':
+                $bookingId = $args['booking_id'] ?? null;
+                $booking = Booking::where('id', $bookingId)->where('student_id', $user->id)->first();
+                if (!$booking) return "Booking not found.";
+                
+                $paymentUrl = route('bookings.show', $booking->id); // Or your dedicated payment route
+                return "Please complete your payment securely in your browser using this link: {$paymentUrl}";
 
             default:
                 return "Gateway action completed successfully.";
