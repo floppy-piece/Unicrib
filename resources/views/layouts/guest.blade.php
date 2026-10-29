@@ -79,8 +79,7 @@
 
             <!-- Footer Link -->
             <div class="mt-6 pt-6 text-center text-xs text-[#6a6c6a] dark:text-[#cad8e5] border-t border-[#cad8e5] dark:border-[#6a6c6a]">
-                <span>Need an account?</span>
-                <a href="{{ route('register') }}" class="text-[#2e2f2c] dark:text-white font-semibold hover:underline ml-1 transition" wire:navigate>Register instead</a>
+                <span>Feel free to come again.</span>
             </div>
 
         </div>
