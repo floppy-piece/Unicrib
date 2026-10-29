@@ -279,21 +279,6 @@
                             </div>
                         </div>
 
-                        {{-- Availability --}}
-                        <div class="space-y-3">
-                            <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Availability</h3>
-                            <label class="flex items-center gap-2 cursor-pointer text-xs font-medium text-[#6a6c6a] dark:text-[#cad8e5]">
-                                <input
-                                    type="checkbox"
-                                    name="is_available"
-                                    value="1"
-                                    class="rounded border-[#cad8e5] dark:border-[#6a6c6a] text-[#2e2f2c] focus:ring-[#8da5c0] bg-[#dae4ee]/50 dark:bg-[#2e2f2c]"
-                                    {{ old('is_available', true) ? 'checked' : '' }}
-                                >
-                                <span>Mark as available for students</span>
-                            </label>
-                        </div>
-
                         {{-- Exact Location (Map) --}}
                         <div class="space-y-4">
                             <h3 class="text-base font-bold text-[#2e2f2c] dark:text-white border-b border-[#cad8e5] dark:border-[#6a6c6a] pb-2">Exact Property Location</h3>

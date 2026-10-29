@@ -19,7 +19,14 @@ use App\Http\Controllers\StorageHousingController;
 use App\Http\Controllers\Admin\StorageAdminController;
 use App\Http\Controllers\RefundController;
 use App\Http\Controllers\Landlord\LandlordController;
-use App\Http\Controllers\Admin\DriverController;
+use App\Http\Controllers\Admin\DriverAdminController;
+use App\Http\Controllers\Driver\DriverController;
+
+Route::middleware(['auth'])->prefix('driver')->name('driver.')->group(function () {
+    Route::get('/dashboard', [DriverController::class, 'index'])->name('dashboard');
+    Route::post('/transports/{transport}/claim', [DriverController::class, 'claimTrip'])->name('transports.claim');
+    Route::patch('/transports/{transport}/status', [DriverController::class, 'updateStatus'])->name('transports.updateStatus');
+});
 
 Route::view('/privacy-policy', 'legal.privacy')->name('legal.privacy');
 Route::view('/terms-of-service', 'legal.terms')->name('legal.terms');
@@ -69,9 +76,9 @@ Route::middleware(['auth', 'category:admin', /*'verified'*/])
         // Transports & Drivers
         Route::get('/transports', [TransportAdminController::class, 'index'])->name('transports.index');
         Route::patch('/transports/{transport}', [TransportAdminController::class, 'update'])->name('transports.update');
-        Route::post('/transports/{transport}/assign-driver', [DriverController::class, 'assignDriver'])->name('transports.assign-driver');
-        Route::get('/drivers', [DriverController::class, 'index'])->name('drivers.index');
-        Route::post('/drivers', [DriverController::class, 'store'])->name('drivers.store');
+        Route::post('/transports/{transport}/assign-driver', [DriverAdminController::class, 'assignDriver'])->name('transports.assign-driver');
+        Route::get('/drivers', [DriverAdminController::class, 'index'])->name('drivers.index');
+        Route::post('/drivers', [DriverAdminController::class, 'store'])->name('drivers.store');
 
         // Storage Housing Admin
         Route::get('/storage', [StorageAdminController::class, 'index'])->name('storage.index');

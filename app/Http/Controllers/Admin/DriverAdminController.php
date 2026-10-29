@@ -7,7 +7,7 @@ use App\Models\Driver;
 use App\Models\Transport;
 use Illuminate\Http\Request;
 
-class DriverController extends Controller
+class DriverAdminController extends Controller
 {
     public function index()
     {

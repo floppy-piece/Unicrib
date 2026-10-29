@@ -68,12 +68,16 @@
              A 42,42 0 0,1 240,250 
              Z" fill="url(#innerPill)" />
 
-    <!-- Window Grid (4 Squares) -->
+    <!-- Round Arched 4-Pane Window Emblem -->
     <g fill="#2e2f2c" opacity="0.9">
-      <rect x="389" y="218" width="9" height="9" rx="1.5" />
-      <rect x="402" y="218" width="9" height="9" rx="1.5" />
-      <rect x="389" y="231" width="9" height="9" rx="1.5" />
-      <rect x="402" y="231" width="9" height="9" rx="1.5" />
+      <!-- Top-Left Curved Pane -->
+      <path d="M 397,218 A 12,12 0 0,0 387,228 L 397,228 Z" />
+      <!-- Top-Right Curved Pane -->
+      <path d="M 403,218 L 403,228 L 413,228 A 12,12 0 0,0 403,218 Z" />
+      <!-- Bottom-Left Curved Pane -->
+      <path d="M 387,232 A 12,12 0 0,0 397,242 L 397,232 Z" />
+      <!-- Bottom-Right Curved Pane -->
+      <path d="M 403,232 L 403,242 A 12,12 0 0,0 413,232 Z" />
     </g>
 
     <!-- Brand Typography "Unicrib" -->
