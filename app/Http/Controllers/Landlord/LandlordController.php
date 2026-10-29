@@ -13,7 +13,7 @@ class LandlordController extends Controller
     {
         $request->validate([
             'account_number' => 'required|numeric',
-            'bank_code' => 'required|string',
+            'bank_code' => 'required|numeric',
         ]);
 
         $user = $request->user();
