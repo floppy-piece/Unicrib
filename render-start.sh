@@ -3,7 +3,7 @@
 php artisan storage:link --force
 
 echo "Fixing storage and cache permissions..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache var/www/html/public/storage
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /public/storage
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache 
 
 
