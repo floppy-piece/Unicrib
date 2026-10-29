@@ -30,7 +30,7 @@ Follow these steps to set up and run Unicrib on a new computer:
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/your-username/unicrib.git](https://github.com/your-username/unicrib.git)
+git clone [https://github.comfloppy-piece/unicrib.git]
 cd unicrib
 
 ```
@@ -70,10 +70,10 @@ DB_DATABASE=unicrib
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
 
-# Meta / Gemini AI Integration
-META_API_KEY=your_google_gemini_api_key
-META_API_BASE_URL=[https://generativelanguage.googleapis.com/v1beta/openai/](https://generativelanguage.googleapis.com/v1beta/openai/)
-META_MODEL_NAME=gemini-2.5-flash
+# Meta AI Integration
+META_API_KEY=your_meta_api_key
+META_API_BASE_URL=[https://generativelanguage.googleapis.com/v1beta/openai/]
+META_MODEL_NAME=muse-spark
 
 # Telegram Bot Integration
 TELEGRAM_BOT_TOKEN=your_telegram_bot_token
@@ -104,39 +104,6 @@ Your app will be available at `http://127.0.0.1:8000`.
 
 ---
 
-## 🧪 Testing the AI Agents Locally (via cURL)
-
-You can test your WhatsApp and Telegram AI tool gateway locally without needing active external webhook configurations.
-
-### Test Telegram Simulation Endpoint:
-
-```bash
-curl -X POST [http://127.0.0.1:8000/api/telegram/simulate](http://127.0.0.1:8000/api/telegram/simulate) \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "chat_id": "123456789",
-    "message": "Find a bedsitter in Kutus under 10000 KSh"
-  }'
-
-```
-
-*(Note: Ensure you have linked your test user's `telegram_chat_id` to `"123456789"` in your database, or use the `/link <phone>` command).*
-
-### Test WhatsApp Simulation Endpoint:
-
-```bash
-curl -X POST [http://127.0.0.1:8000/whatsapp/simulate](http://127.0.0.1:8000/whatsapp/simulate) \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "phone": "254704969006",
-    "message": "Find a bedsitter in Kutus under 10000 KSh"
-  }'
-
-```
-
----
 
 ## 🛡️ License
 

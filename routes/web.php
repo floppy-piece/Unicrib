@@ -21,6 +21,10 @@ use App\Http\Controllers\RefundController;
 use App\Http\Controllers\Landlord\LandlordController;
 use App\Http\Controllers\Admin\DriverController;
 
+Route::view('/privacy-policy', 'legal.privacy')->name('legal.privacy');
+Route::view('/terms-of-service', 'legal.terms')->name('legal.terms');
+Route::view('/cookie-policy', 'legal.cookies')->name('legal.cookies');
+
 Route::middleware('auth'/*, 'verified'*/)->group(function () {
     // Properties
     Route::post('/properties/{property}/pay-and-book', [BookingController::class, 'payAndBook'])->name('properties.pay-and-book');

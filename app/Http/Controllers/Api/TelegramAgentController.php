@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Booking;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -11,6 +13,13 @@ use Illuminate\Support\Facades\Cache;
 
 class TelegramAgentController extends Controller
 {
+    protected TelegramService $telegram;
+
+    public function __construct(TelegramService $telegram)
+    {
+        $this->telegram = $telegram;
+    }
+
     /**
      * Handle incoming Telegram webhook updates
      */
@@ -19,6 +28,11 @@ class TelegramAgentController extends Controller
         try {
             $input = $request->all();
             Log::info('Telegram Raw Payload: ' . json_encode($input));
+
+            // 1. Handle Inline Button Taps (Callback Queries)
+            if (isset($input['callback_query'])) {
+                return $this->handleCallbackQuery($input['callback_query']);
+            }
 
             $message = $input['message'] ?? $input['edited_message'] ?? null;
             if (!$message) {
@@ -36,57 +50,76 @@ class TelegramAgentController extends Controller
             // Fetch user by Telegram Chat ID
             $user = User::where('telegram_chat_id', $chatId)->first();
 
-            // 1. Handle Telegram /start Command
+            // 2. Handle Telegram /start Command with Interactive Welcome Options
             if ($text === '/start') {
                 if ($user) {
-                    $this->sendTelegramReply(
+                    $this->telegram->sendInlineButtons(
                         $chatId, 
-                        "👋 *Welcome back to UniCrib, {$user->name}!*\n\nYour account is connected. Ask me anything about student housing, property listings, storage, or transport!"
+                        "👋 <b>Welcome back to UniCrib, {$user->name}!</b>\n\nYour account is connected. What would you like to manage today?",
+                        [
+                            [
+                                ['text' => '🏠 Search Housing', 'callback_data' => 'menu_housing'],
+                                ['text' => '🚚 Transport Status', 'callback_data' => 'menu_transport']
+                            ],
+                            [
+                                ['text' => '📦 Storage Units', 'callback_data' => 'menu_storage']
+                            ]
+                        ]
                     );
                     return response()->json(['status' => 'welcome_existing_user']);
                 } else {
-                    $this->sendTelegramReply(
+                    $this->telegram->sendInlineButtons(
                         $chatId, 
-                        "👋 *Welcome to UniCrib AI!*\n\nYour Telegram account is not linked yet. To connect your account, please reply with your registered phone number in this format:\n\n`/link 254712345678`"
+                        "👋 <b>Welcome to UniCrib AI!</b>\n\nYour Telegram account is not linked yet. To connect your account, please reply with your registered phone number or tap below:",
+                        [
+                            [['text' => '🔗 How to link account', 'callback_data' => 'help_link']]
+                        ]
                     );
                     return response()->json(['status' => 'welcome_new_user']);
                 }
             }
 
-            // 2. Handle /link <phone> Command
+            // 3. Handle /link <phone> Command
             if (!$user && str_starts_with($text, '/link')) {
                 $parts = explode(' ', $text);
                 $phoneInput = trim($parts[1] ?? '');
 
                 if (empty($phoneInput)) {
-                    $this->sendTelegramReply($chatId, "⚠️ Please provide your phone number. Example:\n`/link 254712345678`");
+                    $this->telegram->sendInlineButtons($chatId, "⚠️ Please provide your phone number. Example:\n<code>/link 254712345678</code>", []);
                     return response()->json(['status' => 'missing_phone']);
                 }
 
                 $user = User::where('phone', 'LIKE', '%' . substr($phoneInput, -9))->first();
                 if ($user) {
                     $user->update(['telegram_chat_id' => $chatId]);
-                    $this->sendTelegramReply($chatId, "✅ *Success!* Your Telegram account is now linked to *{$user->name}*.\n\nHow can I help you today?");
+                    $this->telegram->sendInlineButtons(
+                        $chatId, 
+                        "✅ <b>Success!</b> Your Telegram account is now linked to <b>{$user->name}</b>.\n\nHow can I help you today?",
+                        [
+                            [['text' => '🚀 Open Dashboard Menu', 'callback_data' => 'menu_housing']]
+                        ]
+                    );
                     return response()->json(['status' => 'linked']);
                 } else {
-                    $this->sendTelegramReply($chatId, "❌ Phone number not found in UniCrib records. Please check your number and try again.");
+                    $this->telegram->sendInlineButtons($chatId, "❌ Phone number not found in UniCrib records. Please check your number and try again.", []);
                     return response()->json(['status' => 'link_failed']);
                 }
             }
 
-            // 3. Handle Unlinked Users Sending Regular Text
+            // 4. Handle Unlinked Users Sending Regular Text
             if (!$user) {
-                $this->sendTelegramReply(
+                $this->telegram->sendInlineButtons(
                     $chatId, 
-                    "⚠️ *Account Not Linked*\n\nPlease link your UniCrib account first by replying with:\n`/link 254712345678`"
+                    "⚠️ <b>Account Not Linked</b>\n\nPlease link your UniCrib account first by replying with:\n<code>/link 254712345678</code>",
+                    []
                 );
                 return response()->json(['status' => 'user_not_found']);
             }
 
-            // 4. Send immediate processing feedback
-            $this->sendTelegramReply($chatId, "⏳ *Processing your request...*");
+            // 5. Send immediate processing feedback
+            $this->telegram->sendInlineButtons($chatId, "⏳ <i>Processing your request...</i>", []);
 
-            // 5. Handle Photo / Image Uploads
+            // 6. Handle Photo / Image Uploads
             if (!empty($photo)) {
                 $largestPhoto = end($photo);
                 $fileId = $largestPhoto['file_id'] ?? null;
@@ -94,18 +127,18 @@ class TelegramAgentController extends Controller
                 $aiResponse = app(TelegramImageInterpretationController::class)
                     ->interpretHouseImage($user, $fileId, $text);
 
-                $this->sendTelegramReply($chatId, $aiResponse);
+                $this->telegram->sendInlineButtons($chatId, $aiResponse, []);
                 return response()->json(['status' => 'success']);
             }
 
-            // 6. Handle Text Commands / AI Prompts
+            // 7. Handle Text Commands / AI Prompts
             if (empty($text)) {
-                $this->sendTelegramReply($chatId, "⚠️ Received an empty message.");
+                $this->telegram->sendInlineButtons($chatId, "⚠️ Received an empty message.", []);
                 return response()->json(['status' => 'empty_text']);
             }
 
             $aiResponse = $this->askMetaModelWithToolGateway($text, $user, $chatId);
-            $this->sendTelegramReply($chatId, $aiResponse);
+            $this->telegram->sendInlineButtons($chatId, $aiResponse, []);
 
             return response()->json(['status' => 'success']);
 
@@ -115,11 +148,69 @@ class TelegramAgentController extends Controller
             ]);
             
             if (isset($chatId)) {
-                $this->sendTelegramReply($chatId, "⚠️ An error occurred while processing your request. Please try again later.");
+                $this->telegram->sendInlineButtons($chatId, "⚠️ An error occurred while processing your request. Please try again later.", []);
             }
 
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Handle Inline Keyboard Button Taps
+     */
+    protected function handleCallbackQuery(array $callbackQuery)
+    {
+        $callbackId = $callbackQuery['id'];
+        $chatId = $callbackQuery['message']['chat']['id'];
+        $data = $callbackQuery['data'];
+
+        Log::info("Telegram Button Tapped: {$data} from Chat ID: {$chatId}");
+
+        $user = User::where('telegram_chat_id', $chatId)->first();
+
+        // Menu quick navigation
+        if ($data === 'menu_housing') {
+            $this->telegram->answerCallbackQuery($callbackId);
+            $this->telegram->sendInlineButtons($chatId, "🏠 *Housing Search*\n\nTell me the ward or location you want to live in (e.g., *'Find hostels in Kutus under 10k'*)!", []);
+            return response()->json(['status' => 'success']);
+        }
+
+        if ($data === 'menu_transport') {
+            $this->telegram->answerCallbackQuery($callbackId);
+            $this->telegram->sendInlineButtons($chatId, "🚚 *Transport Dispatch*\n\nYour transport requests and active schedules can be checked by typing *'Check my transport status'*.", []);
+            return response()->json(['status' => 'success']);
+        }
+
+        if ($data === 'menu_storage') {
+            $this->telegram->answerCallbackQuery($callbackId);
+            $this->telegram->sendInlineButtons($chatId, "📦 *Store Housing*\n\nType *'Check my storage status'* or *'Reserve a medium storage unit'* to get started.", []);
+            return response()->json(['status' => 'success']);
+        }
+
+        if ($data === 'help_link') {
+            $this->telegram->answerCallbackQuery($callbackId);
+            $this->telegram->sendInlineButtons($chatId, "To link your account, type:\n<code>/link YOUR_PHONE_NUMBER</code>\n\nExample: <code>/link 254712345678</code>", []);
+            return response()->json(['status' => 'success']);
+        }
+
+        // Handle Landlord / Student Booking Approvals or Actions
+        if (str_starts_with($data, 'approve_cancel_')) {
+            $bookingId = str_replace('approve_cancel_', '', $data);
+            $booking = Booking::find($bookingId);
+
+            if ($booking) {
+                $booking->update(['status' => 'cancelled']);
+                $this->telegram->answerCallbackQuery($callbackId, 'Cancellation approved successfully!', showAlert: true);
+                $this->telegram->sendInlineButtons($chatId, "✅ Booking #{$bookingId} has been successfully cancelled.", []);
+            } else {
+                $this->telegram->answerCallbackQuery($callbackId, 'Booking not found.', showAlert: true);
+            }
+            return response()->json(['status' => 'success']);
+        }
+
+        // Default callback acknowledgment
+        $this->telegram->answerCallbackQuery($callbackId);
+        return response()->json(['status' => 'success']);
     }
 
     private function askMetaModelWithToolGateway($prompt, $user, $chatId)
@@ -298,25 +389,6 @@ class TelegramAgentController extends Controller
 
             default:
                 return "Gateway action completed successfully.";
-        }
-    }
-
-    private function sendTelegramReply($chatId, $text)
-    {
-        $token = env('TELEGRAM_BOT_TOKEN');
-        if (!$token) {
-            Log::info("Telegram simulated reply to chat {$chatId}: {$text}");
-            return;
-        }
-
-        try {
-            Http::post("https://api.telegram.org/bot{$token}/sendMessage", [
-                'chat_id' => $chatId,
-                'text' => $text,
-                'parse_mode' => 'Markdown'
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Telegram API Exception: ' . $e->getMessage());
         }
     }
 }

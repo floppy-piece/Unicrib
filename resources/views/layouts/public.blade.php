@@ -127,7 +127,7 @@
             <div class="border-t border-[#aabdd2] dark:border-[#2e2f2c] pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-[#6a6c6a] dark:text-[#aabdd2] gap-4">
                 <p>© {{ date('Y') }} UniCrib. All rights reserved.</p>
                 <div class="flex space-x-6">
-                    <a href="#" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Privacy policy</a>
+                    <a href="/privacy-policy" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Privacy policy</a>
                     <a href="#" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Terms of service</a>
                     <a href="#" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Cookie policy</a>
                 </div>

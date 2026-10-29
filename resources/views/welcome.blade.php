@@ -18,9 +18,9 @@
                         ELITE ACCOMMODATIONS • Built for University Life
                     </div>
 
-                    <i><h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-white">
-                        Find your perfect rental home.
-                    </h1></i>
+                    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight text-white">
+                        Find your perfect <i>student </i>home.
+                    </h1>
 
                     <p class="text-[#cad8e5] text-base sm:text-lg max-w-2xl font-normal leading-relaxed">
                         Discover carefully curated student accommodations near your university.
