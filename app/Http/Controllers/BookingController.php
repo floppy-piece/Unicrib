@@ -225,63 +225,71 @@ class BookingController extends Controller
 
     public function paystackVerify(Request $request)
     {
-        $paymentDetails = Paystack::getPaymentData();
-        
-        if (!$paymentDetails['status']) {
-            return redirect()->route('welcome')
-                ->with('error', 'Payment verification failed with Paystack.');
-        }
+        try {
+            $paymentDetails = Paystack::getPaymentData();
+            
+            \Log::info('Render Paystack Verify Response:', (array) $paymentDetails);
 
-        $transactionData = $paymentDetails['data'];
-        if ($transactionData['status'] !== 'success') {
-            return redirect()->route('welcome')->with('error', 'Payment was not successful.');
-        }
+            if (!($paymentDetails['status'] ?? false)) {
+                \Log::error('Paystack verification returned false status on Render.');
+                return redirect()->route('welcome')->with('error', 'Payment verification failed with Paystack.');
+            }
 
-        // Extract metadata securely returned by Paystack
-        $metadata = $transactionData['metadata'] ?? [];
-        $propertyId = $metadata['property_id'] ?? null;
-        $studentId = $metadata['student_id'] ?? null;
-        $depositAmount = $metadata['deposit_amount'] ?? null;
-        $subaccountCode = $metadata['subaccount_code'] ?? null;
+            $transactionData = $paymentDetails['data'] ?? [];
+            if (($transactionData['status'] ?? '') !== 'success') {
+                \Log::error('Transaction status is not success on Render: ' . json_encode($transactionData));
+                return redirect()->route('welcome')->with('error', 'Payment was not successful.');
+            }
 
-        if (!$propertyId || !$studentId) {
-            return redirect()->route('welcome')->with('error', 'Invalid payment metadata received.');
-        }
+            $metadata = $transactionData['metadata'] ?? [];
+            $propertyId = $metadata['property_id'] ?? null;
+            $studentId = $metadata['student_id'] ?? null;
+            $depositAmount = $metadata['deposit_amount'] ?? null;
+            $subaccountCode = $metadata['subaccount_code'] ?? null;
 
-        $property = Property::findOrFail($propertyId);
+            if (!$propertyId || !$studentId) {
+                \Log::error('Missing metadata on Render:', $metadata);
+                return redirect()->route('welcome')->with('error', 'Invalid payment metadata received.');
+            }
 
-        // Check if booking with this reference already exists (prevents duplicate creation on page refresh)
-        $existingBooking = Booking::where('payment_reference', $transactionData['reference'])->first();
-        if ($existingBooking) {
-            return redirect()->route('student.notifications', $existingBooking)
+            $property = Property::findOrFail($propertyId);
+
+            $existingBooking = Booking::where('payment_reference', $transactionData['reference'])->first();
+            if ($existingBooking) {
+                return redirect()->route('student.notifications', $existingBooking)
+                    ->with('booking_status', [
+                        'type' => 'success',
+                        'message' => 'Booking already verified and active!',
+                    ]);
+            }
+
+            $booking = DB::transaction(function () use ($property, $studentId, $depositAmount, $transactionData, $subaccountCode) {
+                return Booking::create([
+                    'property_id' => $property->id,
+                    'student_id' => $studentId,
+                    'landlord_id' => $property->landlord_id,
+                    'amount' => $depositAmount,
+                    'payment_status' => Booking::PAYMENT_PAID,
+                    'status' => Booking::STATUS_PENDING,
+                    'payment_reference' => $transactionData['reference'],
+                    'paystack_subaccount_code' => $subaccountCode,
+                ]);
+            });
+
+            session()->forget('pending_split_payment');
+
+            return redirect()->route('student.notifications', $booking)
                 ->with('booking_status', [
                     'type' => 'success',
-                    'message' => 'Booking already verified and active!',
+                    'message' => 'Booking created successfully!',
                 ]);
+
+        } catch (\Exception $e) {
+            \Log::error('RENDER PAYSTACK VERIFY CRITICAL ERROR: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->route('welcome')->with('error', 'An error occurred during verification: ' . $e->getMessage());
         }
-
-        // CREATE BOOKING safely using metadata
-        $booking = DB::transaction(function () use ($property, $studentId, $depositAmount, $transactionData, $subaccountCode) {
-            return Booking::create([
-                'property_id' => $property->id,
-                'student_id' => $studentId,
-                'landlord_id' => $property->landlord_id,
-                'amount' => $depositAmount,
-                'payment_status' => Booking::PAYMENT_PAID,
-                'status' => Booking::STATUS_PENDING,
-                'payment_reference' => $transactionData['reference'],
-                'paystack_subaccount_code' => $subaccountCode,
-            ]);
-        });
-
-        // Clear out any leftover session data safely
-        session()->forget('pending_split_payment');
-
-        return redirect()->route('student.notifications', $booking)
-            ->with('booking_status', [
-                'type' => 'success',
-                'message' => 'Booking created successfully, wait for verification email!',
-            ]);
     }
 
     private function isPropertyAvailable(Property $property, string $checkIn, string $checkOut)
