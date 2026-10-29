@@ -18,14 +18,15 @@ class LandlordController extends Controller
 
         $user = $request->user();
 
-        // Paystack expects 'settlement_bank' instead of 'bank_code' and 'percentage_charge' for the split
+        // Pass both settlement_bank and bank_code to ensure Paystack API validation passes
         $subaccountData = [
-            'business_name' => $user->name . ' (Unicrib Landlord)',
-            'settlement_bank' => $request->bank_code,
-            'account_number' => $request->account_number,
-            'percentage_charge' => 1.00, // Platform split percentage (e.g. 1% commission or adjust as needed)
-            'description' => 'Unicrib Landlord Account - ID: ' . $user->id,
+            'business_name'      => $user->name . ' (Unicrib Landlord)',
+            'settlement_bank'    => trim($request->bank_code),
+            'bank_code'          => trim($request->bank_code),
+            'account_number'     => trim($request->account_number),
+            'percentage_charge'  => 1.0, // Platform commission fee (e.g. 1%)
             'primary_contact_email' => $user->email,
+            'description'        => 'Unicrib Landlord - ' . $user->id,
         ];
 
         try {
@@ -48,7 +49,7 @@ class LandlordController extends Controller
 
             return back()->with('success', 'Subaccount created successfully! Ready for split payments.');
         } catch (\Exception $e) {
-            Log::error('Paystack Subaccount Creation Failed: ' . $e->getMessage());
+            Log::error('Paystack Subaccount Creation Error: ' . $e->getMessage());
             
             return back()->withErrors(['paystack_error' => 'Failed to create subaccount: ' . $e->getMessage()]);
         }
