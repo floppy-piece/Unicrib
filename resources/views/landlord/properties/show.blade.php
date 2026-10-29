@@ -13,13 +13,7 @@
         </div>
     </x-slot>
 
-    @push('scripts')
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        }
-    </script>
-    @endpush
+
 
     <div class="py-8 bg-[#dae4ee] dark:bg-[#2e2f2c] min-h-screen transition-colors duration-200"
          x-data="{ darkMode: localStorage.getItem('dark') === 'true' }" 

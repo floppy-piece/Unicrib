@@ -18,7 +18,7 @@ RUN apk update && apk add --no-cache libc6-compat
 
 # Allow composer to run as root during build
 ENV COMPOSER_ALLOW_SUPERUSER 1
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-interaction && php artisan storage:link && php artisan config:cache && php artisan route:cache
 
 # Build Tailwind / Vite frontend assets inside the container
 RUN npm install && npm run build \
