@@ -128,8 +128,8 @@
                 <p>© {{ date('Y') }} UniCrib. All rights reserved.</p>
                 <div class="flex space-x-6">
                     <a href="/privacy-policy" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Privacy policy</a>
-                    <a href="#" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Terms of service</a>
-                    <a href="#" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Cookie policy</a>
+                    <a href="/terms-of-service" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Terms of service</a>
+                    <a href="/cookie-policy" class="hover:text-[#2e2f2c] dark:hover:text-white transition">Cookie policy</a>
                 </div>
             </div>
         </div>
