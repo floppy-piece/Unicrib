@@ -91,32 +91,32 @@ class BookingController extends Controller
     // Landlord approves
   
     public function approve(Booking $booking)
-{
-    abort_unless($booking->landlord_id === auth()->id(), 403);
+    {
+        abort_unless($booking->landlord_id === auth()->id(), 403);
 
-    $property = $booking->property;
+        $property = $booking->property;
 
-    // if already full, do not approve
-    if ($property->isFull()) {
-        return back()->with('error', 'Property is already full.');
+        // if already full, do not approve
+        if ($property->isFull()) {
+            return back()->with('error', 'Property is already full.');
+        }
+
+        // set approved
+        $booking->update(['status' => 'approved']);
+
+        // increment booked_count
+        //$property->increment('booked_count');
+
+        // if now full, mark as not available
+        //if ($property->isFull()) {
+            //$property->update(['is_available' => false]);
+        //}
+
+        // notify student (your BookingApproved notification)
+        $booking->student->notify(new BookingApproved($booking));
+
+        return back()->with('success', 'Booking approved and student notified.');
     }
-
-    // set approved
-    $booking->update(['status' => 'approved']);
-
-    // increment booked_count
-    //$property->increment('booked_count');
-
-    // if now full, mark as not available
-    //if ($property->isFull()) {
-        //$property->update(['is_available' => false]);
-    //}
-
-    // notify student (your BookingApproved notification)
-    $booking->student->notify(new BookingApproved($booking));
-
-    return back()->with('success', 'Booking approved and student notified.');
-}
 
 
 /*public function cancel(Booking $booking)
@@ -138,7 +138,7 @@ class BookingController extends Controller
         'message' => 'Your booking has been cancelled.',
     ]);
 }*/
-public function cancelStudent(Booking $booking)
+    public function cancelStudent(Booking $booking)
     {
         $user = Auth::user();
 
@@ -159,19 +159,16 @@ public function cancelStudent(Booking $booking)
 
     public function payAndBook(Request $request, Property $property)
     {
-        //$this->authorize('book', $property);
         $user = auth()->user();
         if (! $user || $user->category !== 'student') {
             abort(403);
         }
+        
         $validated = $request->validate([
-            //'check_in_date' => ['required', 'date', 'after_or_equal:today'],
-            //'check_out_date' => ['required', 'date', 'after:check_in_date'],
             'email' => ['required', 'email'],
             'terms_agreement' => ['required', 'accepted'],
         ]);
 
-        // FIXED 33.33% deposit
         $fullPrice = $property->price;
         $depositAmount = intval(5/100 * $fullPrice);
 
@@ -194,7 +191,6 @@ public function cancelStudent(Booking $booking)
             ]);
         }
 
-        // SPLIT PAYMENT SETUP
         $landlord = $property->landlord;
         if (!$landlord->paystack_subaccount_code) {
             return back()->with('booking_status', [
@@ -204,34 +200,26 @@ public function cancelStudent(Booking $booking)
         }
 
         $reference = Paystack::genTranxRef();
+        
         $paymentData = [
             'email' => $validated['email'],
-            'amount' => $depositAmount * 100, // kobo
+            'amount' => $depositAmount * 100, // in kobo/cents
             'reference' => $reference,
             'callback_url' => route('paystack.verify'),
-            'subaccount' => $landlord->paystack_subaccount_code, // Landlord 99%
-            'bearer' => 'subaccount', // Landlord pays fees
+            'subaccount' => $landlord->paystack_subaccount_code,
+            'bearer' => 'subaccount',
             'metadata' => [
                 'intent' => 'deposit_booking',
                 'property_id' => $property->id,
-                'student_id' => Auth::id(),                'landlord_id' => $landlord->id,
-                'full_price' => $fullPrice,
+                'student_id' => $user->id,
+                'landlord_id' => $landlord->id,
                 'deposit_amount' => $depositAmount,
-                //'check_in_date' => $validated['check_in_date'],
-                //'check_out_date' => $validated['check_out_date'],
+                'subaccount_code' => $landlord->paystack_subaccount_code,
             ],
         ];
 
-        // Store pending payment
-        session(['pending_split_payment' => [
-            'reference' => $reference,
-            'property_id' => $property->id,
-            'validated_data' => $validated,
-            'deposit_amount' => $depositAmount,
-            'full_price' => $fullPrice,
-            'landlord_subaccount' => $landlord->paystack_subaccount_code,
-        ]]);
-
+        // NOTE: We no longer strictly need session storage for the booking, 
+        // but we can keep a light reference check if desired. Metadata handles the rest!
         return Paystack::getAuthorizationUrl($paymentData)->redirectNow();
     }
 
@@ -240,49 +228,59 @@ public function cancelStudent(Booking $booking)
         $paymentDetails = Paystack::getPaymentData();
         
         if (!$paymentDetails['status']) {
-            $pending = session('pending_split_payment', []);
-            return redirect()->route('properties.show', $pending['property_id'] ?? 1)
-                ->with('error', 'Payment verification failed');
+            return redirect()->route('welcome')
+                ->with('error', 'Payment verification failed with Paystack.');
         }
 
         $transactionData = $paymentDetails['data'];
         if ($transactionData['status'] !== 'success') {
-            return redirect()->back()->with('error', 'Payment not successful');
+            return redirect()->route('welcome')->with('error', 'Payment was not successful.');
         }
 
-        $pending = session('pending_split_payment');
-        if (!$pending || $pending['reference'] !== $transactionData['reference']) {
-            return redirect()->back()->with('error', 'Invalid payment reference');
+        // Extract metadata securely returned by Paystack
+        $metadata = $transactionData['metadata'] ?? [];
+        $propertyId = $metadata['property_id'] ?? null;
+        $studentId = $metadata['student_id'] ?? null;
+        $depositAmount = $metadata['deposit_amount'] ?? null;
+        $subaccountCode = $metadata['subaccount_code'] ?? null;
+
+        if (!$propertyId || !$studentId) {
+            return redirect()->route('welcome')->with('error', 'Invalid payment metadata received.');
         }
 
-        // CREATE BOOKING (Payment verified + SPLIT complete)
-        $property = Property::findOrFail($pending['property_id']);
-        $booking = DB::transaction(function () use ($pending, $transactionData, $property) {
-            $booking = Booking::create([
+        $property = Property::findOrFail($propertyId);
+
+        // Check if booking with this reference already exists (prevents duplicate creation on page refresh)
+        $existingBooking = Booking::where('payment_reference', $transactionData['reference'])->first();
+        if ($existingBooking) {
+            return redirect()->route('student.notifications', $existingBooking)
+                ->with('booking_status', [
+                    'type' => 'success',
+                    'message' => 'Booking already verified and active!',
+                ]);
+        }
+
+        // CREATE BOOKING safely using metadata
+        $booking = DB::transaction(function () use ($property, $studentId, $depositAmount, $transactionData, $subaccountCode) {
+            return Booking::create([
                 'property_id' => $property->id,
-                'student_id' => Auth::id(),
+                'student_id' => $studentId,
                 'landlord_id' => $property->landlord_id,
-                //'check_in_date' => $pending['validated_data']['check_in_date'],
-                //'check_out_date' => $pending['validated_data']['check_out_date'],
-                //'full_price' => $pending['full_price'],
-                'amount' => $pending['deposit_amount'],
+                'amount' => $depositAmount,
                 'payment_status' => Booking::PAYMENT_PAID,
                 'status' => Booking::STATUS_PENDING,
                 'payment_reference' => $transactionData['reference'],
-                'paystack_subaccount_code' => $pending['landlord_subaccount'],
+                'paystack_subaccount_code' => $subaccountCode,
             ]);
-
-            // Notify landlord
-            //$property->landlord->notify(new NewBookingDepositReceived($booking));
-            
-            return $booking;
         });
 
+        // Clear out any leftover session data safely
         session()->forget('pending_split_payment');
+
         return redirect()->route('student.notifications', $booking)
             ->with('booking_status', [
-                'type' =>'success',
-                'message'=>'Booking created successfully, wait for verification email!'
+                'type' => 'success',
+                'message' => 'Booking created successfully, wait for verification email!',
             ]);
     }
 
