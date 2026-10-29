@@ -384,15 +384,8 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
-    <script type="module">
-        import { initPropertyMap } from "{{ Vite::asset('resources/js/property-map.js') }}";
-        document.addEventListener('DOMContentLoaded', () => {
-            const mapEl = document.getElementById('locationMap');
-            if (mapEl) {
-                const lat = mapEl.dataset.lat ? parseFloat(mapEl.dataset.lat) : null;
-                const lng = mapEl.dataset.lng ? parseFloat(mapEl.dataset.lng) : null;
-                initPropertyMap({ initialLat: lat, initialLng: lng });
-            }
-        });
-    </script>
+    @push('scripts')
+        {{-- app.js automatically handles map initialization when #locationMap exists --}}
+        @vite(['resources/js/app.js'])
+    @endpush
 </x-app-layout>

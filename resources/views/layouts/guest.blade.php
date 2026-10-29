@@ -79,7 +79,7 @@
 
             <!-- Footer Link -->
             <div class="mt-6 pt-6 text-center text-xs text-[#6a6c6a] dark:text-[#cad8e5] border-t border-[#cad8e5] dark:border-[#6a6c6a]">
-                <span>Feel free to come again.</span>
+                <strong><span>Feel free to come again.</span></strong>
             </div>
 
         </div>

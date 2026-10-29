@@ -376,12 +376,10 @@
             integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
             crossorigin=""></script>
 
-    <script type="module">
-        import { initPropertyMap } from "{{ Vite::asset('resources/js/property-map.js') }}";
-        document.addEventListener('DOMContentLoaded', () => {
-            initPropertyMap();
-        });
-    </script>
+    @push('scripts')
+        {{-- app.js automatically handles map initialization when #locationMap exists --}}
+        @vite(['resources/js/app.js'])
+    @endpush
 
     @vite(['resources/js/app.js'])
 </x-app-layout>
