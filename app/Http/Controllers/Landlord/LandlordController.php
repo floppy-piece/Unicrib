@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Landlord;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Unicodeveloper\Paystack\Facades\Paystack;
+use Illuminate\Support\Facades\Log;
 
 class LandlordController extends Controller
 {
@@ -12,37 +13,44 @@ class LandlordController extends Controller
     {
         $request->validate([
             'account_number' => 'required|numeric',
-            'bank_code' => 'required',
-            //'percentage_share' => 99, // Landlord share
+            'bank_code' => 'required|string',
         ]);
 
+        $user = $request->user();
+
+        // Paystack expects 'settlement_bank' instead of 'bank_code' and 'percentage_charge' for the split
         $subaccountData = [
-            'account_name' => $request->user()->name . ' (Unicrib Landlord)',
-            'account_email' => $request->user()->email,
+            'business_name' => $user->name . ' (Unicrib Landlord)',
+            'settlement_bank' => $request->bank_code,
             'account_number' => $request->account_number,
-            'bank_code' => $request->bank_code,
-            'split_config' => [
-                'split_type' => 'percentage',
-                'split_value' => 100 - 99, // Platform %
-            ],
-            'description' => 'Unicrib Landlord - ' . $request->user()->id,
+            'percentage_charge' => 1.00, // Platform split percentage (e.g. 1% commission or adjust as needed)
+            'description' => 'Unicrib Landlord Account - ID: ' . $user->id,
+            'primary_contact_email' => $user->email,
         ];
 
         try {
-            $subaccount = Paystack::createSubAccount($subaccountData);
+            $response = Paystack::createSubAccount($subaccountData);
             
-            $request->user()->update([
-                'paystack_subaccount_code' => $subaccount['data']['subaccount_code']
+            if (!$response || !isset($response['status']) || !$response['status']) {
+                $errMsg = $response['message'] ?? 'Unknown Paystack error occurred.';
+                throw new \Exception($errMsg);
+            }
+
+            $subaccountCode = $response['data']['subaccount_code'] ?? null;
+
+            if (!$subaccountCode) {
+                throw new \Exception('Subaccount code was not returned by Paystack.');
+            }
+
+            $user->update([
+                'paystack_subaccount_code' => $subaccountCode
             ]);
 
-            return back()->with('success', 'Subaccount created! Ready for split payments.');
+            return back()->with('success', 'Subaccount created successfully! Ready for split payments.');
         } catch (\Exception $e) {
-            //return back()->withErrors(['error' => 'Failed to create subaccount: ' . $e->getMessage()]);
-            return back()->with('paystack_subaccount_code', [
-                'type'    => 'error',
-                'message' => 'Failed to create subaccount: ' . $e->getMessage()
-            ]);
+            Log::error('Paystack Subaccount Creation Failed: ' . $e->getMessage());
+            
+            return back()->withErrors(['paystack_error' => 'Failed to create subaccount: ' . $e->getMessage()]);
         }
     }
-   
 }

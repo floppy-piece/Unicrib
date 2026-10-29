@@ -40,6 +40,12 @@
                 </div>
             @endif
 
+            @if($errors->has('paystack_error'))
+                <div class="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-800 dark:text-rose-300 font-medium">
+                    {{ $errors->first('paystack_error') }}
+                </div>
+            @endif
+
             @php
                 $landlord   = auth()->user();
                 $properties = $landlord->properties;
