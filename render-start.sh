@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
-
+# Ensure storage link exists and permissions are correct on every boot
+php artisan storage:link --force
 echo "Fixing storage and cache permissions..."
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 storage bootstrap/cache public/storage
+chown -R www-data:www-data storage bootstrap/cache public/storage
+
+#echo "Fixing storage and cache permissions..."
+#chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+#chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 
 
