@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Landlord;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Unicodeveloper\Paystack\Facades\Paystack;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class LandlordController extends Controller
@@ -12,36 +12,40 @@ class LandlordController extends Controller
     public function createSubaccount(Request $request)
     {
         $request->validate([
-            'account_number' => 'required|numeric',
-            'bank_code' => 'required|numeric',
+            'account_number' => 'required',
+            'bank_code' => 'required',
         ]);
 
         $user = $request->user();
 
-        // Paystack's API strictly requires 'settlement_bank' for the bank code parameter
+        // Exact payload that worked in your cURL test
         $subaccountData = [
             'business_name'         => $user->name . ' (Unicrib Landlord)',
             'settlement_bank'       => trim($request->bank_code),
             'account_number'        => trim($request->account_number),
-            'percentage_charge'     => 1.0, // Platform commission split fee percentage
+            'percentage_charge'     => 1.0,
             'primary_contact_email' => $user->email,
             'description'           => 'Unicrib Landlord - ' . $user->id,
         ];
 
         try {
-            $response = Paystack::createSubAccount($subaccountData);
-            
-            // Check if response is returned as an array or object
-            $isSuccessful = is_array($response) ? ($response['status'] ?? false) : ($response->status ?? false);
+            $secretKey = config('paystack.secretKey') ?: config('services.paystack.secret');
 
-            if (!$isSuccessful) {
-                $errMsg = is_array($response) ? ($response['message'] ?? 'Unknown Paystack error') : ($response->message ?? 'Unknown Paystack error');
+            $response = Http::withToken($secretKey)
+                ->withHeaders([
+                    'Content-Type' => 'application/json',
+                    'Cache-Control' => 'no-cache',
+                ])
+                ->post('https://api.paystack.co/subaccount', $subaccountData);
+
+            $result = $response->json();
+
+            if (!$response->successful() || !($result['status'] ?? false)) {
+                $errMsg = $result['message'] ?? 'Unknown Paystack error occurred.';
                 throw new \Exception($errMsg);
             }
 
-            $subaccountCode = is_array($response) 
-                ? ($response['data']['subaccount_code'] ?? null) 
-                : ($response->data->subaccount_code ?? null);
+            $subaccountCode = $result['data']['subaccount_code'] ?? null;
 
             if (!$subaccountCode) {
                 throw new \Exception('Subaccount code was not returned by Paystack.');
