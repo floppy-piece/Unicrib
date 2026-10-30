@@ -46,7 +46,7 @@
                     <div class="bg-[#6a6c6a]/45 backdrop-blur-md border border-[#8da5c0]/40 rounded-2xl p-6 text-white shadow-xl space-y-2">
                         <h3 class="font-bold text-lg text-white">From one campus to a continent</h3>
                         <p class="text-sm text-[#cad8e5]">
-                            UniCrib starts where demand is most intense—Kenyan university towns—then scales
+                            UniCrib starts where demand is most intense Kenyan university towns then scales
                             across Kenyan campuses with the same promise: verified homes, safer moves, and
                             serious tools for landlords.
                         </p>
@@ -76,7 +76,7 @@
                 </p>
                 <p>
                     UniCrib was created to change that by combining a verified housing marketplace with move,
-                    storage, and landlord tools—all tuned to the realities of campus life and local cities.
+                    storage, and landlord tools all tuned to the realities of campus life and local cities.
                 </p>
                 <p>
                     The long‑term vision is clear: a category‑defining platform that quietly
@@ -93,7 +93,7 @@
                 <span class="text-xs font-bold tracking-widest text-[#2e2f2c] dark:text-[#aabdd2] uppercase bg-[#dae4ee] dark:bg-[#6a6c6a] px-3 py-1 rounded-full border border-[#aabdd2] dark:border-[#8da5c0]">What we solve</span>
                 <h2 class="text-3xl font-bold tracking-tight text-[#2e2f2c] dark:text-white">A better experience for every side</h2>
                 <p class="text-[#6a6c6a] dark:text-[#cad8e5] text-sm sm:text-base">
-                    UniCrib sits at the centre of students, landlords, and universities—aligning everyone around
+                    UniCrib sits at the centre of students, landlords, and universities aligning everyone around
                     verified information, clear expectations, and smooth operations.
                 </p>
             </div>
@@ -143,7 +143,7 @@
                     <p class="text-[#cad8e5] text-base leading-relaxed">
                         Today, UniCrib helps students discover and secure better homes. Tomorrow, the same rails
                         can power credit history, insurance, community, and all the infrastructure around young
-                        people building real lives—starting from where they live.
+                        people building real lives starting from where they live.
                     </p>
                 </div>
             </div>
