@@ -135,7 +135,7 @@
 
                     <div class="p-7 flex flex-col flex-grow space-y-4">
                         <h3 class="text-xl font-extrabold text-[#2e2f2c] dark:text-white">{{ $property->building_name }}</h3>                        
-                        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] font-medium">Walking distance to campus</p>
+                        <p class="text-xs text-[#6a6c6a] dark:text-[#cad8e5] font-medium">{{ $property->description }}</p>
 
                         <div class="flex justify-between items-center text-xs text-[#6a6c6a] dark:text-[#cad8e5] pt-3 border-t border-[#dae4ee] dark:border-[#6a6c6a]">
                             <span class="font-semibold">{{ $property->property_type }}</span>
