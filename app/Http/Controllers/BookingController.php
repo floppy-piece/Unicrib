@@ -159,7 +159,7 @@ class BookingController extends Controller
 
     public function payAndBook(Request $request, Property $property)
     {
-        $user = auth()->user();
+        $user = Auth::user();
         if (! $user || $user->category !== 'student') {
             abort(403);
         }
@@ -211,15 +211,13 @@ class BookingController extends Controller
             'metadata' => [
                 'intent' => 'deposit_booking',
                 'property_id' => $property->id,
-                'student_id' => $user->id,
+                'student_id' => $user->id, // Dynamically bound to the logged-in user
                 'landlord_id' => $landlord->id,
                 'deposit_amount' => $depositAmount,
                 'subaccount_code' => $landlord->paystack_subaccount_code,
             ],
         ];
 
-        // NOTE: We no longer strictly need session storage for the booking, 
-        // but we can keep a light reference check if desired. Metadata handles the rest!
         return Paystack::getAuthorizationUrl($paymentData)->redirectNow();
     }
 
@@ -241,9 +239,11 @@ class BookingController extends Controller
                 return redirect()->route('welcome')->with('error', 'Payment was not successful.');
             }
 
+            // Extract metadata securely returned by Paystack
             $metadata = $transactionData['metadata'] ?? [];
             $propertyId = $metadata['property_id'] ?? null;
-            $studentId = $metadata['student_id'] ?? null;
+            // Fall back safely to Auth::id() if metadata student_id isn't present
+            $studentId = $metadata['student_id'] ?? Auth::id(); 
             $depositAmount = $metadata['deposit_amount'] ?? null;
             $subaccountCode = $metadata['subaccount_code'] ?? null;
 
@@ -254,6 +254,7 @@ class BookingController extends Controller
 
             $property = Property::findOrFail($propertyId);
 
+            // Check if booking with this reference already exists (prevents duplicate creation on page refresh)
             $existingBooking = Booking::where('payment_reference', $transactionData['reference'])->first();
             if ($existingBooking) {
                 return redirect()->route('student.notifications', $existingBooking)
@@ -263,10 +264,18 @@ class BookingController extends Controller
                     ]);
             }
 
+            // CREATE BOOKING safely using metadata and explicit user validation
             $booking = DB::transaction(function () use ($property, $studentId, $depositAmount, $transactionData, $subaccountCode) {
-                return Booking::create([
+                
+                // Ensure the student exists in the production database
+                $student = User::find($studentId);
+                if (!$student) {
+                    throw new \Exception("Student ID {$studentId} does not exist in production database.");
+                }
+
+                $newBooking = Booking::create([
                     'property_id' => $property->id,
-                    'student_id' => $studentId,
+                    'student_id' => $student->id,
                     'landlord_id' => $property->landlord_id,
                     'amount' => $depositAmount,
                     'payment_status' => Booking::PAYMENT_PAID,
@@ -274,24 +283,31 @@ class BookingController extends Controller
                     'payment_reference' => $transactionData['reference'],
                     'paystack_subaccount_code' => $subaccountCode,
                 ]);
+
+                if (!$newBooking || !$newBooking->exists) {
+                    throw new \Exception('Database transaction completed, but booking record failed to save.');
+                }
+
+                return $newBooking;
             });
 
+            // Clear out any leftover session data safely
             session()->forget('pending_split_payment');
 
             return redirect()->route('student.notifications', $booking)
                 ->with('booking_status', [
                     'type' => 'success',
-                    'message' => 'Booking created successfully!',
+                    'message' => 'Booking created successfully, wait for verification email!',
                 ]);
 
         } catch (\Exception $e) {
             \Log::error('RENDER PAYSTACK VERIFY CRITICAL ERROR: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString()
             ]);
-            return redirect()->route('welcome')->with('error', 'An error occurred during verification: ' . $e->getMessage());
+            return redirect()->route('welcome')->with('error', 'An error occurred during booking verification: ' . $e->getMessage());
         }
     }
-
+    
     private function isPropertyAvailable(Property $property, string $checkIn, string $checkOut)
     {
         return !Booking::where('property_id', $property->id)

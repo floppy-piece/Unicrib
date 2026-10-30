@@ -119,12 +119,13 @@
                 <div class="card-3d-hover bg-white dark:bg-[#6a6c6a]/30 rounded-3xl border border-[#cad8e5] dark:border-[#8da5c0]/40 overflow-hidden shadow-lg flex flex-col">
                     <div class="relative bg-[#dae4ee] dark:bg-[#2e2f2c] p-6 text-center">
                         @if($property->images && count($property->images) > 0)
-                            <img class="w-full h-56 object-cover rounded-2xl shadow-inner mx-auto transform hover:scale-105 transition duration-500"
-                                 src="{{ asset('storage/' . $property->images[0]) }}"
-                                 alt="{{ $property->title }}">
+                            <img class="w-full h-40 object-cover rounded-xl shadow-inner mx-auto transform hover:scale-105 transition duration-500"
+                                src="{{ asset('storage/' . $property->images[0]) }}"
+                                alt="{{ $property->title }}"
+                                onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236a6c6a\'><rect width=\'100%\' height=\'100%\' fill=\'%23dae4ee\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z\'/></svg>';">
                         @else
-                            <div class="w-full h-56 flex items-center justify-center bg-[#cad8e5] dark:bg-[#2e2f2c] rounded-2xl text-[#6a6c6a] dark:text-[#aabdd2]">
-                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="w-full h-40 flex items-center justify-center bg-[#cad8e5] dark:bg-[#2e2f2c] rounded-xl text-[#6a6c6a] dark:text-[#aabdd2]">
+                                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
                                 </svg>
                             </div>

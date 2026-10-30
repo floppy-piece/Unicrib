@@ -336,7 +336,10 @@
                                     @foreach($property->images as $image)
                                         @php $path = preg_replace('/^public\//', '', $image); @endphp
                                         <div class="overflow-hidden rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] aspect-video bg-[#dae4ee] dark:bg-[#2e2f2c]">
-                                            <img src="{{ asset('storage/'.$path) }}" alt="Existing image" class="w-full h-full object-cover">
+                                            <img src="{{ asset('storage/'.$path) }}" 
+                                                alt="Existing image" 
+                                                class="w-full h-full object-cover"
+                                                onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236a6c6a\'><rect width=\'100%\' height=\'100%\' fill=\'%23dae4ee\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 0 02-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 02 2z\'/></svg>';">
                                         </div>
                                     @endforeach
                                 </div>
