@@ -94,7 +94,7 @@ class PropertyController extends Controller
         // e.g., only active ones, maybe with pagination
        
          $properties = Property::whereRaw('is_verified = true')
-         ->wherRawe('is_available = true')
+         ->whereRaw('is_available = true')
          ->latest()
          ->paginate(9);
  
