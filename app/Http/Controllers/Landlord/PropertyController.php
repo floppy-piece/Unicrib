@@ -19,7 +19,7 @@ class PropertyController extends Controller
         // Use safe fallbacks so it never fails even if tables are completely empty
         try {
         $properties = Schema::hasTable('properties') 
-            ? Property::where('is_verified', true)->where('is_available', true)->latest()->take(6)->get() 
+            ? Property::whereRaw('is_verified = true')->whereRaw('is_available = true')->latest()->take(6)->get() 
             : collect();
 
         $totalProperties = Schema::hasTable('properties') ? Property::count() : 0;
@@ -93,8 +93,8 @@ class PropertyController extends Controller
         // Get properties you want students to see
         // e.g., only active ones, maybe with pagination
        
-         $properties = Property::where('is_verified', true)
-         ->where('is_available', true)
+         $properties = Property::whereRaw('is_verified = true')
+         ->wherRawe('is_available = true')
          ->latest()
          ->paginate(9);
  
