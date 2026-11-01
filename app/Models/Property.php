@@ -113,7 +113,7 @@ class Property extends Model
      */
     public function scopeAvailable($query)
     {
-        return $query->where('is_available', true);
+        return $query->whereRaw('is_available = true');
     }
 
     public function bookings()
@@ -127,7 +127,7 @@ class Property extends Model
      */
     public function scopeVerified($query)
     {
-        return $query->where('is_verified', true);
+        return $query->whereRaw('is_verified = true');
     }
 
     /**
