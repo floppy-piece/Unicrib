@@ -184,9 +184,12 @@ class TelegramAgentController extends Controller
                 return response()->json(['status' => 'empty_text']);
             }
 
-            $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $text, $chatId);
-            $this->telegram->sendInlineButtons($chatId, $aiResponse, []);
+            // Inside TelegramAgentController.php (where text messages are processed)
 
+            $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $text, (string) $chatId, 'telegram');
+
+            // Send the response back to Telegram using your TelegramService
+            $this->telegram->sendInlineButtons($chatId, $aiResponse, []);
             return response()->json(['status' => 'success']);
 
         } catch (\Exception $e) {

@@ -118,7 +118,11 @@ class WhatsAppAgentController extends Controller
             return response()->json(['status' => 'empty_text']);
         }
 
-        $aiResponse = $this->askMetaModelWithToolGateway($userMessage, $user, $senderPhone);
+        // Inside WhatsAppAgentController.php (where text messages are processed)
+
+        $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $userMessage, $senderPhone, 'whatsapp');
+
+        // Send the response back to WhatsApp using your sendWhatsAppReply method
         $this->sendWhatsAppReply($senderPhone, $aiResponse);
 
         return response()->json(['status' => 'success']);

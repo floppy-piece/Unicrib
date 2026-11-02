@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Models\Transport;
 use App\Models\Property;
 use App\Services\TelegramService;
+use App\Services\WhatsAppService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -16,16 +17,16 @@ use Illuminate\Support\Facades\Cache;
 class UnicribAgentController extends Controller
 {
     /**
-     * Handle AI prompt processing with tool gateway for any user role (student, landlord, driver).
+     * Handle AI prompt processing with tool gateway for any user role across Telegram or WhatsApp.
      */
-    public function handleAiPrompt(User $user, string $prompt, string $chatId)
+    public function handleAiPrompt(User $user, string $prompt, string $identifier, string $channel = 'whatsapp')
     {
         $apiKey = env('META_API_KEY');
         $baseUrl = rtrim(env('META_API_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/'), '/');
         $model = env('META_MODEL_NAME', 'gemini-2.5-flash');
         $endpoint = "{$baseUrl}/chat/completions";
 
-        $cacheKey = "telegram_chat_" . $chatId;
+        $cacheKey = "unicrib_agent_chat_" . $channel . "_" . $identifier;
         $category = $user->category; // student, landlord, driver, transport, admin
 
         $systemPrompt = match ($category) {
@@ -66,7 +67,7 @@ class UnicribAgentController extends Controller
             $functionName = $toolCall['function']['name'];
             $arguments = json_decode($toolCall['function']['arguments'], true) ?? [];
 
-            $toolResult = $this->dispatchToControllerGateway($functionName, $arguments, $user);
+            $toolResult = $this->dispatchToControllerGateway($functionName, $arguments, $user, $identifier, $channel);
 
             $history[] = $messageChoice;
             $history[] = [
@@ -310,7 +311,6 @@ class UnicribAgentController extends Controller
                     ]
                 ]
             ],
-
             [
                 "type" => "function",
                 "function" => [
@@ -325,7 +325,6 @@ class UnicribAgentController extends Controller
                     ]
                 ]
             ],
-
             [
                 "type" => "function",
                 "function" => [
@@ -344,18 +343,19 @@ class UnicribAgentController extends Controller
     }
 
     /**
-     * Dispatch tool call to appropriate controller method and push formatted image cards where applicable.
+     * Dispatch tool call and route media/cards to either Telegram or WhatsApp based on channel.
      */
-    private function dispatchToControllerGateway($name, $args, User $user)
+    private function dispatchToControllerGateway($name, $args, User $user, string $identifier, string $channel)
     {
         $request = new Request($args);
-        $telegramService = app(TelegramService::class);
+        $telegramService = $channel === 'telegram' ? app(TelegramService::class) : null;
+        $whatsappService = $channel === 'whatsapp' ? app(WhatsAppService::class) : null;
 
         switch ($name) {
             case 'search_housing':
             case 'search_properties':
                 $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
-                    ->whereRaw('is_available = true')
+                    ->whereRaw('is_available = true')->whereRaw('is_verified = true')
                     ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
                     ->take(3)
                     ->get();
@@ -367,16 +367,19 @@ class UnicribAgentController extends Controller
                 foreach ($properties as $property) {
                     if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
                         $rawPath = preg_replace('/^public\//', '', $property->images[0]);
-                        // Ensure public storage URL is fully reachable by Telegram servers
                         $imageUrl = url('storage/' . $rawPath);
                         
                         $caption = "🏠 <b>{$property->title}</b>\n" .
-                                "🆔 <b>Property ID:</b> {$property->id}\n" .
-                                "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
-                                "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
-                                "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
+                                   "🆔 <b>Property ID:</b> {$property->id}\n" .
+                                   "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
+                                   "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
+                                   "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
                         
-                        $telegramService->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
+                        if ($channel === 'telegram' && $telegramService) {
+                            $telegramService->sendPhoto($identifier, $imageUrl, $caption);
+                        } elseif ($channel === 'whatsapp' && $whatsappService) {
+                            $whatsappService->sendImage($identifier, $imageUrl, strip_tags($caption));
+                        }
                     }
                 }
 
@@ -390,7 +393,6 @@ class UnicribAgentController extends Controller
                     return "Sorry, Property #{$propertyId} was not found or is currently unavailable.";
                 }
 
-                // Check if student already has an active booking
                 $existing = Booking::where('student_id', $user->id)
                     ->whereIn('status', ['pending', 'approved'])
                     ->first();
@@ -401,7 +403,6 @@ class UnicribAgentController extends Controller
 
                 $depositAmount = intval(5 / 100 * $property->price);
 
-                // Create pending booking
                 $booking = Booking::create([
                     'property_id' => $property->id,
                     'student_id' => $user->id,
@@ -412,27 +413,27 @@ class UnicribAgentController extends Controller
                     'payment_reference' => '',
                 ]);
 
-                $paymentUrl = route('payAndBook', $property->id); // or direct storage/booking payment route
+                $paymentUrl = route('payAndBook', $property->id);
                 return "✅ Booking #[ID: {$booking->id}] created successfully for {$property->title}!\n\nSecure Payment Link:\n👉 {$paymentUrl}\n\nTap the link above to complete your deposit securely.";
             
             case 'reserve_storage_unit_via_chat':
                 $unitSize = $args['unit_size'] ?? 'standard';
-                $monthlyPrice = 800; // Standard monthly price as defined in PaymentController
+                $monthlyPrice = 800; // Standard monthly price
 
-                // Create a pending StorageBooking record
+                // ✅ FIX: Provide all required columns to satisfy database NOT NULL constraints
                 $storageBooking = \App\Models\StorageBooking::create([
-                    'user_id' => $user->id,
-                    'unit_size' => $unitSize,
+                    'user_id'       => $user->id,
+                    'unit_size'     => $unitSize,
                     'monthly_price' => $monthlyPrice,
-                    'paid_amount' => 0,
-                    'status' => 'pending',
+                    'paid_amount'   => 0,
+                    'status'        => 'pending',
+                    'start_date'    => now()->toDateString(), // 👈 Add default start date
                 ]);
 
                 // Generate the payment route link for the storage booking form
                 $paymentUrl = route('storage.pay', $storageBooking->id);
 
                 return "📦 Storage Unit ({$unitSize}) reserved successfully! [Booking ID: {$storageBooking->id}]\n\nSecure Payment Link:\n👉 {$paymentUrl}\n\nTap above to complete your initial storage deposit securely in your browser.";
-
             case 'get_landlord_properties':
                 $properties = Property::where('landlord_id', $user->id)->get();
                 if ($properties->isEmpty()) {
@@ -447,7 +448,11 @@ class UnicribAgentController extends Controller
                                    "💰 KSh " . number_format($property->price) . "/mo | Status: {$statusText}\n" .
                                    "📍 {$property->address}";
                         
-                        $telegramService->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
+                        if ($channel === 'telegram' && $telegramService) {
+                            $telegramService->sendPhoto($identifier, $imageUrl, $caption);
+                        } elseif ($channel === 'whatsapp' && $whatsappService) {
+                            $whatsappService->sendImage($identifier, $imageUrl, strip_tags($caption));
+                        }
                     }
                 }
 
@@ -461,7 +466,6 @@ class UnicribAgentController extends Controller
                     return "Property #{$propertyId} not found or you do not own it.";
                 }
 
-                // Filter out only allowed editable fields (Strictly excluding is_verified and is_available)
                 $updateData = [];
                 if (!empty($args['title'])) $updateData['title'] = $args['title'];
                 if (!empty($args['description'])) $updateData['description'] = $args['description'];
