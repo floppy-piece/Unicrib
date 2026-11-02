@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Transport;
+use App\Models\Property;
+use App\Services\TelegramService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -27,9 +29,9 @@ class UnicribAgentController extends Controller
         $category = $user->category; // student, landlord, driver, transport, admin
 
         $systemPrompt = match ($category) {
-            'landlord' => "You are Unicrib Landlord Assistant, a professional AI manager helping property owner {$user->name} manage their listings, monitor student bookings, update property availability, and check verification statuses in Kenya.",
-            'driver', 'transport' => "You are Unicrib Driver Assistant, helping transport provider {$user->name} view assigned transport trips, claim available student rides, and update transit statuses.",
-            default => "You are Unicrib AI, a helpful multimodal assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}.",
+            'landlord' => "You are Unicrib Landlord Assistant, a professional assistant helping property owner {$user->name} manage listings and monitor bookings concisely in Kenya.",
+            'driver', 'transport' => "You are Unicrib Driver Assistant, helping transport provider {$user->name} manage assigned trips concisely.",
+            default => "You are Unicrib AI, a helpful and concise assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}. Keep answers brief, clean, and conversational without robotic filler.",
         };
 
         $history = Cache::get($cacheKey, [
@@ -48,14 +50,14 @@ class UnicribAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Unicrib Agent AI Model API HTTP Error:', ['status' => $response->status(), 'body' => $response->body()]);
-            return "I'm having trouble connecting to UniCrib AI right now. Please try again!";
+            return "I'm having trouble connecting right now. Please try again in a moment!";
         }
 
         $resData = $response->json();
         $messageChoice = $resData['choices'][0]['message'] ?? null;
 
         if (!$messageChoice) {
-            return "I'm having trouble understanding the AI response right now.";
+            return "I couldn't process that response. Please try again.";
         }
 
         // Handle Tool Calls
@@ -288,37 +290,59 @@ class UnicribAgentController extends Controller
     }
 
     /**
-     * Dispatch tool call to appropriate controller method.
+     * Dispatch tool call to appropriate controller method and push formatted image cards where applicable.
      */
     private function dispatchToControllerGateway($name, $args, User $user)
     {
         $request = new Request($args);
+        $telegramService = app(TelegramService::class);
 
         switch ($name) {
-            // Inside dispatchToControllerGateway() or property API responses:
             case 'search_housing':
             case 'search_properties':
-                $properties = \App\Models\Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
+                $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
                     ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
-                    ->take(2)
+                    ->take(3)
                     ->get();
 
                 if ($properties->isEmpty()) {
-                    return "No properties found matching your criteria.";
+                    return "No matching student properties found right now. Try checking another location.";
                 }
 
                 foreach ($properties as $property) {
                     if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
-                        // Generate public storage URL for Telegram to stream
                         $imageUrl = asset('storage/' . $property->images[0]);
-                        $caption = "🏠 <b>{$property->title}</b>\n💰 KSh " . number_format($property->price) . "/mo\n📍 {$property->address}";
+                        $caption = "🏠 <b>{$property->title}</b>\n" .
+                                   "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
+                                   "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
+                                   "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
                         
-                        // Dispatch photo directly to the user's Telegram chat
-                        app(\App\Services\TelegramService::class)->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
+                        $telegramService->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
                     }
                 }
 
-                return "Here are the matching properties found for you above with their photos!";
+                return "I found " . count($properties) . " property options for you above! Tap any listing or let me know if you'd like to book one.";
+
+            case 'get_landlord_properties':
+                $properties = Property::where('landlord_id', $user->id)->get();
+                if ($properties->isEmpty()) {
+                    return "You currently have no registered properties.";
+                }
+
+                foreach ($properties as $property) {
+                    if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
+                        $imageUrl = asset('storage/' . $property->images[0]);
+                        $statusText = $property->is_verified ? 'Verified ✅' : 'Pending ⏳';
+                        $caption = "🏡 <b>[ID: {$property->id}] {$property->title}</b>\n" .
+                                   "💰 KSh " . number_format($property->price) . "/mo | Status: {$statusText}\n" .
+                                   "📍 {$property->address}";
+                        
+                        $telegramService->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
+                    }
+                }
+
+                return "Here is the visual overview of your registered properties above.";
+
             case 'check_transport_status':
             case 'fetch_transport_status':
                 return app(\App\Http\Controllers\TransportController::class)->apiTransportStatus($request);
@@ -326,12 +350,6 @@ class UnicribAgentController extends Controller
             case 'manage_storage':
             case 'check_storage_status':
                 return app(\App\Http\Controllers\StorageHousingController::class)->apiManageStorage($request, $user);
-
-            case 'get_landlord_properties':
-                return app(\App\Http\Controllers\Landlord\PropertyController::class)->landlordPropertiesApi($user);
-
-            case 'add_landlord_property':
-                return app(\App\Http\Controllers\Landlord\PropertyController::class)->addLandlordPropertyApi($request, $user);
 
             case 'get_landlord_bookings':
                 return app(\App\Http\Controllers\Landlord\PropertyController::class)->landlordBookingsApi($user);
@@ -354,20 +372,20 @@ class UnicribAgentController extends Controller
                 if ($tripsQuery->isEmpty()) {
                     return "No transport trips found for filter: {$filter}.";
                 }
-                return "Transport Trips ({$filter}):\n" . $tripsQuery->map(fn($t) => "• Trip #{$t->id}: Status: {$t->status} | Student: " . ($t->student->name ?? 'N/A') . " | To: " . ($t->property->title ?? 'N/A'))->implode("\n");
+                return "🚚 <b>Transport Trips ({$filter}):</b>\n" . $tripsQuery->map(fn($t) => "• Trip #{$t->id}: Status: <b>{$t->status}</b> | Student: " . ($t->student->name ?? 'N/A') . " | To: " . ($t->property->title ?? 'N/A'))->implode("\n");
 
             case 'claim_driver_trip':
                 $transportId = $args['transport_id'] ?? null;
                 $transport = Transport::find($transportId);
                 if (!$transport) return "Trip #{$transportId} not found.";
                 if ($transport->driver_id !== null && $transport->driver_id !== $user->id) {
-                    return "This trip has already been claimed by another driver.";
+                    return "⚠️ This trip has already been claimed by another driver.";
                 }
                 $transport->update([
                     'driver_id' => $user->id,
                     'status'    => 'confirmed',
                 ]);
-                return "Trip #{$transport->id} claimed successfully and confirmed!";
+                return "✅ Trip #{$transport->id} claimed successfully and confirmed!";
 
             case 'update_trip_status':
                 $transportId = $args['transport_id'] ?? null;
@@ -375,10 +393,10 @@ class UnicribAgentController extends Controller
                 $transport = Transport::find($transportId);
                 if (!$transport) return "Trip #{$transportId} not found.";
                 if ($transport->driver_id !== $user->id && $user->category !== 'admin') {
-                    return "Unauthorized: You are not assigned to this transport trip.";
+                    return "⚠️ Unauthorized: You are not assigned to this transport trip.";
                 }
                 $transport->update(['status' => $status]);
-                return "Status for Trip #{$transport->id} successfully updated to " . ucfirst($status) . ".";
+                return "✅ Status for Trip #{$transport->id} successfully updated to " . ucfirst($status) . ".";
 
             case 'get_payment_link':
                 $bookingId = $args['booking_id'] ?? null;
@@ -386,10 +404,10 @@ class UnicribAgentController extends Controller
                 if (!$booking) return "Booking not found.";
                 
                 $paymentUrl = route('bookings.show', $booking->id);
-                return "Please complete your payment securely in your browser using this link: {$paymentUrl}";
+                return "Secure Payment Link:\n👉 {$paymentUrl}\n\nTap above to complete your deposit securely in your browser.";
 
             default:
-                return "Gateway action completed successfully.";
+                return "Action completed successfully.";
         }
     }
 }
