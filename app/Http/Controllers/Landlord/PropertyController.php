@@ -360,15 +360,14 @@ class PropertyController extends Controller
         }
     }
 
-  public function searchPropertiesApi(Request $request, User $user)
+    public function searchPropertiesApi(Request $request, User $user)
     {
-        // 🔒 Validate and sanitize area input against allowed enum values
+        // 🔒 FIX 1: Validate and sanitize area input against allowed enum values
         $area = $request->input('area', '');
         $allowedAreas = ['mjini', 'ngomongo', 'diaspora', 'kutus'];
         
-        // Use DB::raw('true') to ensure PostgreSQL evaluates booleans natively without integer binding
-        $query = Property::whereRaw('is_verified = true')
-                         ->whereRaw('is_available = true');
+        // ✅ FIX: Use whereRaw with true/false to prevent PDO from serializing booleans as integers (1/0)
+        $query = Property::whereRaw('is_verified = true')->whereRaw('is_available = true');
 
         if (!empty($area) && in_array(strtolower($area), $allowedAreas)) {
             $query->where('area', strtolower($area));
