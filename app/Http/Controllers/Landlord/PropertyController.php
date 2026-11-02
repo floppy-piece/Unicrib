@@ -211,52 +211,81 @@ class PropertyController extends Controller
      */
     public function update(Request $request, Property $property)
     {
-        // Check if property belongs to the landlord
-        if ($property->landlord_id !== Auth::id()) {
+        // Authorization check
+        if ($property->landlord_id !== auth()->id()) {
             abort(403);
         }
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'property_type' => 'required|in:apartment,house,room,studio,bedsitter',
             'price' => 'required|numeric|min:0',
+            'area' => 'required|in:mjini,ngomongo,diaspora,kutus',
             'bedrooms' => 'required|integer|min:0',
             'bathrooms' => 'required|integer|min:0',
             'size' => 'required|numeric|min:0',
-            'address' => 'required|string',
-            'area' => 'required|in:mjini,ngomongo,diaspora,kutus',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
-            'map_lat' => 'nullable|numeric|between:-90,90',
-            'map_lng' => 'nullable|numeric|between:-180,180',
-            'property_type' => 'required|in:apartment,house,room,studio,bedsitter',
-            'amenities' => 'nullable|array',
-            'is_available' => 'boolean',
-            'street' => 'nullable|string',
-            'building_name' => 'nullable|string',
-            'landmark' => 'nullable|string',
+            'booked_count' => 'required|integer|min:0',
             'capacity' => 'required|integer|min:1',
-            'booked_count'=> 'required|integer|min:0|lte:capacity',
+            'description' => 'required|string',
+            'building_name' => 'nullable|string|max:255',
+            'street' => 'required|string|max:255',
+            'landmark' => 'nullable|string|max:255',
+            'address' => 'required|string|max:255',
+            'map_lat' => 'nullable|numeric',
+            'map_lng' => 'nullable|numeric',
+            'amenities' => 'nullable|array',
+            'remove_images' => 'nullable|array',
+            'remove_images.*' => 'string',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        // Handle image uploads
-        if ($request->hasFile('images')) {
-            $request->validate([
-                'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            ]);
-
-            $imagePaths = $property->images ?? [];
-            foreach ($request->file('images') as $image) {
-                $path = $image->store('properties/' . Auth::id(), 'public');
-                $imagePaths[] = $path;
+        // 1. Handle removal of selected existing images
+        $currentImages = $property->images ?? [];
+        if ($request->has('remove_images')) {
+            $imagesToRemove = $request->input('remove_images', []);
+            foreach ($imagesToRemove as $imgToRemove) {
+                // Delete from disk storage
+                if (\Storage::disk('public')->exists($imgToRemove)) {
+                    \Storage::disk('public')->delete($imgToRemove);
+                }
             }
-            $validated['images'] = $imagePaths;
+            // Filter out removed images
+            $currentImages = array_values(array_diff($currentImages, $imagesToRemove));
         }
 
-        // Update location confirmation status
-        $validated['location_confirmed'] = !empty($validated['map_lat']) && !empty($validated['map_lng']);
+        // 2. Handle uploading new images
+        $newImagePaths = [];
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $file) {
+                $path = $file->store('properties/' . auth()->id(), 'public');
+                $newImagePaths[] = $path;
+            }
+        }
 
-        $property->update($validated);
+        // 3. Merge remaining existing images with new uploads
+        $finalImages = array_merge($currentImages, $newImagePaths);
+
+        // 4. Update property record fields
+        $property->update([
+            'title' => $validated['title'],
+            'property_type' => $validated['property_type'],
+            'price' => $validated['price'],
+            'area' => $validated['area'],
+            'bedrooms' => $validated['bedrooms'],
+            'bathrooms' => $validated['bathrooms'],
+            'size' => $validated['size'],
+            'booked_count' => $validated['booked_count'],
+            'capacity' => $validated['capacity'],
+            'description' => $validated['description'],
+            'building_name' => $validated['building_name'] ?? null,
+            'street' => $validated['street'],
+            'landmark' => $validated['landmark'] ?? null,
+            'address' => $validated['address'],
+            'map_lat' => $validated['map_lat'] ?? $property->map_lat,
+            'map_lng' => $validated['map_lng'] ?? $property->map_lng,
+            'amenities' => $validated['amenities'] ?? [],
+            'images' => $finalImages,
+        ]);
 
         return redirect()->route('landlord.properties.myProperties')
             ->with('success', 'Property updated successfully!');
