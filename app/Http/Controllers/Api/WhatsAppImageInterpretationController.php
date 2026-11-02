@@ -15,36 +15,43 @@ class WhatsAppImageInterpretationController extends Controller
      */
     public function interpretHouseImage(Request $request, User $user, $imageMediaId = null, $imageUrl = null, $userPrompt = '')
     {
-        // 1. Check if user has payment verified
+        // 1. Check payment verification
         if (!$user->is_verified) {
             return "🔒 Payment Verification Required!\nTo use the Unicrib WhatsApp AI House Image Finder and get extra property details, please complete your account payment verification on the Unicrib web app first.";
         }
 
-        // 2. Resolve image URL from WhatsApp Graph API if media ID is provided
-        $resolvedImageUrl = $imageUrl;
-        if (!$resolvedImageUrl && $imageMediaId) {
-            $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
-            $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
-            if ($token) {
-                try {
-                    $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
-                    if ($mediaRes->successful()) {
-                        $resolvedImageUrl = $mediaRes->json('url');
+        $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
+        $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
+        $base64Image = null;
+
+        // 2. Fetch media URL and download raw binary contents with Bearer Auth
+        if ($imageMediaId && $token) {
+            try {
+                $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
+                if ($mediaRes->successful()) {
+                    $downloadUrl = $mediaRes->json('url');
+                    
+                    // WhatsApp media downloads require the Bearer token header
+                    $imageContentRes = Http::withToken($token)->get($downloadUrl);
+                    if ($imageContentRes->successful()) {
+                        $mimeType = $imageContentRes->header('Content-Type') ?: 'image/jpeg';
+                        $base64Image = 'data:' . $mimeType . ';base64,' . base64_encode($imageContentRes->body());
                     }
-                } catch (\Exception $e) {
-                    Log::error('Failed to fetch WhatsApp media URL: ' . $e->getMessage());
                 }
+            } catch (\Exception $e) {
+                Log::error('Failed to download WhatsApp media contents: ' . $e->getMessage());
             }
         }
 
-        if (!$resolvedImageUrl) {
-            $resolvedImageUrl = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267';
+        // Fallback placeholder image if media download was not applicable
+        if (!$base64Image) {
+            $base64Image = $imageUrl ?: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267';
         }
 
-        // 3. Call Meta / OpenAI-compatible Multimodal Vision Model with URL sanitization
+        // 3. Call Modal/Meta Llama 3.2 Vision Model Endpoint
         $apiKey = env('META_API_KEY');
         $baseUrl = rtrim(env('META_API_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/'), '/');
-        $model = env('META_MODEL_NAME', 'gemini-2.5-flash');
+        $model = env('META_MODEL_NAME', 'meta-llama/Llama-3.2-11B-Vision-Instruct');
 
         try {
             $response = Http::withToken($apiKey)->post("{$baseUrl}/chat/completions", [
@@ -64,13 +71,14 @@ class WhatsAppImageInterpretationController extends Controller
                             [
                                 'type' => 'image_url',
                                 'image_url' => [
-                                    'url' => $resolvedImageUrl
+                                    'url' => $base64Image
                                 ]
                             ]
                         ]
                     ]
                 ],
-                'max_tokens' => 500
+                'max_tokens' => 500,
+                'temperature' => 0.2
             ]);
 
             if ($response->failed()) {

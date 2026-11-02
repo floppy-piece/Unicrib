@@ -295,6 +295,25 @@ class UnicribAgentController extends Controller
             [
                 "type" => "function",
                 "function" => [
+                    "name" => "reserve_storage_unit_via_chat",
+                    "description" => "Reserve a storage housing unit by specifying the unit size (small, medium, large, standard) and generate a secure payment link.",
+                    "parameters" => [
+                        "type" => "object",
+                        "properties" => [
+                            "unit_size" => [
+                                "type" => "string",
+                                "description" => "Size of the storage unit",
+                                "enum" => ["small", "medium", "large", "standard"]
+                            ]
+                        ],
+                        "required" => ["unit_size"]
+                    ]
+                ]
+            ],
+
+            [
+                "type" => "function",
+                "function" => [
                     "name" => "get_payment_link",
                     "description" => "Get a secure browser payment link for a pending student booking or storage reservation.",
                     "parameters" => [
@@ -303,6 +322,21 @@ class UnicribAgentController extends Controller
                             "booking_id" => ["type" => "integer", "description" => "The active booking ID"]
                         ],
                         "required" => ["booking_id"]
+                    ]
+                ]
+            ],
+
+            [
+                "type" => "function",
+                "function" => [
+                    "name" => "book_property_via_chat",
+                    "description" => "Create a pending booking for a property ID and return a secure payment link for the student deposit.",
+                    "parameters" => [
+                        "type" => "object",
+                        "properties" => [
+                            "property_id" => ["type" => "integer", "description" => "The ID of the property to book"]
+                        ],
+                        "required" => ["property_id"]
                     ]
                 ]
             ]
@@ -321,27 +355,83 @@ class UnicribAgentController extends Controller
             case 'search_housing':
             case 'search_properties':
                 $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
+                    ->where('is_available', true)
                     ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
                     ->take(3)
                     ->get();
 
                 if ($properties->isEmpty()) {
-                    return "No matching student properties found right now. Try checking another location.";
+                    return "No matching student properties found right now in that area. Try checking another location.";
                 }
 
                 foreach ($properties as $property) {
                     if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
-                        $imageUrl = asset('storage/' . $property->images[0]);
+                        $rawPath = preg_replace('/^public\//', '', $property->images[0]);
+                        // Ensure public storage URL is fully reachable by Telegram servers
+                        $imageUrl = url('storage/' . $rawPath);
+                        
                         $caption = "🏠 <b>{$property->title}</b>\n" .
-                                   "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
-                                   "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
-                                   "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
+                                "🆔 <b>Property ID:</b> {$property->id}\n" .
+                                "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
+                                "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
+                                "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
                         
                         $telegramService->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
                     }
                 }
 
-                return "I found " . count($properties) . " property options for you above! Tap any listing or let me know if you'd like to book one.";
+                return "I found " . count($properties) . " property options for you above! To book one, just reply with: <i>'Book property ID [number]'</i>.";
+            
+            case 'book_property_via_chat':
+                $propertyId = $args['property_id'] ?? null;
+                $property = Property::where('id', $propertyId)->where('is_available', true)->first();
+
+                if (!$property) {
+                    return "Sorry, Property #{$propertyId} was not found or is currently unavailable.";
+                }
+
+                // Check if student already has an active booking
+                $existing = Booking::where('student_id', $user->id)
+                    ->whereIn('status', ['pending', 'approved'])
+                    ->first();
+
+                if ($existing) {
+                    return "You already have an active booking (Booking #{$existing->id}). Please cancel your existing booking before reserving a new property.";
+                }
+
+                $depositAmount = intval(5 / 100 * $property->price);
+
+                // Create pending booking
+                $booking = Booking::create([
+                    'property_id' => $property->id,
+                    'student_id' => $user->id,
+                    'landlord_id' => $property->landlord_id,
+                    'amount' => $depositAmount,
+                    'payment_status' => 'unpaid',
+                    'status' => 'pending',
+                    'payment_reference' => '',
+                ]);
+
+                $paymentUrl = route('payAndBook', $property->id); // or direct storage/booking payment route
+                return "✅ Booking #[ID: {$booking->id}] created successfully for {$property->title}!\n\nSecure Payment Link:\n👉 {$paymentUrl}\n\nTap the link above to complete your deposit securely.";
+            
+            case 'reserve_storage_unit_via_chat':
+                $unitSize = $args['unit_size'] ?? 'standard';
+                $monthlyPrice = 800; // Standard monthly price as defined in PaymentController
+
+                // Create a pending StorageBooking record
+                $storageBooking = \App\Models\StorageBooking::create([
+                    'user_id' => $user->id,
+                    'unit_size' => $unitSize,
+                    'monthly_price' => $monthlyPrice,
+                    'paid_amount' => 0,
+                    'status' => 'pending',
+                ]);
+
+                // Generate the payment route link for the storage booking form
+                $paymentUrl = route('storage.pay', $storageBooking->id);
+
+                return "📦 Storage Unit ({$unitSize}) reserved successfully! [Booking ID: {$storageBooking->id}]\n\nSecure Payment Link:\n👉 {$paymentUrl}\n\nTap above to complete your initial storage deposit securely in your browser.";
 
             case 'get_landlord_properties':
                 $properties = Property::where('landlord_id', $user->id)->get();

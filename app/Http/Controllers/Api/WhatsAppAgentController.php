@@ -3,17 +3,15 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\TransportController;
-use App\Http\Controllers\Api\WhatsAppImageInterpretationController;
 use App\Models\User;
 use App\Models\Property;
 use App\Models\Booking;
-use App\Models\StorageBooking;
 use App\Models\Transport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class WhatsAppAgentController extends Controller
 {
@@ -30,19 +28,15 @@ class WhatsAppAgentController extends Controller
     }
 
     /**
-     * Handle incoming WhatsApp text and route through Meta Model API Agent
+     * Handle incoming WhatsApp messages
      */
     public function handleIncomingMessage(Request $request)
     {
-        // Read directly from the raw content buffer to bypass array depth limits
         $rawContent = $request->getContent();
         $input = json_decode($rawContent, true) ?? [];
 
-        // Selective logging (log only the message value rather than the 10-level wrapper)
         $value = $input['entry'][0]['changes'][0]['value'] ?? null;
-        //Log::info('WhatsApp Incoming Payload Value:', $value ?? []);
-        // Instead of passing array $input to Log::info:
-        Log::info('WhatsApp Raw Payload: ' . $request->getContent());
+        Log::info('WhatsApp Raw Payload: ' . $rawContent);
 
         $messageData = $value['messages'][0] ?? null;
         if (!$messageData) {
@@ -60,20 +54,57 @@ class WhatsAppAgentController extends Controller
             return response()->json(['status' => 'user_not_found']);
         }
 
+        // 1. Handle Photo / Image Uploads
         if ($messageType === 'image') {
             $imageMediaId = $messageData['image']['id'] ?? null;
-            $caption = $messageData['image']['caption'] ?? '';
+            $caption = trim($messageData['image']['caption'] ?? '');
 
+            if ($user->category === 'landlord') {
+                $propertyId = trim(filter_var($caption, FILTER_SANITIZE_NUMBER_INT));
+
+                if (empty($propertyId) || !is_numeric($propertyId)) {
+                    $this->sendWhatsAppReply($senderPhone, "⚠️ *Missing Property ID!*\n\nPlease specify the Property ID in your photo caption when uploading (e.g., *'Property 2'* or just *'2'*).");
+                    return response()->json(['status' => 'missing_property_id']);
+                }
+
+                $property = Property::where('id', (int) $propertyId)->where('landlord_id', $user->id)->first();
+
+                if ($property && $imageMediaId) {
+                    $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
+                    $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
+
+                    $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
+                    if ($mediaRes->successful()) {
+                        $downloadUrl = $mediaRes->json('url');
+                        $fileStream = Http::withToken($token)->get($downloadUrl);
+
+                        if ($fileStream->successful()) {
+                            $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
+                            Storage::disk('public')->put($storagePath, $fileStream->body());
+
+                            $images = $property->images ?? [];
+                            $images[] = $storagePath;
+                            $property->update(['images' => $images]);
+
+                            $this->sendWhatsAppReply($senderPhone, "✅ New photo successfully added to Property #[ID: {$property->id}] {$property->title}!");
+                            return response()->json(['status' => 'success']);
+                        }
+                    }
+                }
+
+                $this->sendWhatsAppReply($senderPhone, "❌ Property #{$propertyId} was not found or does not belong to you.");
+                return response()->json(['status' => 'property_not_found']);
+            }
+
+            // Student Image Interpretation
             $aiResponse = app(WhatsAppImageInterpretationController::class)
                 ->interpretHouseImage($request, $user, $imageMediaId, null, $caption);
 
-            $this->sendInteractiveButtons($senderPhone, $aiResponse, [
-                'book_house' => 'Book Now',
-                'view_more' => 'View Details'
-            ]);
+            $this->sendWhatsAppReply($senderPhone, $aiResponse);
             return response()->json(['status' => 'success']);
         }
 
+        // 2. Handle Interactive Button Replies
         if ($messageType === 'interactive') {
             $buttonReplyId = $messageData['interactive']['button_reply']['id'] ?? '';
             $aiResponse = $this->handleInteractiveButtonReply($buttonReplyId, $user, $senderPhone);
@@ -81,18 +112,19 @@ class WhatsAppAgentController extends Controller
             return response()->json(['status' => 'success']);
         }
 
+        // 3. Process Text Commands and AI Prompts
         $userMessage = $messageData['text']['body'] ?? '';
+        if (empty($userMessage)) {
+            return response()->json(['status' => 'empty_text']);
+        }
 
-        // Process through Meta AI Agent with Tool Gateway & Memory
         $aiResponse = $this->askMetaModelWithToolGateway($userMessage, $user, $senderPhone);
-
-        // Send reply back via WhatsApp Cloud API
         $this->sendWhatsAppReply($senderPhone, $aiResponse);
 
         return response()->json(['status' => 'success']);
     }
 
-    private function askMetaModelWithToolGateway($prompt, $user, $senderPhone)
+    private function askMetaModelWithToolGateway($prompt, User $user, $senderPhone)
     {
         $apiKey = env('META_API_KEY');
         $baseUrl = rtrim(env('META_API_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/'), '/');
@@ -100,22 +132,20 @@ class WhatsAppAgentController extends Controller
         $endpoint = "{$baseUrl}/chat/completions";
 
         $cacheKey = "whatsapp_chat_" . $senderPhone;
+        $category = $user->category;
 
-        // Set dynamic system prompt & tools based on user category (Student vs Landlord)
-        $isLandlord = $user->category === 'landlord';
-
-        $systemPrompt = $isLandlord
-            ? "You are Unicrib Landlord Assistant, a professional AI manager helping property owner {$user->name} manage their listings, monitor student bookings, and check verification statuses in Kenya."
-            : "You are Unicrib AI, a helpful multimodal assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}.";
+        $systemPrompt = match ($category) {
+            'landlord' => "You are Unicrib Landlord Assistant, a professional assistant helping property owner {$user->name} manage listings and monitor bookings concisely in Kenya.",
+            'driver', 'transport' => "You are Unicrib Driver Assistant, helping transport provider {$user->name} manage assigned trips concisely.",
+            default => "You are Unicrib AI, a helpful and concise assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}. Keep answers brief, clean, and conversational without robotic filler.",
+        };
 
         $history = Cache::get($cacheKey, [
             ['role' => 'system', 'content' => $systemPrompt]
         ]);
 
         $history[] = ['role' => 'user', 'content' => $prompt];
-
-        // Define Tool Schemas for OpenAI-compatible Model API
-        $tools = $this->getToolSchemas($isLandlord);
+        $tools = $this->getToolSchemas($category);
 
         $response = Http::withToken($apiKey)->post($endpoint, [
             'model' => $model,
@@ -125,10 +155,7 @@ class WhatsAppAgentController extends Controller
         ]);
 
         if ($response->failed()) {
-            Log::error('AI Model API HTTP Error:', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
+            Log::error('AI Model API HTTP Error:', ['status' => $response->status(), 'body' => $response->body()]);
             return "I'm having trouble connecting to Unicrib AI right now. Please try again!";
         }
 
@@ -136,18 +163,15 @@ class WhatsAppAgentController extends Controller
         $messageChoice = $resData['choices'][0]['message'] ?? null;
 
         if (!$messageChoice) {
-            Log::error('AI Model API Malformed Response:', ['response' => $resData]);
-            return "I'm having trouble understanding the AI response right now.";
+            return "I couldn't process that response. Please try again.";
         }
 
-        // Handle Tool Calling Execution
         if (isset($messageChoice['tool_calls'])) {
             $toolCall = $messageChoice['tool_calls'][0];
             $functionName = $toolCall['function']['name'];
             $arguments = json_decode($toolCall['function']['arguments'], true) ?? [];
 
-            // Execute via Controller Gateway
-            $toolResult = $this->dispatchToControllerGateway($functionName, $arguments, $user);
+            $toolResult = $this->dispatchToControllerGateway($functionName, $arguments, $user, $senderPhone);
 
             $history[] = $messageChoice;
             $history[] = [
@@ -156,7 +180,6 @@ class WhatsAppAgentController extends Controller
                 'content' => (string) $toolResult
             ];
 
-            // Send the tool execution result back to the model to generate a final natural language response
             $followUpResponse = Http::withToken($apiKey)->post($endpoint, [
                 'model' => $model,
                 'messages' => $history,
@@ -182,18 +205,18 @@ class WhatsAppAgentController extends Controller
     }
 
     /**
-     * Return OpenAI-compatible tool schemas for housing, transport, and storage management.
+     * Role-Based Tool Schemas
      */
-    private function getToolSchemas(bool $isLandlord): array
+    private function getToolSchemas(string $category): array
     {
-        if ($isLandlord) {
+        if ($category === 'landlord') {
             return [
                 [
                     "type" => "function",
                     "function" => [
                         "name" => "get_landlord_properties",
                         "description" => "View all properties owned by this landlord along with verification and availability status.",
-                        "parameters" => ["type" => "object", "properties" => []]
+                        "parameters" => ["type" => "object", "properties" => (object) []]
                     ]
                 ],
                 [
@@ -201,26 +224,28 @@ class WhatsAppAgentController extends Controller
                     "function" => [
                         "name" => "get_landlord_bookings",
                         "description" => "View recent student bookings, payment statuses, and tenant details.",
-                        "parameters" => ["type" => "object", "properties" => []]
+                        "parameters" => ["type" => "object", "properties" => (object) []]
                     ]
                 ],
                 [
                     "type" => "function",
                     "function" => [
                         "name" => "add_landlord_property",
-                        "description" => "Add a new student property listing on behalf of the landlord.",
+                        "description" => "Add a new student property listing with full details including title, description, price, area, address, property type, bedrooms, and bathrooms.",
                         "parameters" => [
                             "type" => "object",
                             "properties" => [
                                 "title" => ["type" => "string", "description" => "Property title e.g. Executive Hostel Room"],
                                 "description" => ["type" => "string", "description" => "Detailed property description"],
-                                "price" => ["type" => "integer", "description" => "Monthly rent price in KSh"],
-                                "area" => ["type" => "string", "description" => "Area or ward name e.g. Kutus"],
+                                "price" => ["type" => "number", "description" => "Monthly rent price in KSh"],
+                                "area" => ["type" => "string", "description" => "Area/ward: mjini, ngomongo, diaspora, or kutus", "enum" => ["mjini", "ngomongo", "diaspora", "kutus"]],
                                 "address" => ["type" => "string", "description" => "Full physical address"],
+                                "property_type" => ["type" => "string", "description" => "Type: apartment, house, room, studio, or bedsitter", "enum" => ["apartment", "house", "room", "studio", "bedsitter"]],
                                 "bedrooms" => ["type" => "integer", "description" => "Number of bedrooms"],
-                                "bathrooms" => ["type" => "integer", "description" => "Number of bathrooms"]
+                                "bathrooms" => ["type" => "integer", "description" => "Number of bathrooms"],
+                                "capacity" => ["type" => "integer", "description" => "Total tenant capacity"]
                             ],
-                            "required" => ["title", "price", "area", "address"]
+                            "required" => ["title", "price", "area", "address", "property_type", "bedrooms", "bathrooms", "capacity"]
                         ]
                     ]
                 ],
@@ -232,7 +257,7 @@ class WhatsAppAgentController extends Controller
                         "parameters" => [
                             "type" => "object",
                             "properties" => [
-                                "property_id" => ["type" => "integer", "description" => "Property ID"],
+                                "property_id" => ["type" => "integer", "description" => "The ID of the property"],
                                 "is_available" => ["type" => "boolean", "description" => "True for available, false for unavailable"]
                             ],
                             "required" => ["property_id", "is_available"]
@@ -243,20 +268,89 @@ class WhatsAppAgentController extends Controller
                     "type" => "function",
                     "function" => [
                         "name" => "update_booking_status",
-                        "description" => "Approve or reject a student's booking request for a property.",
+                        "description" => "Approve or reject a student booking.",
                         "parameters" => [
                             "type" => "object",
                             "properties" => [
-                                "booking_id" => ["type" => "integer", "description" => "Booking ID"],
-                                "status" => ["type" => "string", "description" => "Action status: 'approved' or 'rejected'", "enum" => ["approved", "rejected"]]
+                                "booking_id" => ["type" => "integer", "description" => "The ID of the booking"],
+                                "status" => ["type" => "string", "description" => "Status: 'approved' or 'rejected'", "enum" => ["approved", "rejected"]]
                             ],
                             "required" => ["booking_id", "status"]
+                        ]
+                    ]
+                ],
+                [
+                    "type" => "function",
+                    "function" => [
+                        "name" => "update_landlord_property",
+                        "description" => "Update details of an existing property owned by the landlord (e.g. title, price, description, bedrooms, bathrooms, capacity). Note: verification and availability status cannot be changed via chat.",
+                        "parameters" => [
+                            "type" => "object",
+                            "properties" => [
+                                "property_id" => ["type" => "integer", "description" => "The ID of the property to update"],
+                                "title" => ["type" => "string", "description" => "New property title"],
+                                "description" => ["type" => "string", "description" => "New description"],
+                                "price" => ["type" => "number", "description" => "New monthly rent in KSh"],
+                                "bedrooms" => ["type" => "integer", "description" => "Number of bedrooms"],
+                                "bathrooms" => ["type" => "integer", "description" => "Number of bathrooms"],
+                                "capacity" => ["type" => "integer", "description" => "Total tenant capacity"]
+                            ],
+                            "required" => ["property_id"]
                         ]
                     ]
                 ]
             ];
         }
 
+        if (in_array($category, ['driver', 'transport', 'admin'])) {
+            return [
+                [
+                    "type" => "function",
+                    "function" => [
+                        "name" => "get_assigned_trips",
+                        "description" => "View assigned transport trips or available unassigned trips.",
+                        "parameters" => [
+                            "type" => "object",
+                            "properties" => [
+                                "status_filter" => ["type" => "string", "description" => "Filter: 'assigned', 'available', or 'completed'", "enum" => ["assigned", "available", "completed"]]
+                            ],
+                            "required" => []
+                        ]
+                    ]
+                ],
+                [
+                    "type" => "function",
+                    "function" => [
+                        "name" => "claim_driver_trip",
+                        "description" => "Claim an available unassigned transport trip.",
+                        "parameters" => [
+                            "type" => "object",
+                            "properties" => [
+                                "transport_id" => ["type" => "integer", "description" => "The transport trip ID to claim"]
+                            ],
+                            "required" => ["transport_id"]
+                        ]
+                    ]
+                ],
+                [
+                    "type" => "function",
+                    "function" => [
+                        "name" => "update_trip_status",
+                        "description" => "Update the progress status of an assigned transport trip.",
+                        "parameters" => [
+                            "type" => "object",
+                            "properties" => [
+                                "transport_id" => ["type" => "integer", "description" => "The transport trip ID"],
+                                "status" => ["type" => "string", "description" => "New status: confirmed, in_transit, completed, or cancelled", "enum" => ["confirmed", "in_transit", "completed", "cancelled"]]
+                            ],
+                            "required" => ["transport_id", "status"]
+                        ]
+                    ]
+                ]
+            ];
+        }
+
+        // Student Tools
         return [
             [
                 "type" => "function",
@@ -266,18 +360,9 @@ class WhatsAppAgentController extends Controller
                     "parameters" => [
                         "type" => "object",
                         "properties" => [
-                            "location" => [
-                                "type" => "string",
-                                "description" => "Location name, area, or university ward e.g. Kutus, Main Campus, Kirinyaga"
-                            ],
-                            "max_price" => [
-                                "type" => "integer",
-                                "description" => "Maximum budget in Kenyan Shillings (KSh)"
-                            ],
-                            "property_type" => [
-                                "type" => "string",
-                                "description" => "Type of property e.g. hostel, apartment, single room, bedsitter"
-                            ]
+                            "location" => ["type" => "string", "description" => "Location name, area, or university ward e.g. Kutus, Main Campus"],
+                            "max_price" => ["type" => "integer", "description" => "Maximum budget in Kenyan Shillings (KSh)"],
+                            "property_type" => ["type" => "string", "description" => "Type of property e.g. hostel, apartment, single room, bedsitter"]
                         ],
                         "required" => ["location"]
                     ]
@@ -287,14 +372,11 @@ class WhatsAppAgentController extends Controller
                 "type" => "function",
                 "function" => [
                     "name" => "check_transport_status",
-                    "description" => "Check transport slot assignment, ride status, and assigned driver details using a route name or booking/tracking identifier.",
+                    "description" => "Check transport slot assignment, ride status, and assigned driver details using a route name or booking identifier.",
                     "parameters" => [
                         "type" => "object",
                         "properties" => [
-                            "identifier" => [
-                                "type" => "string",
-                                "description" => "Booking ID, route name, or tracking identifier for the transport request"
-                            ]
+                            "identifier" => ["type" => "string", "description" => "Booking ID, route name, or tracking identifier"]
                         ],
                         "required" => ["identifier"]
                     ]
@@ -304,21 +386,28 @@ class WhatsAppAgentController extends Controller
                 "type" => "function",
                 "function" => [
                     "name" => "manage_storage",
-                    "description" => "Check active storage housing bookings status or reserve a new storage unit specifying action ('check' or 'reserve') and unit size.",
+                    "description" => "Check active storage housing bookings status or reserve a new storage unit.",
                     "parameters" => [
                         "type" => "object",
                         "properties" => [
-                            "action" => [
-                                "type" => "string",
-                                "description" => "Action to perform: either 'check' status or 'reserve' storage unit",
-                                "enum" => ["check", "reserve"]
-                            ],
-                            "unit_size" => [
-                                "type" => "string",
-                                "description" => "Size of the storage unit e.g. small, medium, large, standard"
-                            ]
+                            "action" => ["type" => "string", "description" => "Action: 'check' or 'reserve'", "enum" => ["check", "reserve"]],
+                            "unit_size" => ["type" => "string", "description" => "Unit size: small, medium, large, standard"]
                         ],
                         "required" => ["action"]
+                    ]
+                ]
+            ],
+            [
+                "type" => "function",
+                "function" => [
+                    "name" => "get_payment_link",
+                    "description" => "Get a secure browser payment link for a pending student booking or storage reservation.",
+                    "parameters" => [
+                        "type" => "object",
+                        "properties" => [
+                            "booking_id" => ["type" => "integer", "description" => "The active booking ID"]
+                        ],
+                        "required" => ["booking_id"]
                     ]
                 ]
             ]
@@ -326,16 +415,81 @@ class WhatsAppAgentController extends Controller
     }
 
     /**
-     * Gateway Dispatcher: Dynamically dispatch and execute corresponding local Laravel controller methods.
+     * Dispatcher Gateway
      */
-    private function dispatchToControllerGateway($name, $args, $user)
+    private function dispatchToControllerGateway($name, $args, User $user, $senderPhone)
     {
         $request = new Request($args);
 
         switch ($name) {
             case 'search_housing':
             case 'search_properties':
-                return app(\App\Http\Controllers\Landlord\PropertyController::class)->searchPropertiesApi($request, $user);
+                $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
+                    ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
+                    ->take(3)
+                    ->get();
+
+                if ($properties->isEmpty()) {
+                    return "No matching student properties found right now. Try checking another location.";
+                }
+
+                foreach ($properties as $property) {
+                    if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
+                        $imageUrl = asset('storage/' . $property->images[0]);
+                        $caption = "🏠 *{$property->title}*\n" .
+                                   "💰 *KSh " . number_format($property->price) . "* / month\n" .
+                                   "📍 *Location:* {$property->area} ({$property->address})\n" .
+                                   "🛏 *Type:* " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
+                        
+                        $this->sendWhatsAppImageMedia($senderPhone, $imageUrl, $caption);
+                    }
+                }
+
+                return "I found " . count($properties) . " property options for you above!";
+
+            case 'get_landlord_properties':
+                $properties = Property::where('landlord_id', $user->id)->get();
+                if ($properties->isEmpty()) {
+                    return "You currently have no registered properties.";
+                }
+
+                foreach ($properties as $property) {
+                    if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
+                        $imageUrl = asset('storage/' . $property->images[0]);
+                        $statusText = $property->is_verified ? 'Verified ✅' : 'Pending ⏳';
+                        $caption = "🏡 *[ID: {$property->id}] {$property->title}*\n" .
+                                   "💰 KSh " . number_format($property->price) . "/mo | Status: {$statusText}\n" .
+                                   "📍 {$property->address}";
+                        
+                        $this->sendWhatsAppImageMedia($senderPhone, $imageUrl, $caption);
+                    }
+                }
+
+                return "Here is the visual overview of your registered properties above.";
+
+            case 'update_landlord_property':
+                $propertyId = $args['property_id'] ?? null;
+                $property = Property::where('id', $propertyId)->where('landlord_id', $user->id)->first();
+
+                if (!$property) {
+                    return "Property #{$propertyId} not found or you do not own it.";
+                }
+
+                $updateData = [];
+                if (!empty($args['title'])) $updateData['title'] = $args['title'];
+                if (!empty($args['description'])) $updateData['description'] = $args['description'];
+                if (isset($args['price'])) $updateData['price'] = $args['price'];
+                if (isset($args['bedrooms'])) $updateData['bedrooms'] = $args['bedrooms'];
+                if (isset($args['bathrooms'])) $updateData['bathrooms'] = $args['bathrooms'];
+                if (isset($args['capacity'])) $updateData['capacity'] = $args['capacity'];
+
+                if (empty($updateData)) {
+                    return "No valid fields provided to update for Property #{$propertyId}.";
+                }
+
+                $property->update($updateData);
+
+                return "✅ Property #[ID: {$property->id}] '{$property->title}' has been successfully updated!";
 
             case 'check_transport_status':
             case 'fetch_transport_status':
@@ -345,14 +499,8 @@ class WhatsAppAgentController extends Controller
             case 'check_storage_status':
                 return app(\App\Http\Controllers\StorageHousingController::class)->apiManageStorage($request, $user);
 
-            case 'get_landlord_properties':
-                return app(\App\Http\Controllers\Landlord\PropertyController::class)->landlordPropertiesApi($user);
-
             case 'get_landlord_bookings':
                 return app(\App\Http\Controllers\Landlord\PropertyController::class)->landlordBookingsApi($user);
-
-            case 'add_landlord_property':
-                return app(\App\Http\Controllers\Landlord\PropertyController::class)->addLandlordPropertyApi($request, $user);
 
             case 'update_property_availability':
                 return app(\App\Http\Controllers\Landlord\PropertyController::class)->updatePropertyAvailabilityApi($request, $user);
@@ -360,8 +508,58 @@ class WhatsAppAgentController extends Controller
             case 'update_booking_status':
                 return app(\App\Http\Controllers\Landlord\PropertyController::class)->updateBookingStatusApi($request, $user);
 
+            case 'get_assigned_trips':
+                $filter = $args['status_filter'] ?? 'assigned';
+                $tripsQuery = Transport::with(['property', 'student'])
+                    ->when($filter === 'assigned', fn($q) => $q->where('driver_id', $user->id)->whereIn('status', ['confirmed', 'assigned', 'in_transit']))
+                    ->when($filter === 'available', fn($q) => $q->whereNull('driver_id')->where('status', 'pending'))
+                    ->when($filter === 'completed', fn($q) => $q->where('driver_id', $user->id)->where('status', 'completed'))
+                    ->latest('assigned_at')
+                    ->take(5)
+                    ->get();
+
+                if ($tripsQuery->isEmpty()) {
+                    return "No transport trips found for filter: {$filter}.";
+                }
+
+                return "🚚 *Transport Trips ({$filter}):*\n" . $tripsQuery->map(fn($t) => "• Trip #{$t->id}: Status: *{$t->status}* | Student: " . ($t->student->name ?? 'N/A') . " | To: " . ($t->property->title ?? 'N/A'))->implode("\n");
+
+            case 'claim_driver_trip':
+                $transportId = $args['transport_id'] ?? null;
+                $transport = Transport::find($transportId);
+                if (!$transport) return "Trip #{$transportId} not found.";
+                if ($transport->driver_id !== null && $transport->driver_id !== $user->id) {
+                    return "⚠️ This trip has already been claimed by another driver.";
+                }
+
+                $transport->update([
+                    'driver_id' => $user->id,
+                    'status'    => 'confirmed',
+                ]);
+                return "✅ Trip #{$transport->id} claimed successfully and confirmed!";
+
+            case 'update_trip_status':
+                $transportId = $args['transport_id'] ?? null;
+                $status = $args['status'] ?? null;
+                $transport = Transport::find($transportId);
+                if (!$transport) return "Trip #{$transportId} not found.";
+                if ($transport->driver_id !== $user->id && $user->category !== 'admin') {
+                    return "⚠️ Unauthorized: You are not assigned to this transport trip.";
+                }
+
+                $transport->update(['status' => $status]);
+                return "✅ Status for Trip #{$transport->id} successfully updated to " . ucfirst($status) . ".";
+
+            case 'get_payment_link':
+                $bookingId = $args['booking_id'] ?? null;
+                $booking = Booking::where('id', $bookingId)->where('student_id', $user->id)->first();
+                if (!$booking) return "Booking not found.";
+                
+                $paymentUrl = route('bookings.show', $booking->id);
+                return "Secure Payment Link:\n👉 {$paymentUrl}\n\nTap above to complete your deposit securely in your browser.";
+
             default:
-                return "Gateway action completed successfully.";
+                return "Action completed successfully.";
         }
     }
 
@@ -377,75 +575,40 @@ class WhatsAppAgentController extends Controller
         }
 
         try {
-            $response = Http::withToken($token)->post("{$baseUrl}/{$phoneId}/messages", [
+            Http::withToken($token)->post("{$baseUrl}/{$phoneId}/messages", [
                 'messaging_product' => 'whatsapp',
                 'to' => $recipientPhone,
                 'type' => 'text',
                 'text' => ['body' => $text]
             ]);
-
-            if ($response->failed()) {
-                Log::error('WhatsApp Cloud API Error:', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                    'recipient' => $recipientPhone
-                ]);
-            }
         } catch (\Exception $e) {
-            Log::error('WhatsApp Cloud API Exception: ' . $e->getMessage(), [
-                'recipient' => $recipientPhone,
-                'exception' => $e
-            ]);
+            Log::error('WhatsApp Reply Exception: ' . $e->getMessage());
         }
     }
 
-    private function sendInteractiveButtons($recipientPhone, $bodyText, array $buttons)
+    private function sendWhatsAppImageMedia($recipientPhone, $imageUrl, $caption)
     {
         $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
         $phoneId = env('WHATSAPP_PHONE_NUMBER_ID');
         $baseUrl = rtrim(env('WHATSAPP_API_BASE_URL', 'https://graph.facebook.com/v17.0'), '/');
 
-        $formattedButtons = [];
-        foreach ($buttons as $id => $title) {
-            $formattedButtons[] = [
-                'type' => 'reply',
-                'reply' => [
-                    'id' => (string) $id,
-                    'title' => substr((string) $title, 0, 20)
-                ]
-            ];
-        }
-
         if (!$token || !$phoneId) {
-            Log::info("WhatsApp simulated interactive reply to {$recipientPhone}: {$bodyText} [Buttons: " . json_encode($buttons) . "]");
+            Log::info("WhatsApp simulated image media to {$recipientPhone}: {$imageUrl} - {$caption}");
             return;
         }
 
         try {
-            $response = Http::withToken($token)->post("{$baseUrl}/{$phoneId}/messages", [
+            Http::withToken($token)->post("{$baseUrl}/{$phoneId}/messages", [
                 'messaging_product' => 'whatsapp',
                 'to' => $recipientPhone,
-                'type' => 'interactive',
-                'interactive' => [
-                    'type' => 'button',
-                    'body' => [
-                        'text' => $bodyText
-                    ],
-                    'action' => [
-                        'buttons' => $formattedButtons
-                    ]
+                'type' => 'image',
+                'image' => [
+                    'link' => $imageUrl,
+                    'caption' => $caption
                 ]
             ]);
-
-            if ($response->failed()) {
-                Log::error('WhatsApp Interactive API Error:', [
-                    'status' => $response->status(),
-                    'body' => $response->body(),
-                    'recipient' => $recipientPhone
-                ]);
-            }
         } catch (\Exception $e) {
-            Log::error('WhatsApp Interactive API Exception: ' . $e->getMessage());
+            Log::error('WhatsApp Media Exception: ' . $e->getMessage());
         }
     }
 
@@ -454,62 +617,7 @@ class WhatsAppAgentController extends Controller
         if (str_starts_with($buttonId, 'book_house') || $buttonId === 'book_prop') {
             return "🏡 Great choice! To complete your booking and secure this house, please visit the Unicrib web app under Student Dashboard or make your payment verification.";
         }
-        if (str_starts_with($buttonId, 'approve_book')) {
-            $bookingId = str_replace('approve_book_', '', $buttonId);
-            if (is_numeric($bookingId)) {
-                $booking = Booking::where('id', $bookingId)->where('landlord_id', $user->id)->first();
-                if ($booking) {
-                    $booking->update(['status' => 'approved']);
-                    return "✅ Booking #{$booking->id} has been successfully approved!";
-                }
-            }
-            return "Booking approved successfully via WhatsApp action.";
-        }
-        if (str_starts_with($buttonId, 'reject_book')) {
-            $bookingId = str_replace('reject_book_', '', $buttonId);
-            if (is_numeric($bookingId)) {
-                $booking = Booking::where('id', $bookingId)->where('landlord_id', $user->id)->first();
-                if ($booking) {
-                    $booking->update(['status' => 'rejected']);
-                    return "❌ Booking #{$booking->id} has been rejected.";
-                }
-            }
-            return "Booking rejected.";
-        }
 
         return "Action '{$buttonId}' processed successfully by Unicrib AI.";
-    }
-
-    /**
-     * Simulate incoming WhatsApp message for local testing without Meta Cloud API setup
-     */
-    public function simulateMessage(Request $request)
-    {
-        $request->validate([
-            'phone' => 'required|string',
-            'message' => 'required|string',
-        ]);
-
-        $senderPhone = $request->input('phone');
-        $userMessage = $request->input('message');
-
-        $user = User::where('phone', 'LIKE', '%' . substr($senderPhone, -9))->first();
-
-        if (!$user) {
-            return response()->json([
-                'status' => 'user_not_found',
-                'reply' => "Welcome to Unicrib! We couldn't find an account linked to this WhatsApp number. Please register on our web app first."
-            ], 404);
-        }
-
-        $aiResponse = $this->askMetaModelWithToolGateway($userMessage, $user, $senderPhone);
-        $this->sendWhatsAppReply($senderPhone, $aiResponse);
-
-        return response()->json([
-            'status' => 'success',
-            'sender' => $senderPhone,
-            'user' => $user->name,
-            'reply' => $aiResponse
-        ]);
     }
 }
