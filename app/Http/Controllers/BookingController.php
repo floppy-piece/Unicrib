@@ -94,6 +94,10 @@ class BookingController extends Controller
     {
         abort_unless($booking->landlord_id === auth()->id(), 403);
 
+        if ($booking->status !== 'pending') {
+            return back()->with('error', 'Action denied: This booking is not in a pending state and cannot be re-approved.');
+        }
+
         $property = $booking->property;
 
         // if already full, do not approve

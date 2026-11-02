@@ -332,64 +332,106 @@ class PropertyController extends Controller
 
     public function searchPropertiesApi(Request $request, User $user)
     {
+        // 🔒 FIX 1: Validate and sanitize area input against allowed enum values
         $area = $request->input('area', '');
-        $maxPrice = $request->input('max_price');
-        $properties = Property::where('area', 'LIKE', '%' . $area . '%')
-            ->when($maxPrice, fn($q) => $q->where('price', '<=', $maxPrice))
-            ->take(3)
-            ->get();
-        if ($properties->isEmpty()) {
-            return "No properties found matching your criteria.";
+        $allowedAreas = ['mjini', 'ngomongo', 'diaspora', 'kutus'];
+        
+        $query = Property::where('is_verified', true)->where('is_available', true);
+
+        if (!empty($area) && in_array(strtolower($area), $allowedAreas)) {
+            $query->where('area', strtolower($area));
+        } elseif (!empty($area)) {
+            // Escape wildcard characters to prevent SQL wildcard injection
+            $escapedArea = str_replace(['%', '_'], ['\%', '\_'], $area);
+            $query->where('area', 'LIKE', '%' . $escapedArea . '%');
         }
-        return $properties->map(fn($p) => "• {$p->title} - KSh {$p->price}/mo at {$p->address}")->implode("\n");
+
+        $maxPrice = filter_var($request->input('max_price'), FILTER_VALIDATE_FLOAT);
+        if ($maxPrice !== false && $maxPrice !== null) {
+            $query->where('price', '<=', $maxPrice);
+        }
+
+        $properties = $query->take(3)->get();
+
+        if ($properties->isEmpty()) {
+            return "No matching student properties found right now. Try checking another location.";
+        }
+
+        return $properties->map(fn($p) => "• {$p->title} - KSh " . number_format($p->price) . "/mo at {$p->address}")->implode("\n");
     }
 
     public function landlordPropertiesApi(User $user)
     {
+        // 🔒 FIX 2: Ensure strictly bound to the authenticated landlord
         $properties = Property::where('landlord_id', $user->id)->get();
         if ($properties->isEmpty()) {
             return "You have no registered properties.";
         }
-        return "Your Properties:\n" . $properties->map(fn($p) => "• [ID: {$p->id}] {$p->title} - KSh {$p->price} (" . ($p->is_verified ? 'Verified ✅' : 'Pending ⏳') . ")")->implode("\n");
+        return "Your Properties:\n" . $properties->map(fn($p) => "• [ID: {$p->id}] {$p->title} - KSh " . number_format($p->price) . " (" . ($p->is_verified ? 'Verified ✅' : 'Pending ⏳') . ")")->implode("\n");
     }
 
     public function landlordBookingsApi(User $user)
     {
-        $bookings = Booking::with(['property', 'student'])->where('landlord_id', $user->id)->latest()->take(5)->get();
+        // 🔒 FIX 3: Ensure bookings are strictly filtered by landlord's properties to block IDOR cross-tenant inspection
+        $bookings = Booking::with(['property', 'student'])
+            ->where('landlord_id', $user->id)
+            ->latest()
+            ->take(5)
+            ->get();
+
         if ($bookings->isEmpty()) {
             return "No student bookings found.";
         }
-        return "Recent Bookings:\n" . $bookings->map(fn($b) => "• Booking #{$b->id}: {$b->student->name} for {$b->property->title} | Status: " . ucfirst($b->status))->implode("\n");
+
+        return "Recent Bookings:\n" . $bookings->map(fn($b) => "• Booking #{$b->id}: " . ($b->student->name ?? 'Student') . " for " . ($b->property->title ?? 'Property') . " | Status: " . ucfirst($b->status))->implode("\n");
     }
 
-   public function addLandlordPropertyApi(Request $request, User $user, $imageFileUrls = [])
+    public function addLandlordPropertyApi(Request $request, User $user, array $imageFileUrls = [])
     {
         if ($user->category !== 'landlord') {
             return "Unauthorized: Only registered landlords can add properties.";
         }
 
+        // 🔒 FIX 4: Enforce landlord subscription/semester verification check
+        if (!$user->is_verified) {
+            return "🔒 Verification Required: Please complete your landlord semester verification payment on the web dashboard before adding new property listings.";
+        }
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'price' => 'required|numeric|min:0',
+            'description' => 'nullable|string|max:1000',
+            'price' => 'required|numeric|min:0|max:1000000',
             'area' => 'required|in:mjini,ngomongo,diaspora,kutus',
-            'address' => 'required|string',
+            'address' => 'required|string|max:255',
             'property_type' => 'required|in:apartment,house,room,studio,bedsitter',
-            'bedrooms' => 'required|integer|min:0',
-            'bathrooms' => 'required|integer|min:0',
-            'capacity' => 'required|integer|min:1',
+            'bedrooms' => 'required|integer|min:0|max:20',
+            'bathrooms' => 'required|integer|min:0|max:20',
+            'capacity' => 'required|integer|min:1|max:100',
         ]);
 
-        // Download and store images if provided via chat upload
+        // 🔒 FIX 5: Mitigate SSRF when downloading images from chat URLs
         $imagePaths = [];
         foreach ($imageFileUrls as $url) {
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                continue;
+            }
+
+            // Restrict downloads strictly to trusted hosts (e.g., Telegram file servers or Unicrib CDN)
+            $parsedHost = parse_url($url, PHP_URL_HOST);
+            if (!str_ends_with($parsedHost, 'telegram.org') && !str_ends_with($parsedHost, 'amazonaws.com')) {
+                continue;
+            }
+
             try {
-                $contents = file_get_contents($url);
-                $filename = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
-                \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $contents);
-                $imagePaths[] = $filename;
+                // Use a short timeout to prevent hanging worker threads (DoS defense)
+                $response = Http::timeout(5)->get($url);
+                if ($response->successful()) {
+                    $filename = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
+                    \Illuminate\Support\Facades\Storage::disk('public')->put($filename, $response->body());
+                    $imagePaths[] = $filename;
+                }
             } catch (\Exception $e) {
-                \Log::error('Failed to download agent property image: ' . $e->getMessage());
+                \Log::error('Failed to download agent property image safely: ' . $e->getMessage());
             }
         }
 
@@ -406,18 +448,23 @@ class PropertyController extends Controller
             'capacity' => $validated['capacity'],
             'booked_count' => 0,
             'images' => $imagePaths,
-            'is_verified' => $user->is_verified,
+            'is_verified' => false, // New listings require admin or automated review before going live
             'is_available' => true,
         ]);
 
-        return "Property successfully created! [ID: {$property->id}] {$property->title} in {$property->area} at KSh {$property->price}/mo with " . count($imagePaths) . " attached image(s).";
+        return "Property successfully created! [ID: {$property->id}] {$property->title} in {$property->area} at KSh " . number_format($property->price) . "/mo with " . count($imagePaths) . " attached image(s).";
     }
+
     public function updatePropertyAvailabilityApi(Request $request, User $user)
     {
-        $propertyId = $request->input('property_id');
-        $isAvailable = (bool) $request->input('is_available', true);
+        $propertyId = filter_var($request->input('property_id'), FILTER_VALIDATE_INT);
+        $isAvailable = filter_var($request->input('is_available', true), FILTER_VALIDATE_BOOL);
 
-        $property = Property::where('id', $propertyId)->where('landlord_id', $user->id)->first();
+        // 🔒 FIX 6: Secure IDOR check ensuring property belongs exclusively to the requesting landlord
+        $property = Property::where('id', $propertyId)
+            ->where('landlord_id', $user->id)
+            ->first();
+
         if (!$property) {
             return "Property #{$propertyId} not found or you do not own it.";
         }
@@ -426,7 +473,6 @@ class PropertyController extends Controller
         $statusText = $isAvailable ? 'available' : 'unavailable';
         return "Property #{$property->id} ({$property->title}) status updated to {$statusText}.";
     }
-
     public function updateBookingStatusApi(Request $request, User $user)
     {
         $bookingId = $request->input('booking_id');
@@ -436,9 +482,18 @@ class PropertyController extends Controller
             return "Invalid status. Please specify 'approved' or 'rejected'.";
         }
 
-        $booking = Booking::with(['property', 'student'])->where('id', $bookingId)->where('landlord_id', $user->id)->first();
+        $booking = Booking::with(['property', 'student'])
+            ->where('id', $bookingId)
+            ->where('landlord_id', $user->id)
+            ->first();
+
         if (!$booking) {
             return "Booking #{$bookingId} not found or does not belong to your properties.";
+        }
+
+        // 🔒 SECURITY CHECK: Prevent re-approving cancelled, rejected, or completed bookings
+        if ($status === 'approved' && $booking->status !== 'pending') {
+            return "Security Error: Cannot approve Booking #{$bookingId} because its current status is '{$booking->status}'. The student must create a new booking request first.";
         }
 
         $booking->update(['status' => $status]);
