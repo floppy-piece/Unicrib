@@ -48,6 +48,8 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_verified' => 'boolean',            // Add this line
+            'access_expires_at' => 'datetime',
         ];
     }
     public function scopeStudents($query)
