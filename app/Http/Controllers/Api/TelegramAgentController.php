@@ -183,7 +183,7 @@ class TelegramAgentController extends Controller
             ]);
             
             if (isset($chatId)) {
-                $this->telegram->sendInlineButtons($chatId, "⚠️ An error occurred while processing your request. Please try again later.", []);
+                $this->telegram->sendInlineButtons($chatId, "⚠️ An error occurred while processing your request. Please try again later. ". $e->getMessage(), []);
             }
 
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
