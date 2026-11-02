@@ -130,13 +130,25 @@ class TelegramAgentController extends Controller
                 $fileId = $largestPhoto['file_id'] ?? null;
 
                 if ($user->category === 'landlord') {
-                    // If landlord sent an image, check if they specified a property ID in the caption or recent cache
-                    $propertyId = filter_var($text, FILTER_SANITIZE_NUMBER_INT);
-                    $property = Property::where('id', $propertyId)->where('landlord_id', $user->id)->first();
+                    // Extract numbers from caption safely
+                    $propertyId = trim(filter_var($text, FILTER_SANITIZE_NUMBER_INT));
+
+                    // 🔒 Guard clause: If no valid integer ID was sent in the caption, inform the user cleanly
+                    if (empty($propertyId) || !is_numeric($propertyId)) {
+                        $this->telegram->sendInlineButtons(
+                            $chatId, 
+                            "⚠️ <b>Missing Property ID!</b>\n\nPlease specify the Property ID in your photo caption when uploading (e.g., <i>'Property 2'</i> or just the number <i>'2'</i>).", 
+                            []
+                        );
+                        return response()->json(['status' => 'missing_property_id']);
+                    }
+
+                    $property = Property::where('id', (int) $propertyId)->where('landlord_id', $user->id)->first();
 
                     if ($property && $fileId) {
                         $token = env('TELEGRAM_BOT_TOKEN');
                         $fileRes = Http::get("https://api.telegram.org/bot{$token}/getFile?file_id={$fileId}");
+                        
                         if ($fileRes->successful() && $fileRes->json('ok')) {
                             $filePath = $fileRes->json('result.file_path');
                             $fileUrl = "https://api.telegram.org/file/bot{$token}/{$filePath}";
@@ -155,9 +167,9 @@ class TelegramAgentController extends Controller
                             return response()->json(['status' => 'success']);
                         }
                     }
-                    
-                    $this->telegram->sendInlineButtons($chatId, "⚠️ Please specify the Property ID in your caption when uploading a photo (e.g., <i>'Add image to property 2'</i>).", []);
-                    return response()->json(['status' => 'missing_property_id']);
+
+                    $this->telegram->sendInlineButtons($chatId, "❌ Property #{$propertyId} was not found or does not belong to you.", []);
+                    return response()->json(['status' => 'property_not_found']);
                 }
 
                 // Default student image interpretation flow
