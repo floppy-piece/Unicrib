@@ -39,7 +39,7 @@ class TelegramImageInterpretationController extends Controller
 
         $apiKey = env('META_API_KEY');
         $baseUrl = rtrim(env('META_API_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/'), '/');
-        $model = env('META_MODEL_NAME', 'gemini-2.5-flash');
+        $model = 'meta-llama/Llama-3.2-11B-Vision-Instruct';//env('META_MODEL_NAME', 'gemini-2.5-flash');
 
         try {
             $response = Http::withToken($apiKey)->post("{$baseUrl}/chat/completions", [
