@@ -48,7 +48,7 @@ class TelegramAgentController extends Controller
             }
 
             // Fetch user by Telegram Chat ID
-            $user = User::where('telegram_chat_id', $chatId)->first();
+            $user = $user = User::where('telegram_chat_id', (string) $chatId)->first();
 
             // 2. Handle Telegram /start Command with Interactive Welcome Options
             if ($text === '/start') {
@@ -166,7 +166,7 @@ class TelegramAgentController extends Controller
 
         Log::info("Telegram Button Tapped: {$data} from Chat ID: {$chatId}");
 
-        $user = User::where('telegram_chat_id', $chatId)->first();
+        $user = $user = User::where('telegram_chat_id', (string) $chatId)->first();
 
         // Menu quick navigation
         if ($data === 'menu_housing') {
