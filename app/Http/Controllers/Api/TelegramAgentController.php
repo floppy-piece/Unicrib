@@ -122,14 +122,44 @@ class TelegramAgentController extends Controller
             // 5. Send immediate processing feedback
             $this->telegram->sendInlineButtons($chatId, "⏳ <i>Processing your request...</i>", []);
 
-            // 6. Handle Photo / Image Uploads (Student Vision)
+            // 6. Handle Photo / Image Uploads
             if (!empty($photo)) {
                 $largestPhoto = end($photo);
                 $fileId = $largestPhoto['file_id'] ?? null;
 
-                $aiResponse = app(TelegramImageInterpretationController::class)
-                    ->interpretHouseImage($user, $fileId, $text);
+                if ($user->category === 'landlord') {
+                    // If landlord sent an image, check if they specified a property ID in the caption or recent cache
+                    $propertyId = filter_var($text, FILTER_SANITIZE_NUMBER_INT);
+                    $property = Property::where('id', $propertyId)->where('landlord_id', $user->id)->first();
 
+                    if ($property && $fileId) {
+                        $token = env('TELEGRAM_BOT_TOKEN');
+                        $fileRes = Http::get("https://api.telegram.org/bot{$token}/getFile?file_id={$fileId}");
+                        if ($fileRes->successful() && $fileRes->json('ok')) {
+                            $filePath = $fileRes->json('result.file_path');
+                            $fileUrl = "https://api.telegram.org/file/bot{$token}/{$filePath}";
+
+                            // Download and store securely
+                            $contents = file_get_contents($fileUrl);
+                            $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
+                            \Illuminate\Support\Facades\Storage::disk('public')->put($storagePath, $contents);
+
+                            // Append to existing images array
+                            $images = $property->images ?? [];
+                            $images[] = $storagePath;
+                            $property->update(['images' => $images]);
+
+                            $this->telegram->sendInlineButtons($chatId, "✅ New photo successfully added to Property #[ID: {$property->id}] {$property->title}!", []);
+                            return response()->json(['status' => 'success']);
+                        }
+                    }
+                    
+                    $this->telegram->sendInlineButtons($chatId, "⚠️ Please specify the Property ID in your caption when uploading a photo (e.g., <i>'Add image to property 2'</i>).", []);
+                    return response()->json(['status' => 'missing_property_id']);
+                }
+
+                // Default student image interpretation flow
+                $aiResponse = app(TelegramImageInterpretationController::class)->interpretHouseImage($user, $fileId, $text);
                 $this->telegram->sendInlineButtons($chatId, $aiResponse, []);
                 return response()->json(['status' => 'success']);
             }

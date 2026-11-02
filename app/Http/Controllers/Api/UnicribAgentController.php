@@ -173,6 +173,26 @@ class UnicribAgentController extends Controller
                             "required" => ["booking_id", "status"]
                         ]
                     ]
+                ],
+                [
+                    "type" => "function",
+                    "function" => [
+                        "name" => "update_landlord_property",
+                        "description" => "Update details of an existing property owned by the landlord (e.g. title, price, description, bedrooms, bathrooms, capacity). Note: verification and availability status cannot be changed via chat.",
+                        "parameters" => [
+                            "type" => "object",
+                            "properties" => [
+                                "property_id" => ["type" => "integer", "description" => "The ID of the property to update"],
+                                "title" => ["type" => "string", "description" => "New property title"],
+                                "description" => ["type" => "string", "description" => "New description"],
+                                "price" => ["type" => "number", "description" => "New monthly rent in KSh"],
+                                "bedrooms" => ["type" => "integer", "description" => "Number of bedrooms"],
+                                "bathrooms" => ["type" => "integer", "description" => "Number of bathrooms"],
+                                "capacity" => ["type" => "integer", "description" => "Total tenant capacity"]
+                            ],
+                            "required" => ["property_id"]
+                        ]
+                    ]
                 ]
             ];
         }
@@ -342,6 +362,31 @@ class UnicribAgentController extends Controller
                 }
 
                 return "Here is the visual overview of your registered properties above.";
+
+            case 'update_landlord_property':
+                $propertyId = $args['property_id'] ?? null;
+                $property = Property::where('id', $propertyId)->where('landlord_id', $user->id)->first();
+
+                if (!$property) {
+                    return "Property #{$propertyId} not found or you do not own it.";
+                }
+
+                // Filter out only allowed editable fields (Strictly excluding is_verified and is_available)
+                $updateData = [];
+                if (!empty($args['title'])) $updateData['title'] = $args['title'];
+                if (!empty($args['description'])) $updateData['description'] = $args['description'];
+                if (isset($args['price'])) $updateData['price'] = $args['price'];
+                if (isset($args['bedrooms'])) $updateData['bedrooms'] = $args['bedrooms'];
+                if (isset($args['bathrooms'])) $updateData['bathrooms'] = $args['bathrooms'];
+                if (isset($args['capacity'])) $updateData['capacity'] = $args['capacity'];
+
+                if (empty($updateData)) {
+                    return "No valid fields provided to update for Property #{$propertyId}.";
+                }
+
+                $property->update($updateData);
+
+                return "✅ Property #[ID: {$property->id}] '{$property->title}' has been successfully updated!";
 
             case 'check_transport_status':
             case 'fetch_transport_status':
