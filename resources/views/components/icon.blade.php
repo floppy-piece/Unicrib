@@ -1,1 +1,1 @@
-<link rel="icon" href="{{asset('images/application-logo.jpeg')}}" >
+<link rel="icon" href="{{asset('images/application-logo.svg')}}" >

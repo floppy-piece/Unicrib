@@ -147,9 +147,10 @@ class PaymentController extends Controller
         // 2. STUDENT 6-HOUR PROPERTY ACCESS FEE (KES 50)
         // ==========================================
         if ($user && $user->category === 'student' && $amountInKes >= 50 && empty($metadata['storage_booking_id'])) {
-            $user->is_verified = true;
-            $user->access_expires_at = now()->addHours(6);
-            $user->save();
+            $user->update([
+                'is_verified' => true,
+                'access_expires_at' => now()->addHours(6),
+            ]);
 
             return redirect()
                 ->route('student.dashboard')
