@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Unicodeveloper\Paystack\Facades\Paystack;
 use App\Models\Property;
 use App\Models\StorageBooking;
+use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
 {
@@ -143,13 +144,15 @@ class PaymentController extends Controller
                 ->with('status', 'Storage initial deposit of KSh ' . number_format($amountInKes) . ' received. Booking is active!');
         }
 
-        // ==========================================
+       // ==========================================
         // 2. STUDENT 6-HOUR PROPERTY ACCESS FEE (KES 50)
         // ==========================================
         if ($user && $user->category === 'student' && $amountInKes >= 50 && empty($metadata['storage_booking_id'])) {
-            $user->update([
-                'is_verified' => true,
+            // Use query builder update with explicit boolean cast or DB expression to prevent integer binding
+            User::where('id', $user->id)->update([
+                'is_verified' => DB::raw('true'),
                 'access_expires_at' => now()->addHours(6),
+                'updated_at' => now(),
             ]);
 
             return redirect()
@@ -161,21 +164,22 @@ class PaymentController extends Controller
         // 3. LANDLORD SEMESTER VERIFICATION FEE (KES 500)
         // ==========================================
         if ($user && $user->category === 'landlord' && $amountInKes >= 500) {
-            $user->is_verified = true;
-            $user->access_expires_at = now()->addMonths(4);
-            $user->save();
+            User::where('id', $user->id)->update([
+                'is_verified' => DB::raw('true'),
+                'access_expires_at' => now()->addMonths(4),
+                'updated_at' => now(),
+            ]);
 
             Property::where('landlord_id', $user->id)->update([
-                'is_verified'             => true,
+                'is_verified' => DB::raw('true'),
                 'verification_expires_at' => now()->addMonths(4),
+                'updated_at' => now(),
             ]);
 
             return redirect()
                 ->route('landlord.dashboard')
                 ->with('status', 'Landlord account and properties verified for the semester.');
         }
-
-        return redirect()->route('dashboard')->with('status', 'Payment completed successfully.');
     }
 
     public function showStorageForm(StorageBooking $storageBooking)
