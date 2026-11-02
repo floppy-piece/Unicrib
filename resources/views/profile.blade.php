@@ -16,7 +16,7 @@
 
             <div class="p-6 sm:p-8 bg-white dark:bg-[#6a6c6a]/30 border border-[#cad8e5] dark:border-[#8da5c0]/40 rounded-2xl shadow-sm transition-colors duration-200">
                 <div class="max-w-xl">
-                    <livewire:profile.connect-whatsapp />
+                    <livewire:profile.connect-whatsapp-form />
                 </div>
             </div>
 
