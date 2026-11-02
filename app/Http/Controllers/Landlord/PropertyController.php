@@ -7,6 +7,7 @@ use App\Models\Property;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\Transport;
@@ -359,20 +360,22 @@ class PropertyController extends Controller
         }
     }
 
-    public function searchPropertiesApi(Request $request, User $user)
+  public function searchPropertiesApi(Request $request, User $user)
     {
-        // 🔒 FIX 1: Validate and sanitize area input against allowed enum values
+        // 🔒 Validate and sanitize area input against allowed enum values
         $area = $request->input('area', '');
         $allowedAreas = ['mjini', 'ngomongo', 'diaspora', 'kutus'];
         
-        $query = Property::where('is_verified', true)->where('is_available', true);
+        // Use DB::raw('true') to ensure PostgreSQL evaluates booleans natively without integer binding
+        $query = Property::where('is_verified', \DB::raw('true'))
+                         ->where('is_available', \DB::raw('true'));
 
         if (!empty($area) && in_array(strtolower($area), $allowedAreas)) {
             $query->where('area', strtolower($area));
         } elseif (!empty($area)) {
             // Escape wildcard characters to prevent SQL wildcard injection
             $escapedArea = str_replace(['%', '_'], ['\%', '\_'], $area);
-            $query->where('area', 'LIKE', '%' . $escapedArea . '%');
+            $query->where('area', 'ILIKE', '%' . $escapedArea . '%');
         }
 
         $maxPrice = filter_var($request->input('max_price'), FILTER_VALIDATE_FLOAT);
@@ -386,7 +389,7 @@ class PropertyController extends Controller
             return "No matching student properties found right now. Try checking another location.";
         }
 
-        return $properties->map(fn($p) => "• {$p->title} - KSh " . number_format($p->price) . "/mo at {$p->address}")->implode("\n");
+        return $properties->map(fn($p) => "• [ID: {$p->id}] {$p->title} - KSh " . number_format($p->price) . "/mo at {$p->address}")->implode("\n");
     }
 
     public function landlordPropertiesApi(User $user)
