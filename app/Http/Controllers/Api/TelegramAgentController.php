@@ -303,7 +303,10 @@ class TelegramAgentController extends Controller
                     "function" => [
                         "name" => "get_landlord_properties",
                         "description" => "View all properties owned by this landlord along with verification and availability status.",
-                        "parameters" => ["type" => "object", "properties" => []]
+                        "parameters" => [
+                            "type" => "object", 
+                            "properties" => (object) [] // Force empty object serialization
+                        ]
                     ]
                 ],
                 [
@@ -311,7 +314,10 @@ class TelegramAgentController extends Controller
                     "function" => [
                         "name" => "get_landlord_bookings",
                         "description" => "View recent student bookings, payment statuses, and tenant details.",
-                        "parameters" => ["type" => "object", "properties" => []]
+                        "parameters" => [
+                            "type" => "object", 
+                            "properties" => (object) [] // Force empty object serialization
+                        ]
                     ]
                 ],
                 [
@@ -336,7 +342,6 @@ class TelegramAgentController extends Controller
                         ]
                     ]
                 ]
-
             ];
         }
 
