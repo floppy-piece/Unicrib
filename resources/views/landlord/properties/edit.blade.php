@@ -335,17 +335,25 @@
                                 <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                     @foreach($property->images as $index => $image)
                                         @php $path = preg_replace('/^public\//', '', $image); @endphp
-                                        <div class="relative group overflow-hidden rounded-xl border border-[#cad8e5] dark:border-[#6a6c6a] aspect-video bg-[#dae4ee] dark:bg-[#2e2f2c]">
+                                        <div class="relative overflow-hidden rounded-xl border-2 border-[#cad8e5] dark:border-[#6a6c6a] aspect-video bg-[#dae4ee] dark:bg-[#2e2f2c] transition-all"
+                                             x-data="{ selected: false }"
+                                             :class="{ 'border-rose-600 dark:border-rose-500 ring-2 ring-rose-500/30': selected }">
+                                            
                                             <img src="{{ asset('storage/'.$path) }}" 
                                                 alt="Existing image" 
-                                                class="w-full h-full object-cover"
+                                                class="w-full h-full object-cover transition-opacity duration-200"
+                                                :class="{ 'opacity-40': selected }"
                                                 onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' fill=\'none\' viewBox=\'0 0 24 24\' stroke=\'%236a6c6a\'><rect width=\'100%\' height=\'100%\' fill=\'%23dae4ee\'/><path stroke-linecap=\'round\' stroke-linejoin=\'round\' stroke-width=\'1.5\' d=\'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 0 02-2V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 02 2z\'/></svg>';">
                                             
-                                            {{-- Delete Overlay Checkbox --}}
-                                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-start justify-end p-2">
-                                                <label class="flex items-center gap-1.5 bg-rose-600 text-white text-[10px] font-semibold px-2 py-1 rounded-lg cursor-pointer shadow">
-                                                    <input type="checkbox" name="remove_images[]" value="{{ $image }}" class="rounded border-none text-rose-500 focus:ring-0">
-                                                    Delete
+                                            {{-- Always visible touch-friendly delete button badge --}}
+                                            <div class="absolute top-2 right-2 z-10">
+                                                <label class="flex items-center gap-1.5 bg-rose-600/95 hover:bg-rose-700 text-white text-[10px] font-bold px-2.5 py-1.5 rounded-lg cursor-pointer shadow-md backdrop-blur-sm transition">
+                                                    <input type="checkbox" 
+                                                           name="remove_images[]" 
+                                                           value="{{ $image }}" 
+                                                           x-model="selected"
+                                                           class="rounded border-white/40 text-rose-600 focus:ring-0 w-3.5 h-3.5">
+                                                    <span>Delete</span>
                                                 </label>
                                             </div>
                                         </div>
