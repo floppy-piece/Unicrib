@@ -367,8 +367,8 @@ class PropertyController extends Controller
         $allowedAreas = ['mjini', 'ngomongo', 'diaspora', 'kutus'];
         
         // Use DB::raw('true') to ensure PostgreSQL evaluates booleans natively without integer binding
-        $query = Property::where('is_verified', \DB::raw('true'))
-                         ->where('is_available', \DB::raw('true'));
+        $query = Property::whereRaw('is_verified = true')
+                         ->whereRaw('is_available = true');
 
         if (!empty($area) && in_array(strtolower($area), $allowedAreas)) {
             $query->where('area', strtolower($area));
