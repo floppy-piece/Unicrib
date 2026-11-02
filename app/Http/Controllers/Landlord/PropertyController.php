@@ -366,9 +366,9 @@ class PropertyController extends Controller
         $area = $request->input('area', '');
         $allowedAreas = ['mjini', 'ngomongo', 'diaspora', 'kutus'];
         
-        // Use whereRaw with explicit boolean expressions to prevent integer binding on PostgreSQL/Neon
-        $query = Property::where('is_verified', filter_var($request->input('is_verified', true), FILTER_VALIDATE_BOOLEAN))
-                         ->where('is_available', filter_var($request->input('is_available', true), FILTER_VALIDATE_BOOLEAN));
+        // Use strict raw boolean expressions to prevent PostgreSQL integer binding mismatch
+        $query = Property::whereRaw('is_verified = true')
+                         ->whereRaw('is_available = true');
 
         if (!empty($area) && in_array(strtolower($area), $allowedAreas)) {
             $query->where('area', strtolower($area));

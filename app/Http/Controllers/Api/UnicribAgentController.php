@@ -355,7 +355,7 @@ class UnicribAgentController extends Controller
             case 'search_housing':
             case 'search_properties':
                 $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
-                    ->where('is_available', true)
+                    ->whereRaw('is_available = true')
                     ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
                     ->take(3)
                     ->get();
@@ -384,7 +384,7 @@ class UnicribAgentController extends Controller
             
             case 'book_property_via_chat':
                 $propertyId = $args['property_id'] ?? null;
-                $property = Property::where('id', $propertyId)->where('is_available', true)->first();
+                $property = Property::where('id', $propertyId)->whereRaw('is_available = true')->first();
 
                 if (!$property) {
                     return "Sorry, Property #{$propertyId} was not found or is currently unavailable.";
