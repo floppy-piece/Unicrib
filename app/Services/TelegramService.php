@@ -7,40 +7,54 @@ use Illuminate\Support\Facades\Log;
 
 class TelegramService
 {
-    protected string $botToken;
-    protected string $apiUrl;
+    protected string $token;
+    protected string $version;
 
     public function __construct()
     {
-        $this->botToken = config('services.telegram.bot_token');
-        $this->apiUrl = "https://api.telegram.org/bot{$this->botToken}";
+        $this->token = config('services.telegram.bot_token') ?: env('TELEGRAM_BOT_TOKEN');
+        $this->version = 'v1';
     }
 
     /**
-     * Send a message with Inline Callback Buttons
-     *
-     * @param string|int $chatId Telegram user chat ID
-     * @param string $text Message body text (supports HTML formatting)
-     * @param array $buttons Matrix of buttons: [[['text' => 'Btn 1', 'callback_data' => 'action_1']]]
+     * Send an interactive text message with optional inline buttons.
      */
-    public function sendInlineButtons(string|int $chatId, string $text, array $buttons): bool
+    public function sendInlineButtons(string $chatId, string $text, array $inlineKeyboard = []): bool
     {
         $payload = [
             'chat_id' => $chatId,
             'text' => $text,
             'parse_mode' => 'HTML',
-            'reply_markup' => json_encode([
-                'inline_keyboard' => $buttons,
-            ]),
         ];
+
+        if (!empty($inlineKeyboard)) {
+            $payload['reply_markup'] = [
+                'inline_keyboard' => $inlineKeyboard
+            ];
+        }
 
         return $this->postToApi('sendMessage', $payload);
     }
 
     /**
-     * Answer Callback Query (Acknowledge button tap to remove loading spinner)
+     * Send a photo with an optional caption to the user.
      */
-    public function answerCallbackQuery(string $callbackQueryId, ?string $text = null, bool $showAlert = false): bool
+    public function sendPhoto(string $chatId, string $photoUrl, string $caption = ''): bool
+    {
+        $payload = [
+            'chat_id' => $chatId,
+            'photo' => $photoUrl, // Can be a public URL (e.g. asset('storage/...'))
+            'caption' => $caption,
+            'parse_mode' => 'HTML',
+        ];
+
+        return $this->postToApi('sendPhoto', $payload);
+    }
+
+    /**
+     * Answer callback queries from inline buttons.
+     */
+    public function answerCallbackQuery(string $callbackQueryId, string $text = '', bool $showAlert = false): bool
     {
         $payload = [
             'callback_query_id' => $callbackQueryId,
@@ -53,10 +67,12 @@ class TelegramService
 
     protected function postToApi(string $method, array $payload): bool
     {
-        $response = Http::post("{$this->apiUrl}/{$method}", $payload);
+        $url = "https://api.telegram.org/bot{$this->token}/{$method}";
+
+        $response = Http::post($url, $payload);
 
         if ($response->failed()) {
-            Log::error('Telegram API Error', [
+            Log::error("Telegram API Error ({$method})", [
                 'status' => $response->status(),
                 'response' => $response->json(),
             ]);

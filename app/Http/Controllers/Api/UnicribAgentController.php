@@ -295,10 +295,30 @@ class UnicribAgentController extends Controller
         $request = new Request($args);
 
         switch ($name) {
+            // Inside dispatchToControllerGateway() or property API responses:
             case 'search_housing':
             case 'search_properties':
-                return app(\App\Http\Controllers\Landlord\PropertyController::class)->searchPropertiesApi($request, $user);
+                $properties = \App\Models\Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
+                    ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
+                    ->take(2)
+                    ->get();
 
+                if ($properties->isEmpty()) {
+                    return "No properties found matching your criteria.";
+                }
+
+                foreach ($properties as $property) {
+                    if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
+                        // Generate public storage URL for Telegram to stream
+                        $imageUrl = asset('storage/' . $property->images[0]);
+                        $caption = "🏠 <b>{$property->title}</b>\n💰 KSh " . number_format($property->price) . "/mo\n📍 {$property->address}";
+                        
+                        // Dispatch photo directly to the user's Telegram chat
+                        app(\App\Services\TelegramService::class)->sendPhoto($user->telegram_chat_id, $imageUrl, $caption);
+                    }
+                }
+
+                return "Here are the matching properties found for you above with their photos!";
             case 'check_transport_status':
             case 'fetch_transport_status':
                 return app(\App\Http\Controllers\TransportController::class)->apiTransportStatus($request);
