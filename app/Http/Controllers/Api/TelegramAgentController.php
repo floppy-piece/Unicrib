@@ -243,7 +243,7 @@ class TelegramAgentController extends Controller
 
         if ($response->failed()) {
             Log::error('Telegram AI Model API HTTP Error:', ['status' => $response->status(), 'body' => $response->body()]);
-            return "I'm having trouble connecting to UniCrib AI right now. Please try again! { $response->status() } : { $response->body() }";
+            return "I'm having trouble connecting to UniCrib AI right now. Please try again!";
         }
 
         $resData = $response->json();
