@@ -246,21 +246,22 @@ class UnicribAgentController extends Controller
             ];
         }
 
-        // Student Tools
+        // Student Tools - Relaxed requirements for seamless searching
         return [
             [
                 "type" => "function",
                 "function" => [
                     "name" => "search_housing",
-                    "description" => "Search available student housing, hostels, and apartments by location/ward name, maximum price budget, and property type.",
+                    "description" => "Search available student housing, hostels, single rooms, bedsitters, and apartments by location, ward name, property ID, max budget, or general description.",
                     "parameters" => [
                         "type" => "object",
                         "properties" => [
-                            "location" => ["type" => "string", "description" => "Location name, area, or university ward e.g. Kutus, Main Campus"],
+                            "property_id" => ["type" => "integer", "description" => "Optional direct Property ID filter"],
+                            "location" => ["type" => "string", "description" => "Location name, area, ward, or search terms (e.g. Kutus, Diaspora, bedsitter)"],
                             "max_price" => ["type" => "integer", "description" => "Maximum budget in Kenyan Shillings (KSh)"],
                             "property_type" => ["type" => "string", "description" => "Type of property e.g. hostel, apartment, single room, bedsitter"]
                         ],
-                        "required" => ["location"]
+                        "required" => []
                     ]
                 ]
             ],
@@ -329,7 +330,7 @@ class UnicribAgentController extends Controller
                 "type" => "function",
                 "function" => [
                     "name" => "book_property_via_chat",
-                    "description" => "Create a pending booking for a property ID and return a secure payment link for the student deposit.",
+                    "description" => "Get full details link for a specific property ID to inspect amenities and pay the deposit on the web dashboard.",
                     "parameters" => [
                         "type" => "object",
                         "properties" => [
@@ -354,48 +355,91 @@ class UnicribAgentController extends Controller
         switch ($name) {
             case 'search_housing':
             case 'search_properties':
-                $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
-                    ->whereRaw('is_available = true')
-                    ->whereRaw('is_verified = true')
-                    ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
-                    ->take(3)
-                    ->get();
+                $query = Property::whereRaw('is_available = true')
+                    ->whereRaw('is_verified = true');
 
+                // Explicit Property ID Filter
+                if (!empty($args['property_id'])) {
+                    $query->where('id', (int) $args['property_id']);
+                }
+
+                // Broad text search across area, address, title, description, or property_type
+                if (!empty($args['location'])) {
+                    $searchTerm = trim($args['location']);
+                    $query->where(function ($q) use ($searchTerm) {
+                        $q->where('area', 'ILIKE', '%' . $searchTerm . '%')
+                          ->orWhere('address', 'ILIKE', '%' . $searchTerm . '%')
+                          ->orWhere('title', 'ILIKE', '%' . $searchTerm . '%')
+                          ->orWhere('description', 'ILIKE', '%' . $searchTerm . '%')
+                          ->orWhere('property_type', 'ILIKE', '%' . $searchTerm . '%');
+                    });
+                }
+
+                if (!empty($args['property_type'])) {
+                    $query->where('property_type', 'ILIKE', '%' . $args['property_type'] . '%');
+                }
+
+                if (!empty($args['max_price'])) {
+                    $query->where('price', '<=', (float) $args['max_price']);
+                }
+
+                $properties = $query->take(5)->get();
+
+                // Fallback: If broad search returned 0 results, fetch top recommended available listings
                 if ($properties->isEmpty()) {
-                    return "No matching student properties found right now in that area. Try checking another location.";
+                    $properties = Property::whereRaw('is_available = true')
+                        ->whereRaw('is_verified = true')
+                        ->latest()
+                        ->take(3)
+                        ->get();
+
+                    if ($properties->isEmpty()) {
+                        return "No student properties are currently available in the database.";
+                    }
                 }
 
                 foreach ($properties as $property) {
-                    // ✅ Generate the public web link for viewing & booking this specific property
+                    // Public GET route for viewing full details & booking deposit form
                     $propertyUrl = route('properties.show', $property->id);
 
+                    $caption = "🏠 <b>{$property->title}</b> [ID: {$property->id}]\n" .
+                               "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
+                               "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
+                               "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)\n\n" .
+                               "👉 <b>View Details & Book:</b> {$propertyUrl}";
+
+                    // Check for attached property images
                     if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
                         $rawPath = preg_replace('/^public\//', '', $property->images[0]);
                         $imageUrl = url('storage/' . $rawPath);
-                        
-                        $caption = "🏠 <b>{$property->title}</b>\n" .
-                                   "🆔 <b>Property ID:</b> {$property->id}\n" .
-                                   "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
-                                   "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
-                                   "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)\n\n" .
-                                   "🔗 <b>View & Book:</b> {$propertyUrl}";
-                        
+
                         if ($channel === 'telegram' && $telegramService) {
                             $telegramService->sendPhoto($identifier, $imageUrl, $caption);
                         } elseif ($channel === 'whatsapp' && $whatsappService) {
-                            // Send CTA interactive button if supported, otherwise text fallback
-                            $whatsappService->sendCtaUrlButton(
-                                $identifier,
-                                strip_tags($caption),
-                                'View & Book',
-                                $propertyUrl,
-                                'UniCrib Property'
-                            );
+                            if (method_exists($whatsappService, 'sendCtaUrlButton')) {
+                                $whatsappService->sendCtaUrlButton(
+                                    $identifier,
+                                    strip_tags($caption),
+                                    'View & Book',
+                                    $propertyUrl,
+                                    'UniCrib Housing'
+                                );
+                            } else {
+                                $whatsappService->sendImage($identifier, $imageUrl, strip_tags($caption));
+                            }
+                        }
+                    } else {
+                        // Send text card if property has no uploaded images
+                        if ($channel === 'telegram' && $telegramService) {
+                            $telegramService->sendInlineButtons($identifier, $caption, []);
+                        } elseif ($channel === 'whatsapp' && $whatsappService) {
+                            $whatsappService->sendMessage($identifier, strip_tags($caption));
                         }
                     }
                 }
 
-                return "I found " . count($properties) . " property options for you above! Tap 'View & Book' on any property above to complete your deposit securely.";
+                return "I found " . count($properties) . " matching property option(s) for you above! Tap 'View Details & Book' on any property to inspect its full details and pay your deposit securely.";
+
             case 'book_property_via_chat':
                 $propertyId = $args['property_id'] ?? null;
                 $property = Property::where('id', $propertyId)->whereRaw('is_available = true')->first();
@@ -404,51 +448,45 @@ class UnicribAgentController extends Controller
                     return "Sorry, Property #{$propertyId} was not found or is currently unavailable.";
                 }
 
-                // Check if student already has an active booking
+                // Check active student booking status
                 $existing = Booking::where('student_id', $user->id)
                     ->whereIn('status', ['pending', 'approved'])
                     ->first();
 
                 if ($existing) {
-                    return "You already have an active booking (Booking #{$existing->id}). Please cancel your existing booking before reserving a new property.";
+                    return "You already have an active booking (Booking #{$existing->id}). Please request cancellation from your landlord before booking a new property.";
                 }
 
                 if ($property->isFull()) {
-                    return "Sorry, this property is already full.";
+                    return "Sorry, Property #{$property->id} ({$property->title}) is already full.";
                 }
 
-                // Check if landlord has a subaccount configured for split payments
-                $landlord = $property->landlord;
-                if (!$landlord || !$landlord->paystack_subaccount_code) {
-                    return "This landlord is not yet configured for online payments. Please contact support.";
-                }
+                // Generate public GET details & booking link
+                $propertyUrl = route('properties.show', $property->id);
 
-                // Generate the secure payment checkout link pointing to your existing payAndBook web route
-                // This forces the user through the exact same payment validation and Paystack gateway redirection used on the web app.
-                $paymentUrl = route('properties.pay-and-book', $property->id);
+                return "🏠 <b>{$property->title}</b> [ID: {$property->id}]\n" .
+                       "💰 Monthly Rent: KSh " . number_format($property->price) . "\n" .
+                       "📍 Location: {$property->address}\n\n" .
+                       "👉 <b>Complete Booking & Deposit:</b>\n{$propertyUrl}\n\n" .
+                       "Tap the link above to view full property details, terms, and complete your secure deposit payment.";            
 
-                return "🏠 *Ready to Book: {$property->title}*\n\n" .
-                       "To secure this property, a deposit payment is required via Paystack.\n\n" .
-                       "Secure Checkout Link:\n👉 {$paymentUrl}\n\n" .
-                       "Tap the link above to complete your payment securely. Your booking will only be registered after successful payment verification.";            
             case 'reserve_storage_unit_via_chat':
                 $unitSize = $args['unit_size'] ?? 'standard';
                 $monthlyPrice = 800; // Standard monthly price
 
-                // ✅ FIX: Provide all required columns to satisfy database NOT NULL constraints
                 $storageBooking = \App\Models\StorageBooking::create([
                     'user_id'       => $user->id,
                     'unit_size'     => $unitSize,
                     'monthly_price' => $monthlyPrice,
                     'paid_amount'   => 0,
                     'status'        => 'pending',
-                    'start_date'    => now()->toDateString(), // 👈 Add default start date
+                    'start_date'    => now()->toDateString(),
                 ]);
 
-                // Generate the payment route link for the storage booking form
-                $paymentUrl = route('storage.pay', $storageBooking->id);
+                $paymentUrl = route('payments.storage.form', $storageBooking->id);
 
                 return "📦 Storage Unit ({$unitSize}) reserved successfully! [Booking ID: {$storageBooking->id}]\n\nSecure Payment Link:\n👉 {$paymentUrl}\n\nTap above to complete your initial storage deposit securely in your browser.";
+
             case 'get_landlord_properties':
                 $properties = Property::where('landlord_id', $user->id)->get();
                 if ($properties->isEmpty()) {
