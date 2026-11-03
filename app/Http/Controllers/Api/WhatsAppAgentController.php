@@ -32,126 +32,144 @@ class WhatsAppAgentController extends Controller
      */
     public function handleIncomingMessage(Request $request)
     {
-        $rawContent = $request->getContent();
-        $input = json_decode($rawContent, true) ?? [];
+        try {
+            $rawContent = $request->getContent();
+            $input = json_decode($rawContent, true) ?? [];
 
-        $value = $input['entry'][0]['changes'][0]['value'] ?? null;
-        Log::info('WhatsApp Raw Payload: ' . $rawContent);
+            $value = $input['entry'][0]['changes'][0]['value'] ?? null;
+            Log::info('WhatsApp Raw Payload: ' . $rawContent);
 
-        $messageData = $value['messages'][0] ?? null;
-        if (!$messageData) {
-            return response()->json(['status' => 'ignored']);
-        }
-
-        $senderPhone = $messageData['from'] ?? null;
-        $messageType = $messageData['type'] ?? 'text';
-
-        // Authenticate user by phone number
-        $user = User::where('phone', 'LIKE', '%' . substr($senderPhone, -9))->first();
-
-        if (!$user) {
-            $this->sendWhatsAppReply($senderPhone, "Welcome to Unicrib! We couldn't find an account linked to this WhatsApp number. Please register on our web app first.");
-            return response()->json(['status' => 'user_not_found']);
-        }
-
-        // 1. Handle Voice / Audio Notes (Transcription + Multilingual AI Pipeline)
-        if ($messageType === 'audio' || $messageType === 'voice') {
-            $audioMediaId = $messageData['audio']['id'] ?? $messageData['voice']['id'] ?? null;
-
-            if ($audioMediaId) {
-                $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
-                $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
-
-                $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$audioMediaId}");
-                if ($mediaRes->successful()) {
-                    $downloadUrl = $mediaRes->json('url');
-                    
-                    // Transcribe using AudioTranscriptionService
-                    $transcribedText = app(AudioTranscriptionService::class)->transcribeAudioUrl($downloadUrl);
-
-                    if (!empty($transcribedText)) {
-                        $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $transcribedText, $senderPhone, 'whatsapp');
-                        $this->sendWhatsAppReply($senderPhone, "🗣️ *Voice Transcribed:* \"_{$transcribedText}_\"\n\n" . $aiResponse);
-                        return response()->json(['status' => 'voice_success']);
-                    }
-                }
+            $messageData = $value['messages'][0] ?? null;
+            if (!$messageData) {
+                return response()->json(['status' => 'ignored']);
             }
 
-            $this->sendWhatsAppReply($senderPhone, "⚠️ Could not transcribe your voice note. Please try typing your request.");
-            return response()->json(['status' => 'voice_failed']);
-        }
+            $senderPhone = $messageData['from'] ?? null;
+            $messageType = $messageData['type'] ?? 'text';
 
-        // 2. Handle Photo / Image Uploads
-        if ($messageType === 'image') {
-            $imageMediaId = $messageData['image']['id'] ?? null;
-            $caption = trim($messageData['image']['caption'] ?? '');
+            if (!$senderPhone) {
+                return response()->json(['status' => 'no_sender_phone']);
+            }
 
-            if ($user->category === 'landlord') {
-                $propertyId = trim(filter_var($caption, FILTER_SANITIZE_NUMBER_INT));
+            // Authenticate user by phone number
+            $user = User::where('phone', 'LIKE', '%' . substr($senderPhone, -9))->first();
 
-                if (empty($propertyId) || !is_numeric($propertyId)) {
-                    $this->sendWhatsAppReply($senderPhone, "⚠️ *Missing Property ID!*\n\nPlease specify the Property ID in your photo caption when uploading (e.g., *'Property 2'* or just the number *'2'^*).");
-                    return response()->json(['status' => 'missing_property_id']);
-                }
+            if (!$user) {
+                $this->sendWhatsAppReply($senderPhone, "Welcome to Unicrib! We couldn't find an account linked to this WhatsApp number. Please register on our web app first.");
+                return response()->json(['status' => 'user_not_found']);
+            }
 
-                $property = Property::where('id', (int) $propertyId)->where('landlord_id', $user->id)->first();
+            // 1. Handle Voice / Audio Notes (Transcription + Multilingual AI Pipeline)
+            if ($messageType === 'audio' || $messageType === 'voice') {
+                $audioMediaId = $messageData['audio']['id'] ?? $messageData['voice']['id'] ?? null;
 
-                if ($property && $imageMediaId) {
+                if ($audioMediaId) {
                     $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
                     $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
 
-                    $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
+                    $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$audioMediaId}");
                     if ($mediaRes->successful()) {
                         $downloadUrl = $mediaRes->json('url');
-                        $fileStream = Http::withToken($token)->get($downloadUrl);
+                        
+                        // Transcribe using AudioTranscriptionService
+                        $transcribedText = app(AudioTranscriptionService::class)->transcribeAudioUrl($downloadUrl);
 
-                        if ($fileStream->successful()) {
-                            $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
-                            Storage::disk('public')->put($storagePath, $fileStream->body());
-
-                            $images = $property->images ?? [];
-                            $images[] = $storagePath;
-                            $property->update(['images' => $images]);
-
-                            $this->sendWhatsAppReply($senderPhone, "✅ New photo successfully added to Property #[ID: {$property->id}] {$property->title}!");
-                            return response()->json(['status' => 'success']);
+                        if (!empty($transcribedText)) {
+                            $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $transcribedText, $senderPhone, 'whatsapp');
+                            $this->sendWhatsAppReply($senderPhone, "🗣️ *Voice Transcribed:* \"_{$transcribedText}_\"\n\n" . $aiResponse);
+                            return response()->json(['status' => 'voice_success']);
                         }
                     }
                 }
 
-                $this->sendWhatsAppReply($senderPhone, "❌ Property #{$propertyId} was not found or does not belong to you.");
-                return response()->json(['status' => 'property_not_found']);
+                $this->sendWhatsAppReply($senderPhone, "⚠️ Could not transcribe your voice note. Please try typing your request.");
+                return response()->json(['status' => 'voice_failed']);
             }
 
-            // Student Image Interpretation
-            $aiResponse = app(WhatsAppImageInterpretationController::class)
-                ->interpretHouseImage($request, $user, $imageMediaId, null, $caption);
+            // 2. Handle Photo / Image Uploads
+            if ($messageType === 'image') {
+                $imageMediaId = $messageData['image']['id'] ?? null;
+                $caption = trim($messageData['image']['caption'] ?? '');
 
+                if ($user->category === 'landlord') {
+                    $propertyId = trim(filter_var($caption, FILTER_SANITIZE_NUMBER_INT));
+
+                    if (empty($propertyId) || !is_numeric($propertyId)) {
+                        $this->sendWhatsAppReply($senderPhone, "⚠️ *Missing Property ID!*\n\nPlease specify the Property ID in your photo caption when uploading (e.g., *'Property 2'* or just the number *'2'*).");
+                        return response()->json(['status' => 'missing_property_id']);
+                    }
+
+                    $property = Property::where('id', (int) $propertyId)->where('landlord_id', $user->id)->first();
+
+                    if ($property && $imageMediaId) {
+                        $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
+                        $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
+
+                        $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
+                        if ($mediaRes->successful()) {
+                            $downloadUrl = $mediaRes->json('url');
+                            $fileStream = Http::withToken($token)->get($downloadUrl);
+
+                            if ($fileStream->successful()) {
+                                $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
+                                Storage::disk('public')->put($storagePath, $fileStream->body());
+
+                                $images = $property->images ?? [];
+                                $images[] = $storagePath;
+                                $property->update(['images' => $images]);
+
+                                $this->sendWhatsAppReply($senderPhone, "✅ New photo successfully added to Property #[ID: {$property->id}] {$property->title}!");
+                                return response()->json(['status' => 'success']);
+                            }
+                        }
+                    }
+
+                    $this->sendWhatsAppReply($senderPhone, "❌ Property #{$propertyId} was not found or does not belong to you.");
+                    return response()->json(['status' => 'property_not_found']);
+                }
+
+                // Student Image Interpretation
+                $aiResponse = app(WhatsAppImageInterpretationController::class)
+                    ->interpretHouseImage($request, $user, $imageMediaId, null, $caption);
+
+                $this->sendWhatsAppReply($senderPhone, $aiResponse);
+                return response()->json(['status' => 'success']);
+            }
+
+            // 3. Handle Interactive Button Replies
+            if ($messageType === 'interactive') {
+                $buttonReplyId = $messageData['interactive']['button_reply']['id'] ?? '';
+                $aiResponse = $this->handleInteractiveButtonReply($buttonReplyId, $user, $senderPhone);
+                $this->sendWhatsAppReply($senderPhone, $aiResponse);
+                return response()->json(['status' => 'success']);
+            }
+
+            // 4. Process Text Commands and Multilingual AI Prompts via Unified UnicribAgentController
+            $userMessage = $messageData['text']['body'] ?? '';
+            if (empty($userMessage)) {
+                return response()->json(['status' => 'empty_text']);
+            }
+
+            // Delegate fully to UnicribAgentController for tool and multi-language processing
+            $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $userMessage, $senderPhone, 'whatsapp');
+
+            // Send the response back to WhatsApp
             $this->sendWhatsAppReply($senderPhone, $aiResponse);
+
             return response()->json(['status' => 'success']);
+
+        } catch (\Exception $e) {
+            Log::error('WhatsApp Webhook Exception: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            if (isset($senderPhone)) {
+                $this->sendWhatsAppReply($senderPhone, "⚠️ An error occurred while processing your request. Please try again in a moment!");
+            }
+
+            // Return a 200 status so Meta doesn't flood the webhook with retries
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 200);
         }
-
-        // 3. Handle Interactive Button Replies
-        if ($messageType === 'interactive') {
-            $buttonReplyId = $messageData['interactive']['button_reply']['id'] ?? '';
-            $aiResponse = $this->handleInteractiveButtonReply($buttonReplyId, $user, $senderPhone);
-            $this->sendWhatsAppReply($senderPhone, $aiResponse);
-            return response()->json(['status' => 'success']);
-        }
-
-        // 4. Process Text Commands and Multilingual AI Prompts via Unified UnicribAgentController
-        $userMessage = $messageData['text']['body'] ?? '';
-        if (empty($userMessage)) {
-            return response()->json(['status' => 'empty_text']);
-        }
-
-        // Delegate fully to UnicribAgentController for full tool and multi-language parity with Telegram
-        $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $userMessage, $senderPhone, 'whatsapp');
-
-        // Send the response back to WhatsApp
-        $this->sendWhatsAppReply($senderPhone, $aiResponse);
-
-        return response()->json(['status' => 'success']);
     }
 
     private function sendWhatsAppReply($recipientPhone, $text)

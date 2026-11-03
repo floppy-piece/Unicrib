@@ -1,5 +1,4 @@
 
-```markdown
 # 🏡 Unicrib - Student Housing, Storage & Transport Platform
 
 Unicrib is a robust, multi-channel student accommodation and logistics platform built with **Laravel**, integrated with **Gemini AI** (via OpenAI-compatible proxy endpoints), and supporting multi-channel AI agents on **WhatsApp** and **Telegram**.
@@ -72,7 +71,7 @@ DB_PASSWORD=your_db_password
 
 # Meta AI Integration
 META_API_KEY=your_meta_api_key
-META_API_BASE_URL=[https://generativelanguage.googleapis.com/v1beta/openai/]
+META_API_BASE_URL=[https://api.meta.ai/v1/responses]
 META_MODEL_NAME=muse-spark
 
 # Telegram Bot Integration

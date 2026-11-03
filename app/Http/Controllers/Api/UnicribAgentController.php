@@ -29,15 +29,21 @@ class UnicribAgentController extends Controller
         $cacheKey = "unicrib_agent_chat_" . $channel . "_" . $identifier;
         $category = $user->category; // student, landlord, driver, transport, admin
 
+        // 🔒 STRICT UNI-CRIB BOUNDARY SYSTEM PROMPT
+        $baseGuardrail = "CRITICAL SECURITY & DOMAIN RULE: You are exclusively the official UniCrib Assistant for Kenya. " .
+                         "You ONLY assist with UniCrib student housing, property listings, bookings, storage units, and transport logistics. " .
+                         "STRICTLY REFUSE to answer, discuss, generate code for, or provide information on unrelated topics, programming tutorials, cybersecurity vulnerabilities, SQL injections, hacking, general knowledge, math, or jokes. " .
+                         "If a user asks about anything outside of UniCrib services, politely decline by saying: 'I am your UniCrib assistant. I can only help you search for student housing, manage bookings, storage, or transport logistics in Kenya!'\n\n";
+
         $systemPrompt = match ($category) {
-            'landlord' => "You are Unicrib Landlord Assistant, helping property owner {$user->name} manage listings and monitor bookings in Kenya. " .
+            'landlord' => $baseGuardrail . "You are Unicrib Landlord Assistant, helping property owner {$user->name} manage listings and monitor bookings in Kenya. " .
                         "LANGUAGE & TRANSLATION RULE: Detect the user's input language (English, Swahili, Sheng, Kikuyu, etc.). Understand all queries regardless of language or dialect. " .
                         "Always reply in the exact same language and tone used by the user. Keep answers brief, conversational, and professional.",
 
-            'driver', 'transport' => "You are Unicrib Driver Assistant, helping transport provider {$user->name} manage assigned trips in Kenya. " .
+            'driver', 'transport' => $baseGuardrail . "You are Unicrib Driver Assistant, helping transport provider {$user->name} manage assigned trips in Kenya. " .
                                     "LANGUAGE & TRANSLATION RULE: Detect the user's input language (English, Swahili, Sheng, etc.) and reply in that exact same language concisely.",
 
-            default => "You are Unicrib AI, an intelligent assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}. " .
+            default => $baseGuardrail . "You are Unicrib AI, an intelligent assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}. " .
                     "LANGUAGE & TRANSLATION RULE: You are fluent in English, Swahili (Kiswahili), Sheng, and local Kenyan languages. " .
                     "Detect the user's language automatically. Process tools using translated English intent, but ALWAYS respond back to the user in the EXACT SAME language they used (e.g. if the student asks in Swahili or Sheng like 'Natafuta keja Kutus', respond naturally in Swahili/Sheng while providing property links). Keep answers concise, friendly, and conversational without robotic filler."
         };
@@ -362,7 +368,6 @@ class UnicribAgentController extends Controller
                     ]
                 ]
             ],
-
             [
                 "type" => "function",
                 "function" => [
@@ -398,12 +403,10 @@ class UnicribAgentController extends Controller
                 $query = Property::whereRaw('is_available = true')
                     ->whereRaw('is_verified = true');
 
-                // Explicit Property ID Filter
                 if (!empty($args['property_id'])) {
                     $query->where('id', (int) $args['property_id']);
                 }
 
-                // Broad text search across area, address, title, description, or property_type
                 if (!empty($args['location'])) {
                     $searchTerm = trim($args['location']);
                     $query->where(function ($q) use ($searchTerm) {
@@ -425,7 +428,6 @@ class UnicribAgentController extends Controller
 
                 $properties = $query->take(5)->get();
 
-                // Fallback: If broad search returned 0 results, fetch top recommended available listings
                 if ($properties->isEmpty()) {
                     $properties = Property::whereRaw('is_available = true')
                         ->whereRaw('is_verified = true')
@@ -439,7 +441,6 @@ class UnicribAgentController extends Controller
                 }
 
                 foreach ($properties as $property) {
-                    // Public GET route for viewing full details & booking deposit form
                     $propertyUrl = route('properties.show', $property->id);
 
                     $caption = "🏠 <b>{$property->title}</b> [ID: {$property->id}]\n" .
@@ -448,7 +449,6 @@ class UnicribAgentController extends Controller
                                "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)\n\n" .
                                "👉 <b>View Details & Book:</b> {$propertyUrl}";
 
-                    // Check for attached property images
                     if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
                         $rawPath = preg_replace('/^public\//', '', $property->images[0]);
                         $imageUrl = url('storage/' . $rawPath);
@@ -469,7 +469,6 @@ class UnicribAgentController extends Controller
                             }
                         }
                     } else {
-                        // Send text card if property has no uploaded images
                         if ($channel === 'telegram' && $telegramService) {
                             $telegramService->sendInlineButtons($identifier, $caption, []);
                         } elseif ($channel === 'whatsapp' && $whatsappService) {
@@ -479,7 +478,6 @@ class UnicribAgentController extends Controller
                 }
 
                 return "I found " . count($properties) . " matching property option(s) for you above! Tap 'View Details & Book' on any property to inspect its full details and pay your deposit securely.";
-
 
             case 'check_housing_booking_status':
                 $bookingId = $args['booking_id'] ?? null;
@@ -506,10 +504,8 @@ class UnicribAgentController extends Controller
                 $statusText = ucfirst($booking->status);
                 $paymentStatusText = ucfirst($booking->payment_status);
 
-                // Build public web link for notifications/details
                 $notificationUrl = route('student.notifications', $booking->id);
 
-                // Format specific contextual responses based on current status
                 $statusEmoji = match ($booking->status) {
                     'approved' => '✅',
                     'pending'  => '⏳',
@@ -546,7 +542,6 @@ class UnicribAgentController extends Controller
                     return "Sorry, Property #{$propertyId} was not found or is currently unavailable.";
                 }
 
-                // Check active student booking status
                 $existing = Booking::where('student_id', $user->id)
                     ->whereIn('status', ['pending', 'approved'])
                     ->first();
@@ -559,7 +554,6 @@ class UnicribAgentController extends Controller
                     return "Sorry, Property #{$property->id} ({$property->title}) is already full.";
                 }
 
-                // Generate public GET details & booking link
                 $propertyUrl = route('properties.show', $property->id);
 
                 return "🏠 <b>{$property->title}</b> [ID: {$property->id}]\n" .
@@ -570,7 +564,7 @@ class UnicribAgentController extends Controller
 
             case 'reserve_storage_unit_via_chat':
                 $unitSize = $args['unit_size'] ?? 'standard';
-                $monthlyPrice = 800; // Standard monthly price
+                $monthlyPrice = 800;
 
                 $storageBooking = \App\Models\StorageBooking::create([
                     'user_id'       => $user->id,
