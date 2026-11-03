@@ -339,6 +339,21 @@ class UnicribAgentController extends Controller
                         "required" => ["property_id"]
                     ]
                 ]
+            ],
+            [
+                "type" => "function",
+                "function" => [
+                    "name" => "identify_property_from_photo",
+                    "description" => "Search property database using visual traits or text descriptions extracted from a photo.",
+                    "parameters" => [
+                        "type" => "object",
+                        "properties" => [
+                            "visual_description" => ["type" => "string", "description" => "Extracted features from the photo"],
+                            "area" => ["type" => "string", "description" => "Area or location if mentioned by user"]
+                        ],
+                        "required" => ["visual_description"]
+                    ]
+                ]
             ]
         ];
     }
