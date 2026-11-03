@@ -30,9 +30,16 @@ class UnicribAgentController extends Controller
         $category = $user->category; // student, landlord, driver, transport, admin
 
         $systemPrompt = match ($category) {
-            'landlord' => "You are Unicrib Landlord Assistant, a professional assistant helping property owner {$user->name} manage listings and monitor bookings concisely in Kenya.",
-            'driver', 'transport' => "You are Unicrib Driver Assistant, helping transport provider {$user->name} manage assigned trips concisely.",
-            default => "You are Unicrib AI, a helpful and concise assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}. Keep answers brief, clean, and conversational without robotic filler.",
+            'landlord' => "You are Unicrib Landlord Assistant, helping property owner {$user->name} manage listings and monitor bookings in Kenya. " .
+                        "LANGUAGE & TRANSLATION RULE: Detect the user's input language (English, Swahili, Sheng, Kikuyu, etc.). Understand all queries regardless of language or dialect. " .
+                        "Always reply in the exact same language and tone used by the user. Keep answers brief, conversational, and professional.",
+
+            'driver', 'transport' => "You are Unicrib Driver Assistant, helping transport provider {$user->name} manage assigned trips in Kenya. " .
+                                    "LANGUAGE & TRANSLATION RULE: Detect the user's input language (English, Swahili, Sheng, etc.) and reply in that exact same language concisely.",
+
+            default => "You are Unicrib AI, an intelligent assistant for student housing, storage, and transport dispatch in Kenya. User is {$user->name}. " .
+                    "LANGUAGE & TRANSLATION RULE: You are fluent in English, Swahili (Kiswahili), Sheng, and local Kenyan languages. " .
+                    "Detect the user's language automatically. Process tools using translated English intent, but ALWAYS respond back to the user in the EXACT SAME language they used (e.g. if the student asks in Swahili or Sheng like 'Natafuta keja Kutus', respond naturally in Swahili/Sheng while providing property links). Keep answers concise, friendly, and conversational without robotic filler."
         };
 
         $history = Cache::get($cacheKey, [
@@ -354,7 +361,25 @@ class UnicribAgentController extends Controller
                         "required" => ["visual_description"]
                     ]
                 ]
-            ]
+            ],
+
+            [
+                "type" => "function",
+                "function" => [
+                    "name" => "check_housing_booking_status",
+                    "description" => "Check the current housing booking status, approval state, payment status, landlord details, and property name for the logged-in student.",
+                    "parameters" => [
+                        "type" => "object",
+                        "properties" => [
+                            "booking_id" => [
+                                "type" => "integer", 
+                                "description" => "Optional specific booking ID to query. If omitted, retrieves the student's latest active or pending booking."
+                            ]
+                        ],
+                        "required" => []
+                    ]
+                ]
+            ],
         ];
     }
 
@@ -454,6 +479,64 @@ class UnicribAgentController extends Controller
                 }
 
                 return "I found " . count($properties) . " matching property option(s) for you above! Tap 'View Details & Book' on any property to inspect its full details and pay your deposit securely.";
+
+
+            case 'check_housing_booking_status':
+                $bookingId = $args['booking_id'] ?? null;
+
+                $bookingQuery = Booking::with(['property', 'landlord'])
+                    ->where('student_id', $user->id);
+
+                if (!empty($bookingId)) {
+                    $bookingQuery->where('id', (int) $bookingId);
+                } else {
+                    $bookingQuery->latest();
+                }
+
+                $booking = $bookingQuery->first();
+
+                if (!$booking) {
+                    return "You currently do not have any active or pending house bookings in your UniCrib account.";
+                }
+
+                $property = $booking->property;
+                $landlord = $booking->landlord;
+                $propertyTitle = $property->title ?? 'Student Property';
+                $amountFormatted = number_format($booking->amount);
+                $statusText = ucfirst($booking->status);
+                $paymentStatusText = ucfirst($booking->payment_status);
+
+                // Build public web link for notifications/details
+                $notificationUrl = route('student.notifications', $booking->id);
+
+                // Format specific contextual responses based on current status
+                $statusEmoji = match ($booking->status) {
+                    'approved' => '✅',
+                    'pending'  => '⏳',
+                    'rejected' => '❌',
+                    default    => 'ℹ️'
+                };
+
+                $responseMessage = "📋 *Housing Booking Status [ID: #{$booking->id}]*\n\n" .
+                                "🏠 *Property:* {$propertyTitle}\n" .
+                                "{$statusEmoji} *Approval Status:* {$statusText}\n" .
+                                "💳 *Payment Status:* {$paymentStatusText} (KSh {$amountFormatted})\n";
+
+                if ($landlord) {
+                    $responseMessage .= "👤 *Landlord:* {$landlord->name}\n";
+                }
+
+                if ($booking->status === 'approved') {
+                    $responseMessage .= "\n🎉 *Congratulations!* Your landlord has approved your booking request. You can now coordinate your move-in date or request transport dispatch via chat.";
+                } elseif ($booking->status === 'pending') {
+                    $responseMessage .= "\n⏳ Your booking deposit has been received and is currently awaiting approval from the property landlord. You will receive an update as soon as they review it.";
+                } elseif ($booking->status === 'rejected') {
+                    $responseMessage .= "\n❌ This booking was not approved or was cancelled. If a deposit was paid, your refund process will be initialized automatically.";
+                }
+
+                $responseMessage .= "\n\n👉 *View Notification & Receipts:* {$notificationUrl}";
+
+                return $responseMessage;
 
             case 'book_property_via_chat':
                 $propertyId = $args['property_id'] ?? null;

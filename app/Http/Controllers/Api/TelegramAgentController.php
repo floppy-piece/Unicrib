@@ -42,6 +42,7 @@ class TelegramAgentController extends Controller
             $chatId = $message['chat']['id'] ?? null;
             $text = trim($message['text'] ?? $message['caption'] ?? '');
             $photo = $message['photo'] ?? null;
+            $voice = $message['voice'] ?? $message['audio'] ?? null; // 👈 Captured voice/audio payload
 
             if (!$chatId) {
                 return response()->json(['status' => 'no_chat_id']);
@@ -111,7 +112,7 @@ class TelegramAgentController extends Controller
                 }
             }
 
-            // 4. Handle Unlinked Users Sending Regular Text
+            // 4. Handle Unlinked Users Sending Regular Text/Voice/Photos
             if (!$user) {
                 $this->telegram->sendInlineButtons(
                     $chatId, 
@@ -124,16 +125,39 @@ class TelegramAgentController extends Controller
             // 5. Send immediate processing feedback
             $this->telegram->sendInlineButtons($chatId, "⏳ <i>Processing your request...</i>", []);
 
-            // 6. Handle Photo / Image Uploads
+            // 6. Handle Voice / Audio Message Transcription
+            if (!empty($voice)) {
+                $fileId = $voice['file_id'] ?? null;
+                $token = env('TELEGRAM_BOT_TOKEN');
+
+                $fileRes = Http::get("https://api.telegram.org/bot{$token}/getFile?file_id={$fileId}");
+                if ($fileRes->successful() && $fileRes->json('ok')) {
+                    $filePath = $fileRes->json('result.file_path');
+                    $audioUrl = "https://api.telegram.org/file/bot{$token}/{$filePath}";
+
+                    // Transcribe the voice message to text using your AudioTranscriptionService
+                    $transcribedText = app(\App\Services\AudioTranscriptionService::class)->transcribeAudioUrl($audioUrl);
+
+                    if (!empty($transcribedText)) {
+                        // Pass the transcribed text into UnicribAgentController for multi-language & tool processing
+                        $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $transcribedText, (string) $chatId, 'telegram');
+                        $this->telegram->sendInlineButtons($chatId, "🗣️ *Voice Transcribed:* \"<b>{$transcribedText}</b>\"\n\n" . $aiResponse, []);
+                        return response()->json(['status' => 'voice_success']);
+                    }
+                }
+
+                $this->telegram->sendInlineButtons($chatId, "⚠️ Could not transcribe your voice note. Please try typing your request.", []);
+                return response()->json(['status' => 'voice_transcription_failed']);
+            }
+
+            // 7. Handle Photo / Image Uploads
             if (!empty($photo)) {
                 $largestPhoto = end($photo);
                 $fileId = $largestPhoto['file_id'] ?? null;
 
                 if ($user->category === 'landlord') {
-                    // Extract numbers from caption safely
                     $propertyId = trim(filter_var($text, FILTER_SANITIZE_NUMBER_INT));
 
-                    // 🔒 Guard clause: If no valid integer ID was sent in the caption, inform the user cleanly
                     if (empty($propertyId) || !is_numeric($propertyId)) {
                         $this->telegram->sendInlineButtons(
                             $chatId, 
@@ -153,12 +177,10 @@ class TelegramAgentController extends Controller
                             $filePath = $fileRes->json('result.file_path');
                             $fileUrl = "https://api.telegram.org/file/bot{$token}/{$filePath}";
 
-                            // Download and store securely
                             $contents = file_get_contents($fileUrl);
                             $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
                             \Illuminate\Support\Facades\Storage::disk('public')->put($storagePath, $contents);
 
-                            // Append to existing images array
                             $images = $property->images ?? [];
                             $images[] = $storagePath;
                             $property->update(['images' => $images]);
@@ -178,17 +200,15 @@ class TelegramAgentController extends Controller
                 return response()->json(['status' => 'success']);
             }
 
-            // 7. Handle Text Commands / AI Prompts via UnicribAgentController
+            // 8. Handle Text Commands / AI Prompts via UnicribAgentController (Automatically handles multiple languages)
             if (empty($text)) {
                 $this->telegram->sendInlineButtons($chatId, "⚠️ Received an empty message.", []);
                 return response()->json(['status' => 'empty_text']);
             }
 
-            // Inside TelegramAgentController.php (where text messages are processed)
-
             $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $text, (string) $chatId, 'telegram');
 
-            // Send the response back to Telegram using your TelegramService
+            // Send response back to Telegram
             $this->telegram->sendInlineButtons($chatId, $aiResponse, []);
             return response()->json(['status' => 'success']);
 
@@ -204,7 +224,6 @@ class TelegramAgentController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
-
     /**
      * Handle Inline Keyboard Button Taps
      */
