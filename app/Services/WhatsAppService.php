@@ -72,4 +72,52 @@ class WhatsAppService
 
         return true;
     }
+
+    /**
+     * Send an interactive Call-to-Action (CTA) URL button message.
+     */
+    public function sendCtaUrlButton(string $recipientPhone, string $bodyText, string $buttonLabel, string $url, string $headerText = ''): bool
+    {
+        if (empty($this->token) || empty($this->phoneId)) {
+            Log::info("WhatsApp simulated CTA button to {$recipientPhone}: {$url}");
+            return false;
+        }
+
+        $payload = [
+            'messaging_product' => 'whatsapp',
+            'to' => $recipientPhone,
+            'type' => 'interactive',
+            'interactive' => [
+                'type' => 'cta_url',
+                'body' => [
+                    'text' => $bodyText
+                ],
+                'action' => [
+                    'name' => 'cta_url',
+                    'parameters' => [
+                        'display_text' => substr($buttonLabel, 0, 20), // Max 20 characters
+                        'url' => $url
+                    ]
+                ]
+            ]
+        ];
+
+        // Optional header text if provided
+        if (!empty($headerText)) {
+            $payload['interactive']['header'] = [
+                'type' => 'text',
+                'text' => $headerText
+            ];
+        }
+
+        $response = Http::withToken($this->token)->post("{$this->apiUrl}/{$this->phoneId}/messages", $payload);
+
+        if ($response->failed()) {
+            Log::error('WhatsApp sendCtaUrlButton failed:', ['response' => $response->body()]);
+            // Fallback to plain text containing the link if interactive button payload fails
+            return $this->sendMessage($recipientPhone, "{$bodyText}\n\n👉 {$url}");
+        }
+
+        return true;
+    }
 }

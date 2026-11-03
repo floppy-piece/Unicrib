@@ -34,13 +34,21 @@ class BookingController extends Controller
         return view('landlord.bookings.show', compact('booking'));
     }
     // Student creates booking
-    public function store(Request $request,Property $property)
+    // Student creates booking
+    public function store(Request $request, Property $property)
     {
-        //$this->authorize('book', $property);
         $user = auth()->user();
         if (! $user || $user->category !== 'student') {
             abort(403);
         }
+
+        // ✅ SECURITY FIX: Ensure we only block if there's a genuinely active or pending payment booking. 
+        // Automatically cleanup stale 'pending' unpaid bookings older than 2 hours so students aren't locked out.
+        Booking::where('student_id', $user->id)
+            ->where('status', 'pending')
+            ->where('payment_status', 'unpaid')
+            ->where('created_at', '<=', now()->subHours(2))
+            ->update(['status' => 'rejected']);
 
         $existing = Booking::where('student_id', $user->id)
             ->whereIn('status', ['pending', 'approved'])
@@ -60,32 +68,13 @@ class BookingController extends Controller
             ]);
         }
 
-    // Create booking
-       try {
-           Booking::create([
-                'student_id'  => auth()->id(),
-                'landlord_id' => $property->landlord_id,
-                'property_id' => $property->id,
-                'status'      => 'pending',
-                'amount' => ceil(0.333333 * $property->price),
-                'payment_status' => 'unpaid',
-                'payment_reference'=> '',
-                'rejection_reason'=> 'Sorry not available.',
-            ]);
-    
-            return back()->with('booking_status', [
-                'type' =>'success',
-                'message'=>'Booking created successfully, wait for verification email!'
-            ]);
-            
-        } catch (\Throwable $e) {
-            return back()->with('booking_status', [
+        // 🔒 PENETRATION TEST FIX: Do not create a confirmed/pending database record here 
+        // if this endpoint expects a paid deposit first. Force them through payAndBook.
+        return redirect()->route('properties.show', $property->id)
+            ->with('booking_status', [
                 'type'    => 'error',
-                'message' => 'Failed to create booking. Please try again later or contact unicrib.' .$e->getMessage(),
+                'message' => 'Direct booking is disabled. Please complete your deposit payment to book.',
             ]);
-        } 
-    
-
     }
 
     // Landlord approves

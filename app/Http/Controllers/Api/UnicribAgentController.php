@@ -355,7 +355,8 @@ class UnicribAgentController extends Controller
             case 'search_housing':
             case 'search_properties':
                 $properties = Property::where('area', 'LIKE', '%' . ($args['location'] ?? '') . '%')
-                    ->whereRaw('is_available = true')->whereRaw('is_verified = true')
+                    ->whereRaw('is_available = true')
+                    ->whereRaw('is_verified = true')
                     ->when($args['max_price'] ?? null, fn($q, $price) => $q->where('price', '<=', $price))
                     ->take(3)
                     ->get();
@@ -365,6 +366,9 @@ class UnicribAgentController extends Controller
                 }
 
                 foreach ($properties as $property) {
+                    // ✅ Generate the public web link for viewing & booking this specific property
+                    $propertyUrl = route('properties.show', $property->id);
+
                     if (!empty($property->images) && is_array($property->images) && count($property->images) > 0) {
                         $rawPath = preg_replace('/^public\//', '', $property->images[0]);
                         $imageUrl = url('storage/' . $rawPath);
@@ -373,18 +377,25 @@ class UnicribAgentController extends Controller
                                    "🆔 <b>Property ID:</b> {$property->id}\n" .
                                    "💰 <b>KSh " . number_format($property->price) . "</b> / month\n" .
                                    "📍 <b>Location:</b> {$property->area} ({$property->address})\n" .
-                                   "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)";
+                                   "🛏 <b>Type:</b> " . ucfirst($property->property_type) . " ({$property->bedrooms} Bed)\n\n" .
+                                   "🔗 <b>View & Book:</b> {$propertyUrl}";
                         
                         if ($channel === 'telegram' && $telegramService) {
                             $telegramService->sendPhoto($identifier, $imageUrl, $caption);
                         } elseif ($channel === 'whatsapp' && $whatsappService) {
-                            $whatsappService->sendImage($identifier, $imageUrl, strip_tags($caption));
+                            // Send CTA interactive button if supported, otherwise text fallback
+                            $whatsappService->sendCtaUrlButton(
+                                $identifier,
+                                strip_tags($caption),
+                                'View & Book',
+                                $propertyUrl,
+                                'UniCrib Property'
+                            );
                         }
                     }
                 }
 
-                return "I found " . count($properties) . " property options for you above! To book one, just reply with: <i>'Book property ID [number]'</i>.";
-            
+                return "I found " . count($properties) . " property options for you above! Tap 'View & Book' on any property above to complete your deposit securely.";
             case 'book_property_via_chat':
                 $propertyId = $args['property_id'] ?? null;
                 $property = Property::where('id', $propertyId)->whereRaw('is_available = true')->first();
@@ -393,6 +404,7 @@ class UnicribAgentController extends Controller
                     return "Sorry, Property #{$propertyId} was not found or is currently unavailable.";
                 }
 
+                // Check if student already has an active booking
                 $existing = Booking::where('student_id', $user->id)
                     ->whereIn('status', ['pending', 'approved'])
                     ->first();
@@ -401,21 +413,24 @@ class UnicribAgentController extends Controller
                     return "You already have an active booking (Booking #{$existing->id}). Please cancel your existing booking before reserving a new property.";
                 }
 
-                $depositAmount = intval(5 / 100 * $property->price);
+                if ($property->isFull()) {
+                    return "Sorry, this property is already full.";
+                }
 
-                $booking = Booking::create([
-                    'property_id' => $property->id,
-                    'student_id' => $user->id,
-                    'landlord_id' => $property->landlord_id,
-                    'amount' => $depositAmount,
-                    'payment_status' => 'unpaid',
-                    'status' => 'pending',
-                    'payment_reference' => '',
-                ]);
+                // Check if landlord has a subaccount configured for split payments
+                $landlord = $property->landlord;
+                if (!$landlord || !$landlord->paystack_subaccount_code) {
+                    return "This landlord is not yet configured for online payments. Please contact support.";
+                }
 
-                $paymentUrl = route('payAndBook', $property->id);
-                return "✅ Booking #[ID: {$booking->id}] created successfully for {$property->title}!\n\nSecure Payment Link:\n👉 {$paymentUrl}\n\nTap the link above to complete your deposit securely.";
-            
+                // Generate the secure payment checkout link pointing to your existing payAndBook web route
+                // This forces the user through the exact same payment validation and Paystack gateway redirection used on the web app.
+                $paymentUrl = route('properties.pay-and-book', $property->id);
+
+                return "🏠 *Ready to Book: {$property->title}*\n\n" .
+                       "To secure this property, a deposit payment is required via Paystack.\n\n" .
+                       "Secure Checkout Link:\n👉 {$paymentUrl}\n\n" .
+                       "Tap the link above to complete your payment securely. Your booking will only be registered after successful payment verification.";            
             case 'reserve_storage_unit_via_chat':
                 $unitSize = $args['unit_size'] ?? 'standard';
                 $monthlyPrice = 800; // Standard monthly price
