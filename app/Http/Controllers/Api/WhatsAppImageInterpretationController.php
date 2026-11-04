@@ -11,20 +11,22 @@ use Illuminate\Support\Facades\Log;
 class WhatsAppImageInterpretationController extends Controller
 {
     /**
-     * Interpret house image sent via WhatsApp, ensuring user payment verification.
+     * Interpret house image sent via WhatsApp using Modal Llama 3.2 Vision endpoint.
      */
     public function interpretHouseImage(Request $request, User $user, $imageMediaId = null, $imageUrl = null, $userPrompt = '')
     {
-        // 1. Check payment verification
+        // Optional: Uncomment the verification check if you want to enforce it later for production
+        /*
         if (!$user->is_verified) {
-            return "🔒 Payment Verification Required!\nTo use the Unicrib WhatsApp AI House Image Finder and get extra property details, please complete your account payment verification on the Unicrib web app first.";
+            return "🔒 Payment Verification Required!\nTo use the Unicrib WhatsApp AI House Image Finder, please complete your payment verification on the Unicrib web app first.";
         }
+        */
 
         $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
         $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
         $base64Image = null;
 
-        // 2. Fetch media URL and download raw binary contents with Bearer Auth
+        // 1. Fetch media URL and download raw binary contents with Bearer Auth
         if ($imageMediaId && $token) {
             try {
                 $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
@@ -48,9 +50,10 @@ class WhatsAppImageInterpretationController extends Controller
             $base64Image = $imageUrl ?: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267';
         }
 
-        // 3. Call Modal/Meta Llama 3.2 Vision Model Endpoint
+        // 2. Call Modal Llama 3.2 Vision Model Endpoint directly
         $apiKey = env('META_API_KEY');
-        $baseUrl = rtrim(env('META_API_BASE_URL', 'https://generativelanguage.googleapis.com/v1beta/openai/'), '/');
+        // Point default explicitly to your active Modal server endpoint
+        $baseUrl = rtrim(env('META_API_BASE_URL', 'https://floppy-piece--ep-muse-spark-open-816b-a42b-server.us-west.modal.direct/v1'), '/');
         $model = env('META_MODEL_NAME', 'meta-llama/Llama-3.2-11B-Vision-Instruct');
 
         try {
@@ -86,14 +89,14 @@ class WhatsAppImageInterpretationController extends Controller
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);
-                return "I received your house image, but encountered an error analyzing it right now. Please try again!";
+                return "I received your house image, but encountered an error analyzing it right now. Status: " . $response->status();
             }
 
             $data = $response->json();
             return $data['choices'][0]['message']['content'] ?? "Analysis complete! This looks like a suitable student property. Check Unicrib web app for more listings.";
         } catch (\Exception $e) {
             Log::error('WhatsApp Image Interpretation Exception: ' . $e->getMessage());
-            return "Sorry, I couldn't process the image at the moment. Please try again!";
+            return "Sorry, I couldn't process the image at the moment. Exception: " . $e->getMessage();
         }
     }
 }
