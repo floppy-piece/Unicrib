@@ -1,7 +1,7 @@
 
 # 🏡 Unicrib - Student Housing, Storage & Transport Platform
 
-Unicrib is a robust, multi-channel student accommodation and logistics platform built with **Laravel**, integrated with **Gemini AI** (via OpenAI-compatible proxy endpoints), and supporting multi-channel AI agents on **WhatsApp** and **Telegram**.
+Unicrib is a robust, multi-channel student accommodation and logistics platform built with **Laravel**, integrated with **Meta Muse AI** (via Meta endpoints), and supporting multi-channel AI agents on **WhatsApp** and **Telegram**.
 
 ---
 
@@ -17,7 +17,7 @@ Unicrib is a robust, multi-channel student accommodation and logistics platform 
 ## 🛠️ Tech Stack
 * **Backend**: PHP 8.2+, Laravel Framework
 * **Frontend**: Blade templates, Livewire, Tailwind CSS
-* **AI Engine**: Gemini 2.5 Flash / Pro (via OpenAI-compatible endpoints & Google GenAI SDK)
+* **AI Engine**: Meta : Muse-spark-open
 * **Databases**: PostgreSQL / MySQL
 * **Messaging APIs**: WhatsApp Cloud API & Telegram Bot API
 
