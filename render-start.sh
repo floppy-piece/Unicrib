@@ -26,3 +26,5 @@ php artisan migrate --force
 
 echo "Starting Nginx and PHP-FPM..."
 exec /start.sh
+
+php artisan schedule:work
