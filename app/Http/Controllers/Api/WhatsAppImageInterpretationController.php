@@ -39,7 +39,7 @@ class WhatsAppImageInterpretationController extends Controller
         // Hardcode Google Generative Language Endpoint with Gemini 2.5 Flash
         $apiKey = env('GEMINI_API_KEY');
         $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/';
-        $model = 'gemini-2.5-flash';
+        $model = 'gemini-3.8-flash';
 
         try {
             $response = Http::withToken($apiKey)->post("{$baseUrl}chat/completions", [
