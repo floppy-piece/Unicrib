@@ -72,21 +72,30 @@ class WhatsAppAgentController extends Controller
                         $downloadUrl = $mediaRes->json('url');
                         
                         // Transcribe using AudioTranscriptionService
-                        $transcribedText = app(AudioTranscriptionService::class)->transcribeAudioUrl($downloadUrl);
+                        $transcriptionResult = app(AudioTranscriptionService::class)->transcribeAudioUrl($downloadUrl);
 
-                        if (!empty($transcribedText)) {
+                        if ($transcriptionResult['success']) {
+                            $transcribedText = $transcriptionResult['text'];
                             $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $transcribedText, $senderPhone, 'whatsapp');
                             $this->sendWhatsAppReply($senderPhone, "🗣️ *Voice Transcribed:* \"_{$transcribedText}_\"\n\n" . $aiResponse);
                             return response()->json(['status' => 'voice_success']);
+                        } else {
+                            $debugError = $transcriptionResult['error'];
+                            $this->sendWhatsAppReply($senderPhone, "⚠️ *Transcription Debug Error:* \n```{$debugError}```");
+                            return response()->json(['status' => 'voice_failed', 'error' => $debugError]);
                         }
+                    } else {
+                        $mediaError = "Failed to fetch media URL from WhatsApp Graph API. Status: " . $mediaRes->status();
+                        $this->sendWhatsAppReply($senderPhone, "⚠️ *Media Fetch Error:* \n{$mediaError}");
+                        return response()->json(['status' => 'media_fetch_failed', 'error' => $mediaError]);
                     }
                 }
 
-                $this->sendWhatsAppReply($senderPhone, "⚠️ Could not transcribe your voice note. Please try typing your request.");
-                return response()->json(['status' => 'voice_failed']);
+                $this->sendWhatsAppReply($senderPhone, "⚠️ Could not retrieve audio media ID from message payload.");
+                return response()->json(['status' => 'no_media_id']);
             }
 
-            // 2. Handle Photo / Image Uploads (Integrated with Llama Vision)
+            // 2. Handle Photo / Image Uploads
             if ($messageType === 'image') {
                 $imageMediaId = $messageData['image']['id'] ?? null;
                 $caption = trim($messageData['image']['caption'] ?? '');
@@ -128,64 +137,12 @@ class WhatsAppAgentController extends Controller
                     return response()->json(['status' => 'property_not_found']);
                 }
 
-                // Student Vision Interpretation using Llama-3.2-11B-Vision-Instruct
-                if ($imageMediaId) {
-                    $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
-                    $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
+                // Student Vision Interpretation using Llama-3.2-11B-Vision-Instruct Controller
+                $aiResponse = app(WhatsAppImageInterpretationController::class)
+                    ->interpretHouseImage($request, $user, $imageMediaId, null, $caption);
 
-                    $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
-                    if ($mediaRes->successful()) {
-                        $downloadUrl = $mediaRes->json('url');
-                        $fileStream = Http::withToken($token)->get($downloadUrl);
-
-                        if ($fileStream->successful()) {
-                            $imageBase64 = base64_encode($fileStream->body());
-                            $imageUrlData = 'data:image/jpeg;base64,' . $imageBase64;
-
-                            $apiKey = env('META_API_KEY');
-                            $baseUrl = rtrim('https://floppy-piece--ep-muse-spark-open-816b-a42b-server.us-west.modal.direct/v1', '/');
-                            
-                            // Send to Llama-3.2-11B-Vision-Instruct on Modal
-                            $visionResponse = Http::withToken($apiKey)->post("{$baseUrl}/chat/completions", [
-                                'model' => 'meta-llama/Llama-3.2-11B-Vision-Instruct',
-                                'messages' => [
-                                    [
-                                        'role' => 'user',
-                                        'content' => [
-                                            [
-                                                'type' => 'text',
-                                                'text' => "Analyze this image for a student housing search in Kenya. Description or context given by user: '{$caption}'."
-                                            ],
-                                            [
-                                                'type' => 'image_url',
-                                                'image_url' => ['url' => $imageUrlData]
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                'max_tokens' => 300
-                            ]);
-
-                            if ($visionResponse->successful()) {
-                                $visualDescription = $visionResponse->json('choices.0.message.content') ?? 'Student property photo';
-                                
-                                // Pass the extracted visual description into your Unicrib Agent search pipeline
-                                $aiResponse = app(UnicribAgentController::class)->handleAiPrompt(
-                                    $user, 
-                                    "Find a property matching these visual features: {$visualDescription}. {$caption}", 
-                                    $senderPhone, 
-                                    'whatsapp'
-                                );
-
-                                $this->sendWhatsAppReply($senderPhone, $aiResponse);
-                                return response()->json(['status' => 'vision_success']);
-                            }
-                        }
-                    }
-                }
-
-                $this->sendWhatsAppReply($senderPhone, "⚠️ Could not process your image. Please try adding a text description.");
-                return response()->json(['status' => 'vision_failed']);
+                $this->sendWhatsAppReply($senderPhone, $aiResponse);
+                return response()->json(['status' => 'success']);
             }
 
             // 3. Handle Interactive Button Replies
@@ -202,10 +159,7 @@ class WhatsAppAgentController extends Controller
                 return response()->json(['status' => 'empty_text']);
             }
 
-            // Delegate fully to UnicribAgentController for tool and multi-language processing
             $aiResponse = app(UnicribAgentController::class)->handleAiPrompt($user, $userMessage, $senderPhone, 'whatsapp');
-
-            // Send the response back to WhatsApp
             $this->sendWhatsAppReply($senderPhone, $aiResponse);
 
             return response()->json(['status' => 'success']);
@@ -219,7 +173,6 @@ class WhatsAppAgentController extends Controller
                 $this->sendWhatsAppReply($senderPhone, "⚠️ An error occurred while processing your request. Please try again in a moment!");
             }
 
-            // Return a 200 status so Meta doesn't flood the webhook with retries
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 200);
         }
     }
