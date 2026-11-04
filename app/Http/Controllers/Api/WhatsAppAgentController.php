@@ -92,9 +92,40 @@ class WhatsAppAgentController extends Controller
                 $caption = trim($messageData['image']['caption'] ?? '');
 
                 if ($user->category === 'landlord') {
-                    // Landlord image upload logic (remains as property photo attachment)
                     $propertyId = trim(filter_var($caption, FILTER_SANITIZE_NUMBER_INT));
-                    // ... [Keep your existing landlord image storage logic here] ...
+
+                    if (empty($propertyId) || !is_numeric($propertyId)) {
+                        $this->sendWhatsAppReply($senderPhone, "⚠️ *Missing Property ID!*\n\nPlease specify the Property ID in your photo caption when uploading (e.g., *'Property 2'* or just the number *'2'*).");
+                        return response()->json(['status' => 'missing_property_id']);
+                    }
+
+                    $property = Property::where('id', (int) $propertyId)->where('landlord_id', $user->id)->first();
+
+                    if ($property && $imageMediaId) {
+                        $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
+                        $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
+
+                        $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
+                        if ($mediaRes->successful()) {
+                            $downloadUrl = $mediaRes->json('url');
+                            $fileStream = Http::withToken($token)->get($downloadUrl);
+
+                            if ($fileStream->successful()) {
+                                $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
+                                Storage::disk('public')->put($storagePath, $fileStream->body());
+
+                                $images = $property->images ?? [];
+                                $images[] = $storagePath;
+                                $property->update(['images' => $images]);
+
+                                $this->sendWhatsAppReply($senderPhone, "✅ New photo successfully added to Property #[ID: {$property->id}] {$property->title}!");
+                                return response()->json(['status' => 'success']);
+                            }
+                        }
+                    }
+
+                    $this->sendWhatsAppReply($senderPhone, "❌ Property #{$propertyId} was not found or does not belong to you.");
+                    return response()->json(['status' => 'property_not_found']);
                 }
 
                 // Student Vision Interpretation using Llama-3.2-11B-Vision-Instruct
