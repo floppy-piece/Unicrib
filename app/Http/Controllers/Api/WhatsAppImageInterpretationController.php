@@ -74,7 +74,7 @@ class WhatsAppImageInterpretationController extends Controller
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);
-                return "I received your house image, but encountered an error analyzing it right now. Status: " . $response->status();
+                return "I received your house image, but encountered an error analyzing it right now. Status: " . $response->body();
             }
 
             $data = $response->json();
