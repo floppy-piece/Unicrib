@@ -10,30 +10,17 @@ use Illuminate\Support\Facades\Log;
 
 class WhatsAppImageInterpretationController extends Controller
 {
-    /**
-     * Interpret house image sent via WhatsApp using Modal Llama 3.2 Vision endpoint.
-     */
     public function interpretHouseImage(Request $request, User $user, $imageMediaId = null, $imageUrl = null, $userPrompt = '')
     {
-        // Optional: Uncomment the verification check if you want to enforce it later for production
-        /*
-        if (!$user->is_verified) {
-            return "🔒 Payment Verification Required!\nTo use the Unicrib WhatsApp AI House Image Finder, please complete your payment verification on the Unicrib web app first.";
-        }
-        */
-
         $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
         $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
         $base64Image = null;
 
-        // 1. Fetch media URL and download raw binary contents with Bearer Auth
         if ($imageMediaId && $token) {
             try {
                 $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
                 if ($mediaRes->successful()) {
                     $downloadUrl = $mediaRes->json('url');
-                    
-                    // WhatsApp media downloads require the Bearer token header
                     $imageContentRes = Http::withToken($token)->get($downloadUrl);
                     if ($imageContentRes->successful()) {
                         $mimeType = $imageContentRes->header('Content-Type') ?: 'image/jpeg';
@@ -45,19 +32,17 @@ class WhatsAppImageInterpretationController extends Controller
             }
         }
 
-        // Fallback placeholder image if media download was not applicable
         if (!$base64Image) {
             $base64Image = $imageUrl ?: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267';
         }
 
-        // 2. Call Modal Llama 3.2 Vision Model Endpoint directly
-        $apiKey = env('META_API_KEY');
-        // Point default explicitly to your active Modal server endpoint
-        $baseUrl = rtrim(env('META_API_BASE_URL', 'https://floppy-piece--ep-muse-spark-open-816b-a42b-server.us-west.modal.direct/v1'), '/');
-        $model = env('META_MODEL_NAME', 'meta-llama/Llama-3.2-11B-Vision-Instruct');
+        // Hardcode Google Generative Language Endpoint with Gemini 2.5 Flash
+        $apiKey = env('GEMINI_API_KEY');
+        $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/';
+        $model = 'gemini-2.5-flash';
 
         try {
-            $response = Http::withToken($apiKey)->post("{$baseUrl}/chat/completions", [
+            $response = Http::withToken($apiKey)->post("{$baseUrl}chat/completions", [
                 'model' => $model,
                 'messages' => [
                     [
@@ -85,7 +70,7 @@ class WhatsAppImageInterpretationController extends Controller
             ]);
 
             if ($response->failed()) {
-                Log::error('WhatsApp Image Interpretation API Error:', [
+                Log::error('Gemini Vision API Error:', [
                     'status' => $response->status(),
                     'body' => $response->body()
                 ]);

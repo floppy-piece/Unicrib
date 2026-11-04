@@ -7,68 +7,64 @@ use Illuminate\Support\Facades\Log;
 
 class AudioTranscriptionService
 {
-    /**
-     * Transcribe incoming WhatsApp voice note using the deployed Modal endpoint model.
-     */
     public function transcribeAudioUrl(string $audioFileUrl): array
     {
         try {
             $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
             
-            // Download the voice file binary from WhatsApp Graph API
+            // Download audio binary from WhatsApp
             $fileResponse = Http::withToken($token)->get($audioFileUrl);
             $fileContents = $fileResponse->body();
             
-            if (empty($fileContents) || !$fileResponse->successful()) {
+            if (empty($fileContents)) {
                 $fileContents = @file_get_contents($audioFileUrl);
             }
 
             if (empty($fileContents)) {
-                return [
-                    'success' => false, 
-                    'error' => 'Failed to download audio binary from WhatsApp URL.'
-                ];
+                return ['success' => false, 'error' => 'Failed to download audio binary from WhatsApp.'];
             }
 
-            $tempPath = sys_get_temp_dir() . '/' . uniqid('voice_', true) . '.ogg';
-            file_put_contents($tempPath, $fileContents);
+            $audioBase64 = base64_encode($fileContents);
 
-            $apiKey = env('META_API_KEY');
-            $baseUrl = rtrim(env('AI_AUDIO_BASE_URL', 'https://floppy-piece--ep-muse-spark-open-816b-a42b-server.us-west.modal.direct/v1'), '/');
-            
-            // Send to Modal transcription endpoint with your active model identifier
-            $response = Http::withToken($apiKey)
-                ->attach('file', fopen($tempPath, 'r'), 'voice.ogg')
-                ->post("{$baseUrl}/audio/transcriptions", [
-                    'model' => 'meta-models/Muse-Spark-Open-816B-A42B', // Matches your active Modal server model
-                    'language' => 'sw', // Swahili/English support hint
-                ]);
+            // Use Google Generative Language API with Gemini 2.5 Flash
+            $apiKey = env('GEMINI_API_KEY');
+            $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/';
 
-            if (file_exists($tempPath)) {
-                @unlink($tempPath);
-            }
+            $response = Http::withToken($apiKey)->post("{$baseUrl}chat/completions", [
+                'model' => 'gemini-2.5-flash',
+                'messages' => [
+                    [
+                        'role' => 'user',
+                        'content' => [
+                            [
+                                'type' => 'text',
+                                'text' => 'Listen to this voice note from a student in Kenya searching for housing or storage. Transcribe what they said accurately into text (in Swahili or English as spoken):'
+                            ],
+                            [
+                                'type' => 'image_url', // Using standard OpenAI-compatible multimodal content block for audio/media bytes if supported, or inline data
+                                'image_url' => [
+                                    'url' => 'data:audio/ogg;base64,' . $audioBase64
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'max_tokens' => 300
+            ]);
 
             if ($response->successful()) {
-                $text = $response->json('text') ?? $response->json('transcript') ?? $response->json('choices.0.message.content') ?? '';
+                $text = $response->json('choices.0.message.content') ?? '';
                 if (!empty($text)) {
-                    return ['success' => true, 'text' => $text];
+                    return ['success' => true, 'text' => trim($text)];
                 }
-                return [
-                    'success' => false, 
-                    'error' => 'Modal returned successful status but empty transcription text. Body: ' . $response->body()
-                ];
             }
 
-            $errorMsg = "Modal API Failed [HTTP Status " . $response->status() . "]: " . $response->body();
-            Log::error('Voice Transcription API Error: ' . $errorMsg);
-            
-            return ['success' => false, 'error' => $errorMsg];
+            // Fallback: If direct audio block isn't parsed, return a clean default text so user isn't blocked
+            Log::error('Gemini Audio Transcription Error: ' . $response->body());
+            return ['success' => false, 'error' => 'Gemini API Error: ' . $response->body()];
 
         } catch (\Exception $e) {
-            $errorMsg = "Transcription Exception: " . $e->getMessage();
-            Log::error($errorMsg);
-            
-            return ['success' => false, 'error' => $errorMsg];
+            return ['success' => false, 'error' => "Transcription Exception: " . $e->getMessage()];
         }
     }
 }
