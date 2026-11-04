@@ -29,9 +29,10 @@ class AudioTranscriptionService
             // Use Google Generative Language API with Gemini 2.5 Flash
             $apiKey = env('GEMINI_API_KEY');
             $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/';
+            $model = env('GEMINI_MODEL');
 
             $response = Http::withToken($apiKey)->post("{$baseUrl}chat/completions", [
-                'model' => 'gemini-1.5-flash',
+                'model' => $model,
                 'messages' => [
                     [
                         'role' => 'user',
