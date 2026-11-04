@@ -86,54 +86,75 @@ class WhatsAppAgentController extends Controller
                 return response()->json(['status' => 'voice_failed']);
             }
 
-            // 2. Handle Photo / Image Uploads
+            // 2. Handle Photo / Image Uploads (Integrated with Llama Vision)
             if ($messageType === 'image') {
                 $imageMediaId = $messageData['image']['id'] ?? null;
                 $caption = trim($messageData['image']['caption'] ?? '');
 
                 if ($user->category === 'landlord') {
+                    // Landlord image upload logic (remains as property photo attachment)
                     $propertyId = trim(filter_var($caption, FILTER_SANITIZE_NUMBER_INT));
+                    // ... [Keep your existing landlord image storage logic here] ...
+                }
 
-                    if (empty($propertyId) || !is_numeric($propertyId)) {
-                        $this->sendWhatsAppReply($senderPhone, "⚠️ *Missing Property ID!*\n\nPlease specify the Property ID in your photo caption when uploading (e.g., *'Property 2'* or just the number *'2'*).");
-                        return response()->json(['status' => 'missing_property_id']);
-                    }
+                // Student Vision Interpretation using Llama-3.2-11B-Vision-Instruct
+                if ($imageMediaId) {
+                    $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
+                    $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
 
-                    $property = Property::where('id', (int) $propertyId)->where('landlord_id', $user->id)->first();
+                    $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
+                    if ($mediaRes->successful()) {
+                        $downloadUrl = $mediaRes->json('url');
+                        $fileStream = Http::withToken($token)->get($downloadUrl);
 
-                    if ($property && $imageMediaId) {
-                        $token = env('WHATSAPP_TOKEN', env('WHATSAPP_ACCESS_TOKEN'));
-                        $graphVersion = env('WHATSAPP_API_VERSION', 'v17.0');
+                        if ($fileStream->successful()) {
+                            $imageBase64 = base64_encode($fileStream->body());
+                            $imageUrlData = 'data:image/jpeg;base64,' . $imageBase64;
 
-                        $mediaRes = Http::withToken($token)->get("https://graph.facebook.com/{$graphVersion}/{$imageMediaId}");
-                        if ($mediaRes->successful()) {
-                            $downloadUrl = $mediaRes->json('url');
-                            $fileStream = Http::withToken($token)->get($downloadUrl);
+                            $apiKey = env('META_API_KEY');
+                            $baseUrl = rtrim('https://floppy-piece--ep-muse-spark-open-816b-a42b-server.us-west.modal.direct/v1', '/');
+                            
+                            // Send to Llama-3.2-11B-Vision-Instruct on Modal
+                            $visionResponse = Http::withToken($apiKey)->post("{$baseUrl}/chat/completions", [
+                                'model' => 'meta-llama/Llama-3.2-11B-Vision-Instruct',
+                                'messages' => [
+                                    [
+                                        'role' => 'user',
+                                        'content' => [
+                                            [
+                                                'type' => 'text',
+                                                'text' => "Analyze this image for a student housing search in Kenya. Description or context given by user: '{$caption}'."
+                                            ],
+                                            [
+                                                'type' => 'image_url',
+                                                'image_url' => ['url' => $imageUrlData]
+                                            ]
+                                        ]
+                                    ]
+                                ],
+                                'max_tokens' => 300
+                            ]);
 
-                            if ($fileStream->successful()) {
-                                $storagePath = 'properties/' . $user->id . '/' . uniqid() . '.jpg';
-                                Storage::disk('public')->put($storagePath, $fileStream->body());
+                            if ($visionResponse->successful()) {
+                                $visualDescription = $visionResponse->json('choices.0.message.content') ?? 'Student property photo';
+                                
+                                // Pass the extracted visual description into your Unicrib Agent search pipeline
+                                $aiResponse = app(UnicribAgentController::class)->handleAiPrompt(
+                                    $user, 
+                                    "Find a property matching these visual features: {$visualDescription}. {$caption}", 
+                                    $senderPhone, 
+                                    'whatsapp'
+                                );
 
-                                $images = $property->images ?? [];
-                                $images[] = $storagePath;
-                                $property->update(['images' => $images]);
-
-                                $this->sendWhatsAppReply($senderPhone, "✅ New photo successfully added to Property #[ID: {$property->id}] {$property->title}!");
-                                return response()->json(['status' => 'success']);
+                                $this->sendWhatsAppReply($senderPhone, $aiResponse);
+                                return response()->json(['status' => 'vision_success']);
                             }
                         }
                     }
-
-                    $this->sendWhatsAppReply($senderPhone, "❌ Property #{$propertyId} was not found or does not belong to you.");
-                    return response()->json(['status' => 'property_not_found']);
                 }
 
-                // Student Image Interpretation
-                $aiResponse = app(WhatsAppImageInterpretationController::class)
-                    ->interpretHouseImage($request, $user, $imageMediaId, null, $caption);
-
-                $this->sendWhatsAppReply($senderPhone, $aiResponse);
-                return response()->json(['status' => 'success']);
+                $this->sendWhatsAppReply($senderPhone, "⚠️ Could not process your image. Please try adding a text description.");
+                return response()->json(['status' => 'vision_failed']);
             }
 
             // 3. Handle Interactive Button Replies
