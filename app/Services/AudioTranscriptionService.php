@@ -31,7 +31,7 @@ class AudioTranscriptionService
             $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/openai/';
 
             $response = Http::withToken($apiKey)->post("{$baseUrl}chat/completions", [
-                'model' => 'gemini-3.8-flash',
+                'model' => 'gemini-1.5-flash',
                 'messages' => [
                     [
                         'role' => 'user',
